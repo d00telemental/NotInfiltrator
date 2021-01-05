@@ -8,6 +8,7 @@ namespace NotInfiltrator
 {
     public class StructBin
     {
+        public string AbsoluteFileName { get; set; }
         public string FileName { get; set; }
 
         public string Magic;
@@ -34,8 +35,11 @@ namespace NotInfiltrator
 
         public static StructBin Read(GameFilesystem fs, string relativePath)
         {
-            var stream = new MemoryStream(File.ReadAllBytes(fs.GetAbsolutePath(relativePath)));
+            var absPath = fs.GetAbsolutePath(relativePath);
+
+            var stream = new MemoryStream(File.ReadAllBytes(absPath));
             var sbin = StructBin.Read(stream, relativePath);
+            sbin.AbsoluteFileName = absPath;
             return sbin;
         }
     }
