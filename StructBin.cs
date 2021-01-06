@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using System.Text;
 
 namespace NotInfiltrator
@@ -13,7 +14,10 @@ namespace NotInfiltrator
 
         public string Magic;
         public int Version;
-        public List<StructBinEntry> Entries = new List<StructBinEntry>();
+        public List<StructBinSection> Sections = new List<StructBinSection>();
+
+        public StructBinSection FindSection(string name)
+            => Sections.Where(s => s.Label == name).Single();
 
         public static StructBin Read(Stream stream, string fname = null)
         {
@@ -26,8 +30,8 @@ namespace NotInfiltrator
 
             while (stream.Position < stream.Length)
             {
-                //Debug.WriteLine($"Reading {(fname != null ? fname : "an")} entry at 0x{stream.Position:x}");
-                sbin.Entries.Add(StructBinEntry.Read(stream));
+                //Debug.WriteLine($"Reading {(fname != null ? fname : "an")} section at 0x{stream.Position:x}");
+                sbin.Sections.Add(StructBinSection.Read(stream));
             }
 
             return sbin;

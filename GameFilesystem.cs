@@ -49,6 +49,9 @@ namespace NotInfiltrator
             var children = Children.Where(node => (node.Name?.ToUpper() ?? "") == name.ToUpper());
             return children.Count() == 0 ? null : children.Single();
         }
+
+        public T GetContent<T>() where T : class
+            => Content as T;
     }
 
     public class GameFilesystem
@@ -78,7 +81,7 @@ namespace NotInfiltrator
             {
                 var sbin = StructBin.Read(this, filePath);
                 SBinMap.Add(filePath, sbin);
-                Debug.WriteLine($"Done {sbin.FileName}, {sbin.Entries.Count} entries read.");
+                Debug.WriteLine($"Done {sbin.FileName}, {sbin.Sections.Count} entries read.");
             }
         }
 

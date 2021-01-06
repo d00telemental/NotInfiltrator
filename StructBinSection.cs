@@ -5,7 +5,7 @@ using System.Text;
 
 namespace NotInfiltrator
 {
-    public class StructBinEntry
+    public class StructBinSection
     {
         public long Start;
         public long End;
@@ -22,9 +22,9 @@ namespace NotInfiltrator
         public Int32 RealDataLength
             => Label == "STRU" ? GetNextMultipleOfFour(DataLength) : DataLength;
 
-        public static StructBinEntry Read(Stream stream)
+        public static StructBinSection Read(Stream stream)
         {
-            var entry = new StructBinEntry { };
+            var entry = new StructBinSection { };
             entry.Start = stream.Position;
             entry.Label = Encoding.ASCII.GetString(stream.ReadBytes(4));
             entry.DataLength = stream.ReadSigned32Little();
