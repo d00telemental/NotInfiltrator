@@ -11,7 +11,8 @@
         Loaded="Window_Loaded">
     <Window.Resources>
         <local:StructBinStringParser x:Key="StructBinStringParser"/>
-        <local:SBinToTextConverter x:Key="SBinToTextConverter"/>
+        <local:StructBinToTextConverter x:Key="StructBinToTextConverter"/>
+        <local:IntToHexConverter x:Key="IntToHexConverter"/>
     </Window.Resources>
     <Grid>
         <Grid.RowDefinitions>
@@ -43,7 +44,7 @@
                 <TabItem Header="SBIN (raw)">
                     <Grid>
                         <TextBox x:Name="RawSBin_TextBox"
-                                 Text="{Binding Path=ActiveNode.Content, FallbackValue='', Converter={StaticResource SBinToTextConverter}}"
+                                 Text="{Binding Path=ActiveNode.Content, FallbackValue='', Converter={StaticResource StructBinToTextConverter}}"
                                  Padding="10"
                                  VerticalScrollBarVisibility="Visible"
                                  TextWrapping="Wrap" FontFamily="Consolas"
@@ -75,16 +76,16 @@
                                               ItemsSource="{Binding Path=Content, Converter={StaticResource StructBinStringParser}}"
                                               ScrollViewer.VerticalScrollBarVisibility="Visible"
                                               ScrollViewer.CanContentScroll="False"
-                                              MinHeight="50px" MaxHeight="300px">
+                                              MinHeight="100px" MaxHeight="450px">
                                         <ListView.View>
                                             <GridView>
-                                                <GridViewColumn Width="40" DisplayMemberBinding="{Binding Path=Id}">
+                                                <GridViewColumn Width="40" DisplayMemberBinding="{Binding Path=Id, Converter={StaticResource IntToHexConverter}}">
                                                     <GridViewColumnHeader>#</GridViewColumnHeader>
                                                 </GridViewColumn>
-                                                <GridViewColumn Width="80" DisplayMemberBinding="{Binding Path=Offset}">
+                                                <GridViewColumn Width="80" DisplayMemberBinding="{Binding Path=Offset, Converter={StaticResource IntToHexConverter}}">
                                                     <GridViewColumnHeader>Offset</GridViewColumnHeader>
                                                 </GridViewColumn>
-                                                <GridViewColumn Width="80" DisplayMemberBinding="{Binding Path=Length}">
+                                                <GridViewColumn Width="80" DisplayMemberBinding="{Binding Path=Length, Converter={StaticResource IntToHexConverter}}">
                                                     <GridViewColumnHeader>Length</GridViewColumnHeader>
                                                 </GridViewColumn>
                                                 <GridViewColumn Width="300px" DisplayMemberBinding="{Binding Path=Ascii}">
@@ -102,7 +103,7 @@
         </Grid>
         <StatusBar Grid.Row="2" Height="22">
             <StatusBarItem>
-                <TextBlock  x:Name="StatusBar_Status" Text="Hello"/>
+                <TextBlock x:Name="StatusBar_Status" />
             </StatusBarItem>
         </StatusBar>
     </Grid>

@@ -67,6 +67,12 @@ namespace NotInfiltrator
             Path = rootPath;
         }
 
+        public MemoryStream LoadToMemory(string relativePath)
+        {
+            var bytes = File.ReadAllBytes(GetAbsolutePath(relativePath));
+            return new MemoryStream(bytes);
+        }
+
         public string GetRelativePath(string absolutePath)
             => absolutePath.Replace(Path, "");
 
@@ -79,7 +85,7 @@ namespace NotInfiltrator
 
             foreach (var filePath in files)
             {
-                var sbin = StructBin.Read(this, filePath);
+                var sbin = new StructBin(this, filePath);
                 SBinMap.Add(filePath, sbin);
                 Debug.WriteLine($"Done {sbin.FileName}, {sbin.Sections.Count} entries read.");
             }

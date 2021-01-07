@@ -16,35 +16,27 @@ namespace NotInfiltrator
         public int Version;
         public List<StructBinSection> Sections = new List<StructBinSection>();
 
-        public StructBinSection FindSection(string name)
-            => Sections.Where(s => s.Label == name).Single();
-
-        public static StructBin Read(Stream stream, string fname = null)
+        protected StructBin(Stream stream, string relativePath = null)
         {
-            var sbin = new StructBin();
+            FileName = relativePath;
 
-            sbin.FileName = fname;
-            
-            Common.AssertEquals((sbin.Magic = stream.ReadAscFixed(4)), "SBIN", "Wrong SBIN magic");
-            Common.AssertEquals((sbin.Version = stream.ReadSigned32Little()), 3, "Wrong SBIN version");
+            Common.AssertEquals((Magic = stream.ReadAscFixed(4)), "SBIN", "Wrong SBIN magic");
+            Common.AssertEquals((Version = stream.ReadSigned32Little()), 3, "Wrong SBIN version");
 
             while (stream.Position < stream.Length)
             {
                 //Debug.WriteLine($"Reading {(fname != null ? fname : "an")} section at 0x{stream.Position:x}");
-                sbin.Sections.Add(StructBinSection.Read(stream));
+                Sections.Add(StructBinSection.Read(stream));
             }
-
-            return sbin;
         }
 
-        public static StructBin Read(GameFilesystem fs, string relativePath)
+        public StructBin(GameFilesystem fs, string relativePath)
+            : this(fs.LoadToMemory(relativePath), relativePath)
         {
-            var absPath = fs.GetAbsolutePath(relativePath);
-
-            var stream = new MemoryStream(File.ReadAllBytes(absPath));
-            var sbin = StructBin.Read(stream, relativePath);
-            sbin.AbsoluteFileName = absPath;
-            return sbin;
+            AbsoluteFileName = fs.GetAbsolutePath(relativePath);
         }
+
+        public StructBinSection FindSection(string name)
+            => Sections.Where(s => s.Label == name).Single();
     }
 }

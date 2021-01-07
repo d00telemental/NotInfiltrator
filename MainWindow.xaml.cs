@@ -86,48 +86,17 @@ namespace NotInfiltrator
         private void FsTreeView_SelectedItemChanged(object sender, RoutedPropertyChangedEventArgs<object> e)
         {
             ActiveNode = e.NewValue as GameFilesystemNode;
-
-            //StructSBin_ChardataListBox.ItemsSource
         }
     }
 
-    public class StructBinString
-    {
-        public int Id { get; set; } = 0;
-        public Int32 Offset { get; set; } = 0;
-        public Int32 Length { get; set; } = 0;
-        public string Ascii { get; set; } = null;
-    }
-
+    #region Converters
     public class StructBinStringParser
         : IValueConverter
     {
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
-            // Gets a StructBin
-            // Returns an ObservableCollection<StructBinString>
-
             var sbin = value as StructBin ?? throw new ArgumentException("Passed value should be StructBin", nameof(value));
-
-            var chdrSection = sbin.FindSection("CHDR");
-            var cdatSection = sbin.FindSection("CDAT");
-
-            var strings = new List<StructBinString>();
-            var chdrSectionStream = new MemoryStream(chdrSection.Data);
-            while (chdrSectionStream.Position < chdrSectionStream.Length)
-            {
-                var offset = chdrSectionStream.ReadSigned32Little();
-                var length = chdrSectionStream.ReadSigned32Little();
-
-                strings.Add(new StructBinString {
-                    Id = strings.Count(),
-                    Offset = offset,
-                    Length = length,
-                    Ascii = Encoding.ASCII.GetString(cdatSection.Data.Skip(offset).Take(length).ToArray())
-                });
-            }
-
-            return new ObservableCollection<StructBinString>(strings);
+            return new ObservableCollection<StructBinString>(sbin.GetAllStrings());
         }
 
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
@@ -136,7 +105,22 @@ namespace NotInfiltrator
         }
     }
 
-    public class SBinToTextConverter
+    public class IntToHexConverter
+        : IValueConverter
+    {
+        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            var num = (int)value;
+            return $"0x{value:X}";
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            throw new NotImplementedException();
+        }
+    }
+
+    public class StructBinToTextConverter
         : IValueConverter
     {
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
@@ -171,4 +155,5 @@ namespace NotInfiltrator
             throw new NotImplementedException();
         }
     }
+    #endregion
 }
