@@ -86,6 +86,9 @@
                                                 <GridViewColumn Width="80px" DisplayMemberBinding="{Binding Path=Type}">
                                                     <GridViewColumnHeader>Type</GridViewColumnHeader>
                                                 </GridViewColumn>
+                                                <GridViewColumn Width="80px" DisplayMemberBinding="{Binding Path=SizeDesc}">
+                                                    <GridViewColumnHeader>Size</GridViewColumnHeader>
+                                                </GridViewColumn>
                                                 <GridViewColumn Width="80px" DisplayMemberBinding="{Binding Path=Offset, Converter={StaticResource IntToHexConverter}}">
                                                     <GridViewColumnHeader>Offset</GridViewColumnHeader>
                                                 </GridViewColumn>

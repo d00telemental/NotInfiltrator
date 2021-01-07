@@ -91,18 +91,30 @@ namespace NotInfiltrator
 
     public class StructBinFieldDataUIPresentation
     {
-        public string Name { get; set; } = null;
-        public string Type { get; set; } = null;
-        public int Offset { get; set; } = 0;
-        public int Unknown { get; set; } = 0;
+        private StructBinFieldData _src = null;
+        private SemanticStructBin _sbin = null;
+
+        public string Name => _sbin.Strings[_src.NameStrId].Ascii;
+        public string Type => $"0x{_src.Type:X}";
+        public string SizeDesc => GetSizeDesc(_src.Size);
+        public int Offset  => _src.Offset;
+        public int Unknown => _src.Unknown;
 
         public StructBinFieldDataUIPresentation(StructBinFieldData src, SemanticStructBin sbin)
         {
-            Name = sbin.Strings[src.NameStrId].Ascii;
-            Type = $"0x{src.Type:X} (n/a)";
-            Offset = src.Offset;
-            Unknown = src.Unknown;
+            _src = src;
+            _sbin = sbin;
         }
+
+        private string GetSizeDesc(int size)
+            => size switch
+            {
+                1 => "BYTE",
+                2 => "WORD",
+                4 => "DWORD",
+                8 => "QWORD",
+                _ => $"?({size})?"
+            };
     }
 
     #region Converters
