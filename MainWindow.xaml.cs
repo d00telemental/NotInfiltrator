@@ -128,7 +128,15 @@ namespace NotInfiltrator
                     stringBuilder.Append($"x{field.Type:X}_t");
                     if (field.Type == 0x11)
                     {
-                        stringBuilder.Append($"<0x{field.Unknown:X}>");
+                        var childFieldRef = _sbin.FieldDatas[field.Unknown];
+                        if (childFieldRef.Type == 0x10)
+                        {
+                            stringBuilder.Append($"<{_sbin.Strings[_sbin.StructDatas[childFieldRef.Unknown].NameStrId].Ascii}>");
+                        }
+                        else
+                        {
+                            stringBuilder.Append($"<0x{field.Unknown:X}>");
+                        }
                     }
                 }
 
@@ -143,9 +151,10 @@ namespace NotInfiltrator
                 }
 
                 // Semicolon and a new line
+                stringBuilder.Append(";");
                 if (_src.FirstFieldId + _src.FieldCount - 1 != fieldId)
                 {
-                    stringBuilder.Append(";\n");
+                    stringBuilder.Append("\n");
                 }
             }
 
