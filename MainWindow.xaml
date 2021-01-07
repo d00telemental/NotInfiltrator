@@ -10,6 +10,7 @@
         MinHeight="400" MinWidth="600"
         Loaded="Window_Loaded">
     <Window.Resources>
+        <local:StructBinFieldConverter x:Key="StructBinFieldConverter"/>
         <local:StructBinStringParser x:Key="StructBinStringParser"/>
         <local:StructBinToTextConverter x:Key="StructBinToTextConverter"/>
         <local:IntToHexConverter x:Key="IntToHexConverter"/>
@@ -65,11 +66,42 @@
                                 <Label Grid.Column="0" Grid.Row="0" Content="Relative path"/>
                                 <Label Grid.Column="1" Grid.Row="0" Content="{Binding Path=Content.FileName, FallbackValue='n/a'}" FontWeight="Bold"/>
                             </Grid>
-
-                            <!-- Char data -->
+                            
+                            <!-- Field data -->
                             <Grid DockPanel.Dock="Top" Margin="0,10,0,0">
                                 <DockPanel>
-                                    <Label DockPanel.Dock="Top" Content="Character data" FontWeight="Bold"/>
+                                    <Label DockPanel.Dock="Top" Content="Field data" FontWeight="Bold"/>
+                                    <ListView x:Name="StructSBin_FieldDataListBox"
+                                              DockPanel.Dock="Top"
+                                              VerticalAlignment="Top"
+                                              ItemsSource="{Binding Path=Content, Converter={StaticResource StructBinFieldConverter}}"
+                                              ScrollViewer.VerticalScrollBarVisibility="Visible"
+                                              ScrollViewer.CanContentScroll="False"
+                                              MinHeight="100px" MaxHeight="450px">
+                                        <ListView.View>
+                                            <GridView>
+                                                <GridViewColumn Width="160px" DisplayMemberBinding="{Binding Path=Name}">
+                                                    <GridViewColumnHeader>Name</GridViewColumnHeader>
+                                                </GridViewColumn>
+                                                <GridViewColumn Width="80px" DisplayMemberBinding="{Binding Path=Type}">
+                                                    <GridViewColumnHeader>Type</GridViewColumnHeader>
+                                                </GridViewColumn>
+                                                <GridViewColumn Width="80px" DisplayMemberBinding="{Binding Path=Offset, Converter={StaticResource IntToHexConverter}}">
+                                                    <GridViewColumnHeader>Offset</GridViewColumnHeader>
+                                                </GridViewColumn>
+                                                <GridViewColumn Width="80px" DisplayMemberBinding="{Binding Path=Unknown}">
+                                                    <GridViewColumnHeader>Unknown</GridViewColumnHeader>
+                                                </GridViewColumn>
+                                            </GridView>
+                                        </ListView.View>
+                                    </ListView>
+                                </DockPanel>
+                            </Grid>
+
+                            <!-- String data -->
+                            <Grid DockPanel.Dock="Top" Margin="0,10,0,0">
+                                <DockPanel>
+                                    <Label DockPanel.Dock="Top" Content="String data" FontWeight="Bold"/>
                                     <ListView x:Name="StructSBin_ChardataListBox"
                                               DockPanel.Dock="Top"
                                               VerticalAlignment="Top"
@@ -79,7 +111,7 @@
                                               MinHeight="100px" MaxHeight="450px">
                                         <ListView.View>
                                             <GridView>
-                                                <GridViewColumn Width="40" DisplayMemberBinding="{Binding Path=Id, Converter={StaticResource IntToHexConverter}}">
+                                                <GridViewColumn Width="80" DisplayMemberBinding="{Binding Path=Id, Converter={StaticResource IntToHexConverter}}">
                                                     <GridViewColumnHeader>#</GridViewColumnHeader>
                                                 </GridViewColumn>
                                                 <GridViewColumn Width="80" DisplayMemberBinding="{Binding Path=Offset, Converter={StaticResource IntToHexConverter}}">

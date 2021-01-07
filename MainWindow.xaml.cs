@@ -89,14 +89,50 @@ namespace NotInfiltrator
         }
     }
 
+    public class StructBinFieldDataUIPresentation
+    {
+        public string Name { get; set; } = null;
+        public string Type { get; set; } = null;
+        public int Offset { get; set; } = 0;
+        public int Unknown { get; set; } = 0;
+
+        public StructBinFieldDataUIPresentation(StructBinFieldData src, SemanticStructBin sbin)
+        {
+            Name = sbin.Strings[src.NameStrId].Ascii;
+            Type = $"0x{src.Type:X} (n/a)";
+            Offset = src.Offset;
+            Unknown = src.Unknown;
+        }
+    }
+
     #region Converters
+    public class StructBinFieldConverter
+        : IValueConverter
+    {
+        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            var mainWindow = Application.Current.MainWindow as MainWindow;
+            var sbin = mainWindow.ActiveNode?.Content as SemanticStructBin ?? throw new Exception("Failed to get current SBIN because it was null");
+
+            return new ObservableCollection<StructBinFieldDataUIPresentation>(
+                (value as SemanticStructBin)?.FieldDatas.Select(fd => new StructBinFieldDataUIPresentation(fd, sbin))
+                ?? throw new ArgumentException("Passed value should be FieldDatas", nameof(value)));
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            throw new NotImplementedException();
+        }
+    }
+
     public class StructBinStringParser
         : IValueConverter
     {
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
-            var sbin = value as StructBin ?? throw new ArgumentException("Passed value should be StructBin", nameof(value));
-            return new ObservableCollection<StructBinString>(sbin.GetAllStrings());
+            return new ObservableCollection<StructBinString>(
+                (value as SemanticStructBin)?.Strings
+                ?? throw new ArgumentException("Passed value should be StructBin", nameof(value)));
         }
 
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
@@ -110,7 +146,7 @@ namespace NotInfiltrator
     {
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
-            var num = (int)value;
+            var num = long.Parse($"{value}");
             return $"0x{value:X}";
         }
 

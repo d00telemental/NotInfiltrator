@@ -66,5 +66,49 @@ namespace NotInfiltrator
 
             return (Int64)(i);
         }
+
+        public static UInt16 ReadUnsigned16Little(this Stream stream)
+        {
+            var bytes = stream.ReadBytes(2);
+
+            UInt64 i = 0;
+
+            i |= (ulong)(short)(bytes[1] << 8);
+            i |= (ulong)(short)(bytes[0] << 0);
+
+            return (UInt16)(i & 0xFFFF);
+        }
+
+        public static UInt32 ReadUnsigned32Little(this Stream stream)
+        {
+            var bytes = stream.ReadBytes(4);
+
+            UInt64 i = 0;
+
+            i |= (ulong)(short)(bytes[3] << 24);
+            i |= (ulong)(short)(bytes[2] << 16);
+            i |= (ulong)(short)(bytes[1] << 8);
+            i |= (ulong)(short)(bytes[0] << 0);
+
+            return (UInt32)(i & 0xFFFFFFFF);
+        }
+
+        public static UInt64 ReadUnsigned64Little(this Stream stream)
+        {
+            var bytes = stream.ReadBytes(8);
+
+            UInt64 i = 0;
+
+            i |= (ulong)(short)(bytes[7] << 56);
+            i |= (ulong)(short)(bytes[6] << 48);
+            i |= (ulong)(short)(bytes[5] << 40);
+            i |= (ulong)(short)(bytes[4] << 32);
+            i |= (ulong)(short)(bytes[3] << 24);
+            i |= (ulong)(short)(bytes[2] << 16);
+            i |= (ulong)(short)(bytes[1] << 8);
+            i |= (ulong)(short)(bytes[0] << 0);
+
+            return (UInt64)(i);
+        }
     }
 }

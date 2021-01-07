@@ -30,7 +30,7 @@ namespace NotInfiltrator
             }
         }
 
-        public StructBin(GameFilesystem fs, string relativePath)
+        protected StructBin(GameFilesystem fs, string relativePath)
             : this(fs.LoadToMemory(relativePath), relativePath)
         {
             AbsoluteFileName = fs.GetAbsolutePath(relativePath);

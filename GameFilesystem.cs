@@ -85,7 +85,7 @@ namespace NotInfiltrator
 
             foreach (var filePath in files)
             {
-                var sbin = new StructBin(this, filePath);
+                var sbin = new SemanticStructBin(this, filePath);
                 SBinMap.Add(filePath, sbin);
                 Debug.WriteLine($"Done {sbin.FileName}, {sbin.Sections.Count} entries read.");
             }
