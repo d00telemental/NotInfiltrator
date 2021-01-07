@@ -7,6 +7,8 @@ namespace NotInfiltrator
 {
     public class StructBinFieldData
     {
+        public int Id { get; set; } = 0;
+
         public UInt16 NameStrId { get; set; } = 0;
         public UInt16 Type { get; set; } = 0;
         public UInt16 Offset { get; set; } = 0;

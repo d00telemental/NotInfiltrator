@@ -89,11 +89,78 @@ namespace NotInfiltrator
         }
     }
 
+    public class StructBinStructDataUIPresentation
+    {
+        private StructBinStructData _src = null;
+        private SemanticStructBin _sbin = null;
+
+        public int Id => _src.Id;
+        public string Name => _sbin.Strings[_src.NameStrId].Ascii;
+        public int FirstFieldId => _src.FirstFieldId;
+        public int FieldCount => _src.FieldCount;
+        public string ProgramText => GetCLikeDefinition();
+
+        public StructBinStructDataUIPresentation(StructBinStructData src, SemanticStructBin sbin)
+        {
+            _src = src;
+            _sbin = sbin;
+        }
+
+        public string GetCLikeDefinition()
+        {
+            var stringBuilder = new StringBuilder();
+
+            stringBuilder.Append("{ \n");
+            for (var fieldId = _src.FirstFieldId; fieldId < _src.FirstFieldId + _src.FieldCount; fieldId++)
+            {
+                var field = _sbin.FieldDatas[fieldId];
+
+                // Padding
+                stringBuilder.Append($"  ");
+
+                // Type
+                if (field.Type == 0x10)
+                {
+                    stringBuilder.Append($"{_sbin.Strings[_sbin.StructDatas[field.Unknown].NameStrId].Ascii}");
+                }
+                else
+                {
+                    stringBuilder.Append($"x{field.Type:X}_t");
+                    if (field.Type == 0x11)
+                    {
+                        stringBuilder.Append($"<0x{field.Unknown:X}>");
+                    }
+                }
+
+                // Space
+                stringBuilder.Append($" ");
+
+                // Field name
+                stringBuilder.Append($"{_sbin.Strings[field.NameStrId].Ascii}");
+                if (field.Type == 0x11)
+                {
+                    stringBuilder.Append($"[]");
+                }
+
+                // Semicolon and a new line
+                if (_src.FirstFieldId + _src.FieldCount - 1 != fieldId)
+                {
+                    stringBuilder.Append(";\n");
+                }
+            }
+
+            stringBuilder.Append("\n}");
+            return stringBuilder.ToString();
+        }
+
+    }
+
     public class StructBinFieldDataUIPresentation
     {
         private StructBinFieldData _src = null;
         private SemanticStructBin _sbin = null;
 
+        public int Id => _src.Id;
         public string Name => _sbin.Strings[_src.NameStrId].Ascii;
         public string Type => $"0x{_src.Type:X}";
         public string SizeDesc => GetSizeDesc(_src.Size);
@@ -118,6 +185,25 @@ namespace NotInfiltrator
     }
 
     #region Converters
+    public class StructBinStructConverter
+    : IValueConverter
+    {
+        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            var mainWindow = Application.Current.MainWindow as MainWindow;
+            var sbin = mainWindow.ActiveNode?.Content as SemanticStructBin ?? throw new Exception("Failed to get current SBIN because it was null");
+
+            return new ObservableCollection<StructBinStructDataUIPresentation>(
+                (value as SemanticStructBin)?.StructDatas.Select(sd => new StructBinStructDataUIPresentation(sd, sbin))
+                ?? throw new ArgumentException("Passed value should be StructDatas", nameof(value)));
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            throw new NotImplementedException();
+        }
+    }
+
     public class StructBinFieldConverter
         : IValueConverter
     {
