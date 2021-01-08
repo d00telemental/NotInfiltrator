@@ -5,13 +5,18 @@ using System.Text;
 
 namespace NotInfiltrator
 {
+    public class MyAssertException : NullReferenceException
+    {
+        public MyAssertException(string message) : base(message) { }
+    }
+
     public static class Common
     {
         public static void Assert(bool cond, string msg)
         {
             if (!cond)
             {
-                throw new Exception(msg);
+                throw new MyAssertException(msg);
             }
         }
 

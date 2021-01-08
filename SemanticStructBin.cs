@@ -10,6 +10,7 @@ namespace NotInfiltrator
     public class SemanticStructBin
         : StructBin
     {
+        public List<StructBinEnumData> EnumDatas { get; private set; } = null;
         public List<StructBinStructData> StructDatas { get; private set; } = null;
         public List<StructBinFieldData> FieldDatas { get; private set; } = null;
         public List<StructBinString> Strings { get; private set; } = null;
@@ -17,12 +18,27 @@ namespace NotInfiltrator
         public SemanticStructBin(GameFilesystem fs, string relativePath)
             : base(fs, relativePath)
         {
+            EnumDatas = ReadAllEnumDatas();
             StructDatas = ReadAllStructDatas();
             FieldDatas = ReadAllFieldDatas();
             Strings = ReadAllStrings();
         }
 
         public string GetString(UInt16 id) => Strings[id].Ascii;
+
+        protected List<StructBinEnumData> ReadAllEnumDatas()
+        {
+            var enums = new List<StructBinEnumData>();
+
+            var enumSection = FindSection("ENUM");
+            var enumSectionStream = new MemoryStream(enumSection.Data);
+            while (enumSectionStream.Position < enumSection.DataLength)
+            {
+                enums.Add(new StructBinEnumData(enumSectionStream) { Id = enums.Count() });
+            }
+
+            return enums;
+        }
 
         protected List<StructBinStructData> ReadAllStructDatas()
         {
