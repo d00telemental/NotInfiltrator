@@ -119,24 +119,22 @@ namespace NotInfiltrator
                 stringBuilder.Append($"  ");
 
                 // Type
+                stringBuilder.Append(field.TypeName?.ToLower() ?? $"unk_0x{field.Type:X}_t");
                 if (field.Type == 0x10)
                 {
-                    stringBuilder.Append($"{_sbin.Strings[_sbin.StructDatas[field.Unknown].NameStrId].Ascii}");
+                    var childStructRef = _sbin.StructDatas[field.Unknown];
+                    stringBuilder.Append($"<{_sbin.GetString(childStructRef.NameStrId)}>");
                 }
-                else
+                else if (field.Type == 0x11)
                 {
-                    stringBuilder.Append($"x{field.Type:X}_t");
-                    if (field.Type == 0x11)
+                    var childFieldRef = _sbin.FieldDatas[field.Unknown];
+                    if (childFieldRef.Type == 0x10)
                     {
-                        var childFieldRef = _sbin.FieldDatas[field.Unknown];
-                        if (childFieldRef.Type == 0x10)
-                        {
-                            stringBuilder.Append($"<{_sbin.Strings[_sbin.StructDatas[childFieldRef.Unknown].NameStrId].Ascii}>");
-                        }
-                        else
-                        {
-                            stringBuilder.Append($"<0x{field.Unknown:X}>");
-                        }
+                        stringBuilder.Append($"<{_sbin.GetString(_sbin.StructDatas[childFieldRef.Unknown].NameStrId)}>");
+                    }
+                    else
+                    {
+                        stringBuilder.Append($"<0x{field.Unknown:X}>");
                     }
                 }
 
@@ -144,11 +142,7 @@ namespace NotInfiltrator
                 stringBuilder.Append($" ");
 
                 // Field name
-                stringBuilder.Append($"{_sbin.Strings[field.NameStrId].Ascii}");
-                if (field.Type == 0x11)
-                {
-                    stringBuilder.Append($"[]");
-                }
+                stringBuilder.Append($"{_sbin.GetString(field.NameStrId)}");
 
                 // Semicolon and a new line
                 stringBuilder.Append(";");
@@ -171,7 +165,7 @@ namespace NotInfiltrator
 
         public int Id => _src.Id;
         public string Name => _sbin.Strings[_src.NameStrId].Ascii;
-        public string Type => $"0x{_src.Type:X}";
+        public string Type => _src.TypeName ?? $"unk_0x{_src.Type:X}_t";
         public string SizeDesc => GetSizeDesc(_src.Size);
         public int Offset  => _src.Offset;
         public int Unknown => _src.Unknown;

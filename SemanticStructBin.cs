@@ -22,6 +22,8 @@ namespace NotInfiltrator
             Strings = ReadAllStrings();
         }
 
+        public string GetString(UInt16 id) => Strings[id].Ascii;
+
         protected List<StructBinStructData> ReadAllStructDatas()
         {
             var structs = new List<StructBinStructData>();
