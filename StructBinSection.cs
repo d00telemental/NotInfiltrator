@@ -34,4 +34,10 @@ namespace NotInfiltrator
             return entry;
         }
     }
+
+    public static class StructBinSectionExtensions
+    {
+        public static MemoryStream NewMemoryStream(this StructBinSection section)
+            => new MemoryStream(section.Data, 0, section.DataLength);
+    }
 }

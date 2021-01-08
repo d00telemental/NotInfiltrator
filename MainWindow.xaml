@@ -15,6 +15,7 @@
         <local:StructBinFieldConverter x:Key="StructBinFieldConverter"/>
         <local:StructBinStringConverter x:Key="StructBinStringConverter"/>
         <local:StructBinToTextConverter x:Key="StructBinToTextConverter"/>
+        <local:StructBinToObjHeaderTextConverter x:Key="StructBinToObjHeaderTextConverter"/>
         <local:IntToHexConverter x:Key="IntToHexConverter"/>
     </Window.Resources>
     <Grid>
@@ -207,6 +208,15 @@
                             </Grid>
                         </DockPanel>
                     </ScrollViewer>
+                </TabItem>
+                <TabItem Header="OHDR (temp)">
+                    <Grid>
+                        <TextBox Text="{Binding Path=ActiveNode.Content, FallbackValue='', Converter={StaticResource StructBinToObjHeaderTextConverter}}"
+                                 Padding="10"
+                                 VerticalScrollBarVisibility="Visible"
+                                 TextWrapping="Wrap" FontFamily="Consolas"
+                                 IsReadOnly="True"/>
+                    </Grid>
                 </TabItem>
             </TabControl>
         </Grid>
