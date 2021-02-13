@@ -329,13 +329,15 @@ namespace NotInfiltrator
     public class StructBinTempObjectData
     {
         public int Id { get; set; } = 0;
+        public byte[] OrigOffset { get; set; }
         public uint Offset { get; set; } = 0;
         public uint Length { get; set; } = 0;
 
-        public StructBinTempObjectData(int id, uint offset)
+        public StructBinTempObjectData(int id, uint offset, byte[] origOffset)
         {
             Id = id;
             Offset = offset;
+            OrigOffset = origOffset;
         }
     }
 
@@ -374,12 +376,13 @@ namespace NotInfiltrator
             var counter = 0;
             while (stream.Position < stream.Length)
             {
-                var offset = f(stream.ReadBytes(4));
+                var origOffset = stream.ReadBytes(4);
+                var offset = f(origOffset);
                 if (counter > 0)
                 {
                     objs[counter - 1].Length = offset - objs[counter - 1].Offset;
                 }
-                objs.Add(new StructBinTempObjectData(counter++, offset));
+                objs.Add(new StructBinTempObjectData(counter++, offset, origOffset));
             }
             objs[counter - 1].Length = (uint)data.Length - objs[counter - 1].Offset;
 
@@ -389,7 +392,7 @@ namespace NotInfiltrator
 
             foreach (var obj in objs)
             {
-                stringBuilder.AppendLine($"Object 0x{obj.Id:X2}  @  0x{obj.Offset:X}  (len = 0x{obj.Length:X})");
+                stringBuilder.AppendLine($"Object 0x{obj.Id:X2}  @  0x{obj.Offset:X2}  (len = 0x{obj.Length:X2})  // orig. def. = {BitConverter.ToString(obj.OrigOffset)}");
                 stringBuilder.AppendLine();
 
                 stringBuilder.AppendLine(BitConverter.ToString(data.Skip((int)obj.Offset).Take((int)obj.Length).ToArray()).Replace("-", " "));

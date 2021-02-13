@@ -6,8 +6,9 @@
         xmlns:local="clr-namespace:NotInfiltrator"
         mc:Ignorable="d"
         Title="ME:Infiltrator filesystem explorer"
-        Height="560" Width="1000"
+        Height="720" Width="1280"
         MinHeight="400" MinWidth="600"
+        WindowState="Maximized" SizeToContent="Manual"
         Loaded="Window_Loaded">
     <Window.Resources>
         <local:StructBinEnumConverter x:Key="StructBinEnumConverter"/>
@@ -44,181 +45,159 @@
                 </TreeView.ItemTemplate>
             </TreeView>
             <GridSplitter Grid.Column="1" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
-            <TabControl Grid.Column="2">
-                <TabItem Header="SBIN (raw)">
-                    <Grid>
-                        <TextBox x:Name="RawSBin_TextBox"
+            <Grid Grid.Column="2">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="5px"/>
+                    <RowDefinition Height="360px"/>
+                </Grid.RowDefinitions>
+                <TabControl Grid.Row="0">
+                    <TabItem Header="Object data">
+                        <Grid>
+                            <TextBox Text="{Binding Path=ActiveNode.Content, FallbackValue='', Converter={StaticResource StructBinToObjHeaderTextConverter}}"
+                                 Padding="10"
+                                 VerticalScrollBarVisibility="Visible"
+                                 TextWrapping="Wrap" FontFamily="Consolas"
+                                 IsReadOnly="True"/>
+                        </Grid>
+                    </TabItem>
+                </TabControl>
+                <GridSplitter Grid.Row="1" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
+                <TabControl Grid.Row="2" TabStripPlacement="Bottom">
+                    
+                    <!-- SBIN sections -->
+                    <TabItem Header="Blocks">
+                        <Grid>
+                            <TextBox x:Name="RawSBin_TextBox"
                                  Text="{Binding Path=ActiveNode.Content, FallbackValue='', Converter={StaticResource StructBinToTextConverter}}"
                                  Padding="10"
                                  VerticalScrollBarVisibility="Visible"
                                  TextWrapping="Wrap" FontFamily="Consolas"
                                  IsReadOnly="True"/>
-                    </Grid>
-                </TabItem>
-                <TabItem Header="SBIN (struct)" IsSelected="True">
-                    <ScrollViewer DataContext="{Binding Path=ActiveNode}">
-                        <DockPanel Margin="5">
-                            
-                            <!-- Common file data -->
-                            <Grid DockPanel.Dock="Top">
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="150px"/>
-                                    <ColumnDefinition Width="*"/>
-                                </Grid.ColumnDefinitions>
+                        </Grid>
+                    </TabItem>
+                    
+                    <!-- Strings -->
+                    <TabItem Header="Char data">
+                        <Grid DataContext="{Binding Path=ActiveNode}">
+                            <ListView x:Name="StructSBin_ChardataListBox"
+                                              VerticalAlignment="Stretch"
+                                              ItemsSource="{Binding Path=Content, Converter={StaticResource StructBinStringConverter}}"
+                                              ScrollViewer.VerticalScrollBarVisibility="Visible">
+                                <ListView.View>
+                                    <GridView>
+                                        <GridViewColumn Width="80" DisplayMemberBinding="{Binding Path=Id, Converter={StaticResource IntToHexConverter}}">
+                                            <GridViewColumnHeader>#</GridViewColumnHeader>
+                                        </GridViewColumn>
+                                        <GridViewColumn Width="80" DisplayMemberBinding="{Binding Path=Offset, Converter={StaticResource IntToHexConverter}}">
+                                            <GridViewColumnHeader>Offset</GridViewColumnHeader>
+                                        </GridViewColumn>
+                                        <GridViewColumn Width="80" DisplayMemberBinding="{Binding Path=Length, Converter={StaticResource IntToHexConverter}}">
+                                            <GridViewColumnHeader>Length</GridViewColumnHeader>
+                                        </GridViewColumn>
+                                        <GridViewColumn Width="300px" DisplayMemberBinding="{Binding Path=Ascii}">
+                                            <GridViewColumnHeader>ASCII</GridViewColumnHeader>
+                                        </GridViewColumn>
+                                    </GridView>
+                                </ListView.View>
+                            </ListView>
+                        </Grid>
+                    </TabItem>
 
-                                <Label Grid.Column="0" Grid.Row="0" Content="Relative path"/>
-                                <Label Grid.Column="1" Grid.Row="0" Content="{Binding Path=Content.FileName, FallbackValue='n/a'}" FontWeight="Bold"/>
-                            </Grid>
-
-                            <!-- Enum data -->
-                            <Grid DockPanel.Dock="Top" Margin="0,10,0,0">
-                                <DockPanel>
-                                    <Label DockPanel.Dock="Top" Content="Enum data" FontWeight="Bold"/>
-                                    <ListView x:Name="StructSBin_EnumDataListBox"
-                                              DockPanel.Dock="Top"
-                                              VerticalAlignment="Top"
+                    <!-- Enumerations -->
+                    <TabItem Header="Enums">
+                        <Grid DataContext="{Binding Path=ActiveNode}">
+                            <ListView x:Name="StructSBin_EnumDataListBox"
+                                              VerticalAlignment="Stretch"
                                               ItemsSource="{Binding Path=Content, Converter={StaticResource StructBinEnumConverter}}"
-                                              ScrollViewer.VerticalScrollBarVisibility="Visible"
-                                              ScrollViewer.CanContentScroll="False"
-                                              MinHeight="100px" MaxHeight="450px">
-                                        <ListView.View>
-                                            <GridView>
-                                                <GridViewColumn Width="80" DisplayMemberBinding="{Binding Path=Id, Converter={StaticResource IntToHexConverter}}">
-                                                    <GridViewColumnHeader>#</GridViewColumnHeader>
-                                                </GridViewColumn>
-                                                <GridViewColumn Width="160px" DisplayMemberBinding="{Binding Path=Name}">
-                                                    <GridViewColumnHeader>Name</GridViewColumnHeader>
-                                                </GridViewColumn>
-                                                <GridViewColumn Width="160" DisplayMemberBinding="{Binding Path=Unknown, Converter={StaticResource IntToHexConverter}}">
-                                                    <GridViewColumnHeader>Unknown</GridViewColumnHeader>
-                                                </GridViewColumn>
-                                            </GridView>
-                                        </ListView.View>
-                                    </ListView>
-                                </DockPanel>
-                            </Grid>
+                                              ScrollViewer.VerticalScrollBarVisibility="Visible">
+                                <ListView.View>
+                                    <GridView>
+                                        <GridViewColumn Width="80" DisplayMemberBinding="{Binding Path=Id, Converter={StaticResource IntToHexConverter}}">
+                                            <GridViewColumnHeader>#</GridViewColumnHeader>
+                                        </GridViewColumn>
+                                        <GridViewColumn Width="160px" DisplayMemberBinding="{Binding Path=Name}">
+                                            <GridViewColumnHeader>Name</GridViewColumnHeader>
+                                        </GridViewColumn>
+                                        <GridViewColumn Width="160" DisplayMemberBinding="{Binding Path=Unknown, Converter={StaticResource IntToHexConverter}}">
+                                            <GridViewColumnHeader>Unknown</GridViewColumnHeader>
+                                        </GridViewColumn>
+                                    </GridView>
+                                </ListView.View>
+                            </ListView>
+                        </Grid>
+                    </TabItem>
+                    
+                    <!-- Fields -->
+                    <TabItem Header="Fields">
+                        <Grid DataContext="{Binding Path=ActiveNode}">
+                            <ListView x:Name="StructSBin_FieldDataListBox"
+                                              ItemsSource="{Binding Path=Content, Converter={StaticResource StructBinFieldConverter}}"
+                                              ScrollViewer.VerticalScrollBarVisibility="Visible">
+                                <ListView.View>
+                                    <GridView>
+                                        <GridViewColumn Width="80" DisplayMemberBinding="{Binding Path=Id, Converter={StaticResource IntToHexConverter}}">
+                                            <GridViewColumnHeader>#</GridViewColumnHeader>
+                                        </GridViewColumn>
+                                        <GridViewColumn Width="160px" DisplayMemberBinding="{Binding Path=Name}">
+                                            <GridViewColumnHeader>Name</GridViewColumnHeader>
+                                        </GridViewColumn>
+                                        <GridViewColumn Width="80px" DisplayMemberBinding="{Binding Path=Type}">
+                                            <GridViewColumnHeader>Type</GridViewColumnHeader>
+                                        </GridViewColumn>
+                                        <GridViewColumn Width="80px" DisplayMemberBinding="{Binding Path=SizeDesc}">
+                                            <GridViewColumnHeader>Size</GridViewColumnHeader>
+                                        </GridViewColumn>
+                                        <GridViewColumn Width="80px" DisplayMemberBinding="{Binding Path=Offset, Converter={StaticResource IntToHexConverter}}">
+                                            <GridViewColumnHeader>Offset</GridViewColumnHeader>
+                                        </GridViewColumn>
+                                        <GridViewColumn Width="80px" DisplayMemberBinding="{Binding Path=ChildKind}">
+                                            <GridViewColumnHeader>Child kind</GridViewColumnHeader>
+                                        </GridViewColumn>
+                                    </GridView>
+                                </ListView.View>
+                            </ListView>
+                        </Grid>
+                    </TabItem>
 
-                            <!-- Struct data -->
-                            <Grid DockPanel.Dock="Top" Margin="0,10,0,0">
-                                <DockPanel>
-                                    <Label DockPanel.Dock="Top" Content="Struct data" FontWeight="Bold"/>
-                                    <ListView x:Name="StructSBin_StructDataListBox"
-                                              DockPanel.Dock="Top"
-                                              VerticalAlignment="Top"
+                    <!-- Structures -->
+                    <TabItem Header="Structs">
+                        <Grid DataContext="{Binding Path=ActiveNode}">
+                            <ListView x:Name="StructSBin_StructDataListBox"
+                                              VerticalAlignment="Stretch"
                                               ItemsSource="{Binding Path=Content, Converter={StaticResource StructBinStructConverter}}"
-                                              ScrollViewer.VerticalScrollBarVisibility="Visible"
-                                              ScrollViewer.CanContentScroll="False"
-                                              MinHeight="100px" MaxHeight="450px">
-                                        <ListView.View>
-                                            <GridView>
-                                                <GridViewColumn Width="80" DisplayMemberBinding="{Binding Path=Id, Converter={StaticResource IntToHexConverter}}">
-                                                    <GridViewColumnHeader>#</GridViewColumnHeader>
-                                                </GridViewColumn>
-                                                <GridViewColumn Width="160px" DisplayMemberBinding="{Binding Path=Name}">
-                                                    <GridViewColumnHeader>Name</GridViewColumnHeader>
-                                                </GridViewColumn>
-                                                <GridViewColumn Width="40px" DisplayMemberBinding="{Binding Path=FirstFieldId, Converter={StaticResource IntToHexConverter}}">
-                                                    <GridViewColumnHeader>FF#</GridViewColumnHeader>
-                                                </GridViewColumn>
-                                                <GridViewColumn Width="40px" DisplayMemberBinding="{Binding Path=FieldCount, Converter={StaticResource IntToHexConverter}}">
-                                                    <GridViewColumnHeader>FC</GridViewColumnHeader>
-                                                </GridViewColumn>
-                                                <GridViewColumn Width="400px">
-                                                    <GridViewColumnHeader>Structure</GridViewColumnHeader>
-                                                    <GridViewColumn.CellTemplate>
-                                                        <DataTemplate>
-                                                            <TextBlock Text="{Binding Path=ProgramText}"
+                                              ScrollViewer.VerticalScrollBarVisibility="Visible">
+                                <ListView.View>
+                                    <GridView>
+                                        <GridViewColumn Width="80" DisplayMemberBinding="{Binding Path=Id, Converter={StaticResource IntToHexConverter}}">
+                                            <GridViewColumnHeader>#</GridViewColumnHeader>
+                                        </GridViewColumn>
+                                        <GridViewColumn Width="160px" DisplayMemberBinding="{Binding Path=Name}">
+                                            <GridViewColumnHeader>Name</GridViewColumnHeader>
+                                        </GridViewColumn>
+                                        <GridViewColumn Width="40px" DisplayMemberBinding="{Binding Path=FirstFieldId, Converter={StaticResource IntToHexConverter}}">
+                                            <GridViewColumnHeader>Starting field</GridViewColumnHeader>
+                                        </GridViewColumn>
+                                        <GridViewColumn Width="40px" DisplayMemberBinding="{Binding Path=FieldCount, Converter={StaticResource IntToHexConverter}}">
+                                            <GridViewColumnHeader>Field count</GridViewColumnHeader>
+                                        </GridViewColumn>
+                                        <GridViewColumn Width="400px">
+                                            <GridViewColumnHeader>Structure</GridViewColumnHeader>
+                                            <GridViewColumn.CellTemplate>
+                                                <DataTemplate>
+                                                    <TextBlock Text="{Binding Path=ProgramText}"
                                                                        TextWrapping="Wrap"
                                                                        FontFamily="Consolas"/>
-                                                        </DataTemplate>
-                                                    </GridViewColumn.CellTemplate>
-                                                </GridViewColumn>
-                                            </GridView>
-                                        </ListView.View>
-                                    </ListView>
-                                </DockPanel>
-                            </Grid>
-
-                            <!-- Field data -->
-                            <Grid DockPanel.Dock="Top" Margin="0,10,0,0">
-                                <DockPanel>
-                                    <Label DockPanel.Dock="Top" Content="Field data" FontWeight="Bold"/>
-                                    <ListView x:Name="StructSBin_FieldDataListBox"
-                                              DockPanel.Dock="Top"
-                                              VerticalAlignment="Top"
-                                              ItemsSource="{Binding Path=Content, Converter={StaticResource StructBinFieldConverter}}"
-                                              ScrollViewer.VerticalScrollBarVisibility="Visible"
-                                              ScrollViewer.CanContentScroll="False"
-                                              MinHeight="100px" MaxHeight="450px">
-                                        <ListView.View>
-                                            <GridView>
-                                                <GridViewColumn Width="80" DisplayMemberBinding="{Binding Path=Id, Converter={StaticResource IntToHexConverter}}">
-                                                    <GridViewColumnHeader>#</GridViewColumnHeader>
-                                                </GridViewColumn>
-                                                <GridViewColumn Width="160px" DisplayMemberBinding="{Binding Path=Name}">
-                                                    <GridViewColumnHeader>Name</GridViewColumnHeader>
-                                                </GridViewColumn>
-                                                <GridViewColumn Width="80px" DisplayMemberBinding="{Binding Path=Type}">
-                                                    <GridViewColumnHeader>Type</GridViewColumnHeader>
-                                                </GridViewColumn>
-                                                <GridViewColumn Width="80px" DisplayMemberBinding="{Binding Path=SizeDesc}">
-                                                    <GridViewColumnHeader>Size</GridViewColumnHeader>
-                                                </GridViewColumn>
-                                                <GridViewColumn Width="80px" DisplayMemberBinding="{Binding Path=Offset, Converter={StaticResource IntToHexConverter}}">
-                                                    <GridViewColumnHeader>Offset</GridViewColumnHeader>
-                                                </GridViewColumn>
-                                                <GridViewColumn Width="80px" DisplayMemberBinding="{Binding Path=ChildKind}">
-                                                    <GridViewColumnHeader>Child kind</GridViewColumnHeader>
-                                                </GridViewColumn>
-                                            </GridView>
-                                        </ListView.View>
-                                    </ListView>
-                                </DockPanel>
-                            </Grid>
-
-                            <!-- String data -->
-                            <Grid DockPanel.Dock="Top" Margin="0,10,0,0">
-                                <DockPanel>
-                                    <Label DockPanel.Dock="Top" Content="String data" FontWeight="Bold"/>
-                                    <ListView x:Name="StructSBin_ChardataListBox"
-                                              DockPanel.Dock="Top"
-                                              VerticalAlignment="Top"
-                                              ItemsSource="{Binding Path=Content, Converter={StaticResource StructBinStringConverter}}"
-                                              ScrollViewer.VerticalScrollBarVisibility="Visible"
-                                              ScrollViewer.CanContentScroll="False"
-                                              MinHeight="100px" MaxHeight="450px">
-                                        <ListView.View>
-                                            <GridView>
-                                                <GridViewColumn Width="80" DisplayMemberBinding="{Binding Path=Id, Converter={StaticResource IntToHexConverter}}">
-                                                    <GridViewColumnHeader>#</GridViewColumnHeader>
-                                                </GridViewColumn>
-                                                <GridViewColumn Width="80" DisplayMemberBinding="{Binding Path=Offset, Converter={StaticResource IntToHexConverter}}">
-                                                    <GridViewColumnHeader>Offset</GridViewColumnHeader>
-                                                </GridViewColumn>
-                                                <GridViewColumn Width="80" DisplayMemberBinding="{Binding Path=Length, Converter={StaticResource IntToHexConverter}}">
-                                                    <GridViewColumnHeader>Length</GridViewColumnHeader>
-                                                </GridViewColumn>
-                                                <GridViewColumn Width="300px" DisplayMemberBinding="{Binding Path=Ascii}">
-                                                    <GridViewColumnHeader>ASCII</GridViewColumnHeader>
-                                                </GridViewColumn>
-                                            </GridView>
-                                        </ListView.View>
-                                    </ListView>
-                                </DockPanel>
-                            </Grid>
-                        </DockPanel>
-                    </ScrollViewer>
-                </TabItem>
-                <TabItem Header="OHDR (temp)">
-                    <Grid>
-                        <TextBox Text="{Binding Path=ActiveNode.Content, FallbackValue='', Converter={StaticResource StructBinToObjHeaderTextConverter}}"
-                                 Padding="10"
-                                 VerticalScrollBarVisibility="Visible"
-                                 TextWrapping="Wrap" FontFamily="Consolas"
-                                 IsReadOnly="True"/>
-                    </Grid>
-                </TabItem>
-            </TabControl>
+                                                </DataTemplate>
+                                            </GridViewColumn.CellTemplate>
+                                        </GridViewColumn>
+                                    </GridView>
+                                </ListView.View>
+                            </ListView>
+                        </Grid>
+                    </TabItem>
+                </TabControl>
+            </Grid>
         </Grid>
         <StatusBar Grid.Row="2" Height="22">
             <StatusBarItem>
