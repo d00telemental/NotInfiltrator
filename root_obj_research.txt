@@ -1,0 +1,27 @@
+prototype_env_generic_dynamic_text.sb #0:
+
+03 00  -  (number of entries in the object)
+28 00  -  (size of this object)
+0A 00  -  'width'
+	05 00  -  <int32>
+	0C 00 00 00  -  (absolute offset within the object to the value)
+	00 01 00 00  -  value: 0x100
+0B 00  -  'height'
+	05 00  -  <int32>
+	18 00 00 00  -  (absolute offset within the object to the value)
+	00 01 00 00  -  value: 0x100
+0C 00  -  'strings'
+	0F 00  -  <reference>
+	24 00 00 00  -  (absolute offset within the object to the value)
+	01 00 00 00  -  value: &1
+
+---
+
+level_index.prefabs.sb #0:
+
+01 00  -  (number of entries in the object)
+10 00  -  (size of this object)
+33 00  -  'asset'
+	0F 00  -  <reference>
+	0C 00 00 00  -  (absolute offset within the object to the value)
+	01 00 00 00  -  value: &1
