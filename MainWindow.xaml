@@ -28,7 +28,7 @@
         <Menu Grid.Row="0" Height="21"/>
         <Grid Grid.Row="1" Background="#FFF0F0F0">
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="360px" MinWidth="360px"/>
+                <ColumnDefinition Width="240px"/>
                 <ColumnDefinition Width="5px"/>
                 <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
