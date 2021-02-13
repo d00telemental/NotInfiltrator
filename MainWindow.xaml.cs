@@ -90,6 +90,28 @@ namespace NotInfiltrator
 
 
     #region Struct data UI presentations
+    public class StructBinSectionDataUIPresentation
+    {
+        private StructBinSection _src = null;
+        private SemanticStructBin _sbin = null;
+
+        public string Label => _src.Label;
+
+        public long Start => _src.Start;
+
+        public int Length => _src.DataLength;
+
+        public int AlignedLength => _src.RealDataLength;
+
+        public int Hash => _src.Hash;
+
+        public StructBinSectionDataUIPresentation(StructBinSection src, SemanticStructBin sbin)
+        {
+            _src = src;
+            _sbin = sbin;
+        }
+    }
+
     public class StructBinEnumDataUIPresentation
     {
         private StructBinEnumData _src = null;
@@ -97,7 +119,7 @@ namespace NotInfiltrator
 
         public int Id => _src.Id;
         public string Name => _sbin.GetString(_src.NameStrId);
-        public uint Unknown => _src.Unknown;
+        public uint ObjReference => _src.ObjReference;
 
         public StructBinEnumDataUIPresentation(StructBinEnumData src, SemanticStructBin sbin)
         {
@@ -212,6 +234,50 @@ namespace NotInfiltrator
 
 
     #region Converters
+
+    public class IntToHexConverter
+        : IValueConverter
+    {
+        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            var num = long.Parse($"{value}");
+            return $"0x{value:X}";
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+            => throw new NotImplementedException();
+    }
+
+    public class StructBinSectionConverter
+        : IValueConverter
+    {
+        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            var sbin = value as SemanticStructBin;
+            if (sbin == null) { return null; }
+
+            return new ObservableCollection<StructBinSectionDataUIPresentation>(sbin.Sections.Select(s => new StructBinSectionDataUIPresentation(s, sbin)));
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+            => throw new NotImplementedException();
+    }
+
+    public class StructBinStringConverter
+        : IValueConverter
+    {
+        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            var sbin = value as SemanticStructBin;
+            if (sbin == null) { return null; }
+
+            return new ObservableCollection<StructBinString>(sbin.Strings);
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+            => throw new NotImplementedException();
+    }
+
     public class StructBinEnumConverter
         : IValueConverter
     {
@@ -223,23 +289,6 @@ namespace NotInfiltrator
             return new ObservableCollection<StructBinEnumDataUIPresentation>(
                 (value as SemanticStructBin)?.EnumDatas.Select(ed => new StructBinEnumDataUIPresentation(ed, sbin))
                 ?? throw new ArgumentException("Passed value should be StructEnums", nameof(value)));
-        }
-
-        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
-            => throw new NotImplementedException();
-    }
-
-    public class StructBinStructConverter
-    : IValueConverter
-    {
-        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
-        {
-            var sbin = value as SemanticStructBin;
-            if (sbin == null) { return null; }
-
-            return new ObservableCollection<StructBinStructDataUIPresentation>(
-                (value as SemanticStructBin)?.StructDatas.Select(sd => new StructBinStructDataUIPresentation(sd, sbin))
-                ?? throw new ArgumentException("Passed value should be StructDatas", nameof(value)));
         }
 
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
@@ -263,87 +312,41 @@ namespace NotInfiltrator
             => throw new NotImplementedException();
     }
 
-    public class StructBinStringConverter
-        : IValueConverter
+    public class StructBinStructConverter
+    : IValueConverter
     {
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
             var sbin = value as SemanticStructBin;
             if (sbin == null) { return null; }
 
-            return new ObservableCollection<StructBinString>(sbin.Strings);
+            return new ObservableCollection<StructBinStructDataUIPresentation>(
+                (value as SemanticStructBin)?.StructDatas.Select(sd => new StructBinStructDataUIPresentation(sd, sbin))
+                ?? throw new ArgumentException("Passed value should be StructDatas", nameof(value)));
         }
 
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
             => throw new NotImplementedException();
-    }
-
-    public class IntToHexConverter
-        : IValueConverter
-    {
-        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
-        {
-            var num = long.Parse($"{value}");
-            return $"0x{value:X}";
-        }
-
-        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
-            => throw new NotImplementedException();
-    }
-
-    public class StructBinToTextConverter
-        : IValueConverter
-    {
-        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
-        {
-            var sbin = value as SemanticStructBin;
-            if (sbin == null)
-            {
-                return string.Empty;
-            }
-
-            var stringBuilder = new StringBuilder();
-
-            stringBuilder.AppendLine(sbin.FileName);
-            stringBuilder.AppendLine();
-
-            foreach (var entry in sbin.Sections)
-            {
-                stringBuilder.AppendLine($"Section '{entry.Label}'");
-                stringBuilder.AppendLine($" - Start = {entry.Start}, end = {entry.End}");
-                stringBuilder.AppendLine($" - Data start = {entry.Start + 12}");
-                stringBuilder.AppendLine(entry.DataLength == entry.RealDataLength
-                    ? $" - Length = {entry.DataLength}"
-                    : $" - Length = {entry.DataLength}, aligned = {entry.RealDataLength}");
-                stringBuilder.AppendLine($" - Hash = 0x{entry.Hash:x4}");
-                stringBuilder.AppendLine();
-            }
-
-            return stringBuilder.ToString();
-        }
-
-        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
-            => throw new NotImplementedException();
-    }
-
-    public class StructBinTempObjectData
-    {
-        public int Id { get; set; } = 0;
-        public byte[] OrigOffset { get; set; }
-        public uint Offset { get; set; } = 0;
-        public uint Length { get; set; } = 0;
-
-        public StructBinTempObjectData(int id, uint offset, byte[] origOffset)
-        {
-            Id = id;
-            Offset = offset;
-            OrigOffset = origOffset;
-        }
     }
 
     public class StructBinToObjHeaderTextConverter
         : IValueConverter
     {
+        public class StructBinTempObjectData
+        {
+            public int Id { get; set; } = 0;
+            public byte[] OrigOffset { get; set; }
+            public uint Offset { get; set; } = 0;
+            public uint Length { get; set; } = 0;
+
+            public StructBinTempObjectData(int id, uint offset, byte[] origOffset)
+            {
+                Id = id;
+                Offset = offset;
+                OrigOffset = origOffset;
+            }
+        }
+
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
             var sbin = value as SemanticStructBin;

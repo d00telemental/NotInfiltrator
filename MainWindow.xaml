@@ -11,11 +11,11 @@
         WindowState="Maximized" SizeToContent="Manual"
         Loaded="Window_Loaded">
     <Window.Resources>
+        <local:StructBinSectionConverter x:Key="StructBinSectionConverter"/>
         <local:StructBinEnumConverter x:Key="StructBinEnumConverter"/>
         <local:StructBinStructConverter x:Key="StructBinStructConverter"/>
         <local:StructBinFieldConverter x:Key="StructBinFieldConverter"/>
         <local:StructBinStringConverter x:Key="StructBinStringConverter"/>
-        <local:StructBinToTextConverter x:Key="StructBinToTextConverter"/>
         <local:StructBinToObjHeaderTextConverter x:Key="StructBinToObjHeaderTextConverter"/>
         <local:IntToHexConverter x:Key="IntToHexConverter"/>
     </Window.Resources>
@@ -67,13 +67,30 @@
                     
                     <!-- SBIN sections -->
                     <TabItem Header="Blocks">
-                        <Grid>
-                            <TextBox x:Name="RawSBin_TextBox"
-                                 Text="{Binding Path=ActiveNode.Content, FallbackValue='', Converter={StaticResource StructBinToTextConverter}}"
-                                 Padding="10"
-                                 VerticalScrollBarVisibility="Visible"
-                                 TextWrapping="Wrap" FontFamily="Consolas"
-                                 IsReadOnly="True"/>
+                        <Grid DataContext="{Binding Path=ActiveNode}">
+                            <ListView x:Name="StructSBin_SectionsListBox"
+                                              ItemsSource="{Binding Path=Content, Converter={StaticResource StructBinSectionConverter}}"
+                                              ScrollViewer.VerticalScrollBarVisibility="Visible">
+                                <ListView.View>
+                                    <GridView>
+                                        <GridViewColumn Width="160px" DisplayMemberBinding="{Binding Path=Label}">
+                                            <GridViewColumnHeader>Label</GridViewColumnHeader>
+                                        </GridViewColumn>
+                                        <GridViewColumn Width="80px" DisplayMemberBinding="{Binding Path=Start, Converter={StaticResource IntToHexConverter}}">
+                                            <GridViewColumnHeader>Start</GridViewColumnHeader>
+                                        </GridViewColumn>
+                                        <GridViewColumn Width="80px" DisplayMemberBinding="{Binding Path=Length, Converter={StaticResource IntToHexConverter}}">
+                                            <GridViewColumnHeader>Length</GridViewColumnHeader>
+                                        </GridViewColumn>
+                                        <GridViewColumn Width="80px" DisplayMemberBinding="{Binding Path=AlignedLength, Converter={StaticResource IntToHexConverter}}">
+                                            <GridViewColumnHeader>(Aligned)</GridViewColumnHeader>
+                                        </GridViewColumn>
+                                        <GridViewColumn Width="80px" DisplayMemberBinding="{Binding Path=Hash, Converter={StaticResource IntToHexConverter}}">
+                                            <GridViewColumnHeader>Hash</GridViewColumnHeader>
+                                        </GridViewColumn>
+                                    </GridView>
+                                </ListView.View>
+                            </ListView>
                         </Grid>
                     </TabItem>
                     
@@ -119,8 +136,8 @@
                                         <GridViewColumn Width="160px" DisplayMemberBinding="{Binding Path=Name}">
                                             <GridViewColumnHeader>Name</GridViewColumnHeader>
                                         </GridViewColumn>
-                                        <GridViewColumn Width="160" DisplayMemberBinding="{Binding Path=Unknown, Converter={StaticResource IntToHexConverter}}">
-                                            <GridViewColumnHeader>Unknown</GridViewColumnHeader>
+                                        <GridViewColumn Width="160" DisplayMemberBinding="{Binding Path=ObjReference, Converter={StaticResource IntToHexConverter}}">
+                                            <GridViewColumnHeader>Obj. reference</GridViewColumnHeader>
                                         </GridViewColumn>
                                     </GridView>
                                 </ListView.View>
