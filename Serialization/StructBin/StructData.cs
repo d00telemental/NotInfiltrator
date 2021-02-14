@@ -5,9 +5,9 @@ using System.Text;
 
 using NotInfiltrator.Utilities;
 
-namespace NotInfiltrator.Serialization
+namespace NotInfiltrator.Serialization.StructBin
 {
-    public class StructBinStructData
+    public class StructData
     {
         public int Id { get; set; } = 0;
 
@@ -16,7 +16,7 @@ namespace NotInfiltrator.Serialization
         public UInt16 FirstFieldId { get; set; } = 0;
         public UInt16 FieldCount { get; set; } = 0;
 
-        public StructBinStructData(Stream source)
+        public StructData(Stream source)
         {
             NameStrId = source.ReadUnsigned16Little();
             FirstFieldId = source.ReadUnsigned16Little();

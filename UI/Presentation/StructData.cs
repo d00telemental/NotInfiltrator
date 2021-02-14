@@ -8,8 +8,8 @@ namespace NotInfiltrator.UI.Presentation
 {
     public class StructData
     {
-        private StructBinStructData _src = null;
-        private SemanticStructBin _sbin = null;
+        private Serialization.StructBin.StructData _src = null;
+        private Serialization.StructBin.SemanticStructBin _sbin = null;
 
         public int Id => _src.Id;
         public string Name => _sbin.GetString(_src.NameStrId);
@@ -17,7 +17,7 @@ namespace NotInfiltrator.UI.Presentation
         public int FieldCount => _src.FieldCount;
         public string ProgramText => GetCLikeDefinition();
 
-        public StructData(StructBinStructData src, SemanticStructBin sbin)
+        public StructData(Serialization.StructBin.StructData src, Serialization.StructBin.SemanticStructBin sbin)
         {
             _src = src;
             _sbin = sbin;

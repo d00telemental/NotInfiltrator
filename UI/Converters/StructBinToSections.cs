@@ -14,7 +14,7 @@ namespace NotInfiltrator.UI.Converters
     {
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
-            var sbin = value as SemanticStructBin;
+            var sbin = value as Serialization.StructBin.SemanticStructBin;
             if (sbin == null) { return null; }
 
             return new ObservableCollection<Presentation.SectionData>(sbin.Sections.Select(s => new Presentation.SectionData(s, sbin)));

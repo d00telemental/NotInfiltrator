@@ -7,18 +7,18 @@ using System.Text;
 
 using NotInfiltrator.Utilities;
 
-namespace NotInfiltrator.Serialization
+namespace NotInfiltrator.Serialization.StructBin
 {
-    public class StructBin
+    public class BaseStructBin
     {
         public string AbsoluteFileName { get; set; }
         public string FileName { get; set; }
 
         public string Magic;
         public int Version;
-        public List<StructBinSection> Sections = new List<StructBinSection>();
+        public List<Section> Sections = new List<Section>();
 
-        protected StructBin(Stream stream, string relativePath = null)
+        protected BaseStructBin(Stream stream, string relativePath = null)
         {
             FileName = relativePath;
 
@@ -28,17 +28,17 @@ namespace NotInfiltrator.Serialization
             while (stream.Position < stream.Length)
             {
                 //Debug.WriteLine($"Reading {(fname != null ? fname : "an")} section at 0x{stream.Position:x}");
-                Sections.Add(StructBinSection.Read(stream));
+                Sections.Add(Section.Read(stream));
             }
         }
 
-        protected StructBin(GameFilesystem fs, string relativePath)
+        protected BaseStructBin(GameFilesystem fs, string relativePath)
             : this(fs.LoadToMemory(relativePath), relativePath)
         {
             AbsoluteFileName = fs.GetAbsolutePath(relativePath);
         }
 
-        public StructBinSection FindSection(string name)
+        public Section FindSection(string name)
             => Sections.Where(s => s.Label == name).Single();
     }
 }

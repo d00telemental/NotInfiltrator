@@ -14,11 +14,11 @@ namespace NotInfiltrator.UI.Converters
     {
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
-            var sbin = value as SemanticStructBin;
+            var sbin = value as Serialization.StructBin.SemanticStructBin;
             if (sbin == null) { return null; }
 
             return new ObservableCollection<Presentation.StructData>(
-                (value as SemanticStructBin)?.StructDatas.Select(sd => new Presentation.StructData(sd, sbin))
+                (value as Serialization.StructBin.SemanticStructBin)?.StructDatas.Select(sd => new Presentation.StructData(sd, sbin))
                 ?? throw new ArgumentException("Passed value should be StructDatas", nameof(value)));
         }
 

@@ -8,8 +8,8 @@ namespace NotInfiltrator.UI.Presentation
 {
     public class SectionData
     {
-        private StructBinSection _src = null;
-        private SemanticStructBin _sbin = null;
+        private Serialization.StructBin.Section _src = null;
+        private Serialization.StructBin.SemanticStructBin _sbin = null;
 
         public string Label => _src.Label;
 
@@ -21,7 +21,7 @@ namespace NotInfiltrator.UI.Presentation
 
         public int Hash => _src.Hash;
 
-        public SectionData(StructBinSection src, SemanticStructBin sbin)
+        public SectionData(Serialization.StructBin.Section src, Serialization.StructBin.SemanticStructBin sbin)
         {
             _src = src;
             _sbin = sbin;

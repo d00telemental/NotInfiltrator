@@ -5,9 +5,9 @@ using System.Text;
 
 using NotInfiltrator.Utilities;
 
-namespace NotInfiltrator.Serialization
+namespace NotInfiltrator.Serialization.StructBin
 {
-    public class StructBinSection
+    public class Section
     {
         public long Start;
         public long End;
@@ -24,9 +24,9 @@ namespace NotInfiltrator.Serialization
         public Int32 RealDataLength
             => Label == "STRU" ? GetNextMultipleOfFour(DataLength) : DataLength;
 
-        public static StructBinSection Read(Stream stream)
+        public static Section Read(Stream stream)
         {
-            var entry = new StructBinSection { };
+            var entry = new Section { };
             entry.Start = stream.Position;
             entry.Label = Encoding.ASCII.GetString(stream.ReadBytes(4));
             entry.DataLength = stream.ReadSigned32Little();
@@ -37,9 +37,9 @@ namespace NotInfiltrator.Serialization
         }
     }
 
-    public static class StructBinSectionExtensions
+    public static class SectionExtensions
     {
-        public static MemoryStream NewMemoryStream(this StructBinSection section)
+        public static MemoryStream NewMemoryStream(this Section section)
             => new MemoryStream(section.Data, 0, section.DataLength);
     }
 }

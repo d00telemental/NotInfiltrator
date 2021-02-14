@@ -7,6 +7,7 @@ using System.Text;
 using System.Windows.Data;
 
 using NotInfiltrator.Serialization;
+using NotInfiltrator.Serialization.StructBin;
 
 namespace NotInfiltrator.UI.Converters
 {

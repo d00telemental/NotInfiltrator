@@ -7,6 +7,7 @@ using System.Text;
 using System.Windows.Data;
 
 using NotInfiltrator.Serialization;
+using NotInfiltrator.Serialization.StructBin;
 using NotInfiltrator.Utilities;
 
 namespace NotInfiltrator.UI.Converters
@@ -30,7 +31,7 @@ namespace NotInfiltrator.UI.Converters
 
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
-            var sbin = value as SemanticStructBin;
+            var sbin = value as Serialization.StructBin.SemanticStructBin;
             if (sbin == null)
             {
                 return string.Empty;

@@ -58,7 +58,7 @@ namespace NotInfiltrator.Serialization
     {
         public string Path = null;
 
-        public Dictionary<string, StructBin> SBinMap = new Dictionary<string, StructBin>();
+        public Dictionary<string, StructBin.BaseStructBin> SBinMap = new Dictionary<string, StructBin.BaseStructBin>();
 
         public GameFilesystemNode Root = new GameFilesystemNode(null, "Filesystem");
 
@@ -85,7 +85,7 @@ namespace NotInfiltrator.Serialization
 
             foreach (var filePath in files)
             {
-                var sbin = new SemanticStructBin(this, filePath);
+                var sbin = new StructBin.SemanticStructBin(this, filePath);
                 SBinMap.Add(filePath, sbin);
                 Debug.WriteLine($"Done {sbin.FileName}, {sbin.Sections.Count} entries read.");
             }

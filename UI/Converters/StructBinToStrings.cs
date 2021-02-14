@@ -14,10 +14,10 @@ namespace NotInfiltrator.UI.Converters
     {
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
-            var sbin = value as SemanticStructBin;
+            var sbin = value as Serialization.StructBin.SemanticStructBin;
             if (sbin == null) { return null; }
 
-            return new ObservableCollection<StructBinString>(sbin.Strings);
+            return new ObservableCollection<Serialization.StructBin.String>(sbin.Strings);
         }
 
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)

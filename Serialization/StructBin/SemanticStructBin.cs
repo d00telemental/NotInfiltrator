@@ -7,15 +7,14 @@ using System.Text;
 
 using NotInfiltrator.Utilities;
 
-namespace NotInfiltrator.Serialization
+namespace NotInfiltrator.Serialization.StructBin
 {
-    public class SemanticStructBin
-        : StructBin
+    public class SemanticStructBin : BaseStructBin
     {
-        public List<StructBinEnumData> EnumDatas { get; private set; } = null;
-        public List<StructBinStructData> StructDatas { get; private set; } = null;
-        public List<StructBinFieldData> FieldDatas { get; private set; } = null;
-        public List<StructBinString> Strings { get; private set; } = null;
+        public List<EnumData> EnumDatas { get; private set; } = null;
+        public List<StructData> StructDatas { get; private set; } = null;
+        public List<FieldData> FieldDatas { get; private set; } = null;
+        public List<String> Strings { get; private set; } = null;
 
         public SemanticStructBin(GameFilesystem fs, string relativePath)
             : base(fs, relativePath)
@@ -28,59 +27,59 @@ namespace NotInfiltrator.Serialization
 
         public string GetString(UInt16 id) => Strings[id].Ascii;
 
-        protected List<StructBinEnumData> ReadAllEnumDatas()
+        protected List<EnumData> ReadAllEnumDatas()
         {
-            var enums = new List<StructBinEnumData>();
+            var enums = new List<EnumData>();
 
             var enumSection = FindSection("ENUM");
             var enumSectionStream = new MemoryStream(enumSection.Data);
             while (enumSectionStream.Position < enumSection.DataLength)
             {
-                enums.Add(new StructBinEnumData(enumSectionStream) { Id = enums.Count() });
+                enums.Add(new EnumData(enumSectionStream) { Id = enums.Count() });
             }
 
             return enums;
         }
 
-        protected List<StructBinStructData> ReadAllStructDatas()
+        protected List<StructData> ReadAllStructDatas()
         {
-            var structs = new List<StructBinStructData>();
+            var structs = new List<StructData>();
 
             var struSection = FindSection("STRU");
             var struSectionStream = new MemoryStream(struSection.Data);
             while (struSectionStream.Position < struSection.DataLength)
             {
-                structs.Add(new StructBinStructData(struSectionStream) { Id = structs.Count() });
+                structs.Add(new StructData(struSectionStream) { Id = structs.Count() });
             }
 
             return structs;
         }
 
-        protected List<StructBinFieldData> ReadAllFieldDatas()
+        protected List<FieldData> ReadAllFieldDatas()
         {
-            var fields = new List<StructBinFieldData>();
+            var fields = new List<FieldData>();
             var fielSectionStream = new MemoryStream(FindSection("FIEL").Data);
             while (fielSectionStream.Position < fielSectionStream.Length)
             {
-                fields.Add(new StructBinFieldData(fielSectionStream) { Id = fields.Count() } );
+                fields.Add(new FieldData(fielSectionStream) { Id = fields.Count() } );
             }
 
             return fields;
         }
 
-        protected List<StructBinString> ReadAllStrings()
+        protected List<String> ReadAllStrings()
         {
             var chdrSection = FindSection("CHDR");
             var cdatSection = FindSection("CDAT");
 
-            var strings = new List<StructBinString>();
+            var strings = new List<String>();
             var chdrSectionStream = new MemoryStream(chdrSection.Data);
             while (chdrSectionStream.Position < chdrSectionStream.Length)
             {
                 var offset = chdrSectionStream.ReadSigned32Little();
                 var length = chdrSectionStream.ReadSigned32Little();
 
-                strings.Add(new StructBinString
+                strings.Add(new String
                 {
                     Id = strings.Count(),
                     Offset = offset,

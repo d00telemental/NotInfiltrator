@@ -8,8 +8,8 @@ namespace NotInfiltrator.UI.Presentation
 {
     public class FieldData
     {
-        private StructBinFieldData _src = null;
-        private SemanticStructBin _sbin = null;
+        private Serialization.StructBin.FieldData _src = null;
+        private Serialization.StructBin.SemanticStructBin _sbin = null;
 
         public int Id => _src.Id;
         public string Name => _sbin.Strings[_src.NameStrId].Ascii;
@@ -18,7 +18,7 @@ namespace NotInfiltrator.UI.Presentation
         public int Offset => _src.Offset;
         public int ChildKind => _src.ChildKind;
 
-        public FieldData(StructBinFieldData src, SemanticStructBin sbin)
+        public FieldData(Serialization.StructBin.FieldData src, Serialization.StructBin.SemanticStructBin sbin)
         {
             _src = src;
             _sbin = sbin;
