@@ -44,7 +44,7 @@ namespace NotInfiltrator.UI.Windows
         #endregion
 
         #region Non-bindable properties
-        //public List<StructData> StructDatas => (ActiveNode?.Content as SemanticStructBin)?.StructDatas;
+
         #endregion
 
         #region Bindable Properties
@@ -55,6 +55,17 @@ namespace NotInfiltrator.UI.Windows
             set
             {
                 _activeNode = value;
+                OnPropertyChanged();
+            }
+        }
+
+        private StructData _activeStructData = null;
+        public StructData ActiveStructData
+        {
+            get { return _activeStructData; }
+            set
+            {
+                _activeStructData = value;
                 OnPropertyChanged();
             }
         }

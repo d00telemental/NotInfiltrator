@@ -50,7 +50,7 @@ namespace NotInfiltrator.Serialization.StructBin
             var struSectionStream = new MemoryStream(struSection.Data);
             while (struSectionStream.Position < struSection.DataLength)
             {
-                structs.Add(new StructData(struSectionStream, this) { Id = structs.Count });
+                structs.Add(new StructData(structs.Count, this, struSectionStream));
             }
 
             return structs;

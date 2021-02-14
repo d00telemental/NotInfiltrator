@@ -20,8 +20,6 @@
         <converters:StructBinToStrings x:Key="StructBinStringConverter"/>
         <converters:StructBinToEnums x:Key="StructBinEnumConverter"/>
         <converters:StructBinToFields x:Key="StructBinFieldConverter"/>
-        <converters:StructBinToStructs x:Key="StructBinStructConverter"/>
-        <converters:StructDataToPresentation x:Key="StructDataToPresentation"/>
         <converters:StructBinToObjHeaderText x:Key="StructBinToObjHeaderTextConverter"/>
     </Window.Resources>
     <Grid>
@@ -184,19 +182,19 @@
 
                     <!-- Structures -->
                     <TabItem Header="Structs">
-                        <!-- DataContext="{Binding Path=ActiveNode}" -->
-                        <Grid DataContext="{Binding Path=ActiveNode}">
+                        <Grid>
                             <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="4*"/>
+                                <ColumnDefinition Width="3*"/>
                                 <ColumnDefinition Width="5px"/>
-                                <ColumnDefinition Width="2*"/>
+                                <ColumnDefinition Width="4*"/>
                             </Grid.ColumnDefinitions>
 
                             <ListView Grid.Column="0"
-                                      ItemsSource="{Binding Path=Content.StructDatas}">
+                                      ItemsSource="{Binding Path=ActiveNode.Content.StructDatas}"
+                                      SelectedItem="{Binding Path=ActiveStructData, Mode=TwoWay}">
                                 <ListView.ItemTemplate>
                                     <DataTemplate>
-                                        <Grid DataContext="{Binding Converter={StaticResource StructDataToPresentation}}">
+                                        <Grid>
                                             <Grid.ColumnDefinitions>
                                                 <ColumnDefinition />
                                                 <ColumnDefinition Width="*"/>
@@ -237,7 +235,8 @@
                                      VerticalScrollBarVisibility="Visible"
                                      TextWrapping="Wrap"
                                      FontFamily="Consolas"
-                                     IsReadOnly="True"/>
+                                     IsReadOnly="True"
+                                     Text="{Binding Path=ActiveStructData.CodeText, Mode=OneWay}"/>
                         </Grid>
                     </TabItem>
                 </TabControl>
