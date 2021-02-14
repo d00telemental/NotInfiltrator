@@ -67,16 +67,16 @@ namespace NotInfiltrator.Serialization.StructBin
                 }
 
                 // Space
-                stringBuilder.Append($" ");
+                stringBuilder.Append(' ');
 
                 // Field name
-                stringBuilder.Append($"{StructBin.GetString(field.NameStrId)}");
+                stringBuilder.Append(StructBin.GetString(field.NameStrId));
 
                 // Semicolon and a new line
-                stringBuilder.Append(";");
+                stringBuilder.Append(';');
                 if (FirstFieldId + FieldCount - 1 != fieldId)
                 {
-                    stringBuilder.Append("\n");
+                    stringBuilder.Append('\n');
                 }
             }
 

@@ -11,12 +11,12 @@ namespace NotInfiltrator.Serialization.StructBin
 {
     public class BaseStructBin
     {
-        public string AbsoluteFileName { get; set; }
-        public string FileName { get; set; }
+        public string AbsoluteFileName { get; private set; } = null;
+        public string FileName { get; private set; } = null;
 
-        public string Magic;
-        public int Version;
-        public List<Section> Sections = new List<Section>();
+        public string Magic { get; private set; } = null;
+        public int Version { get; private set; } = 0;
+        public List<Section> Sections { get; private set; } = new List<Section>();
 
         protected BaseStructBin(Stream stream, string relativePath = null)
         {

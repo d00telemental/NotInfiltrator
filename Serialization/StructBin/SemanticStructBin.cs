@@ -36,7 +36,7 @@ namespace NotInfiltrator.Serialization.StructBin
             var enumSectionStream = new MemoryStream(enumSection.Data);
             while (enumSectionStream.Position < enumSection.DataLength)
             {
-                enums.Add(new EnumData(enumSectionStream) { Id = enums.Count });
+                enums.Add(new EnumData(enums.Count, this, enumSectionStream));
             }
 
             return enums;
@@ -62,7 +62,7 @@ namespace NotInfiltrator.Serialization.StructBin
             var fielSectionStream = new MemoryStream(FindSection("FIEL").Data);
             while (fielSectionStream.Position < fielSectionStream.Length)
             {
-                fields.Add(new FieldData(fielSectionStream) { Id = fields.Count } );
+                fields.Add(new FieldData(fields.Count, this, fielSectionStream));
             }
 
             return fields;

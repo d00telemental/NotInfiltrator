@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Text;
 
 using NotInfiltrator.Utilities;
@@ -10,26 +11,38 @@ namespace NotInfiltrator.Serialization.StructBin
     public class FieldData
     {
         public int Id { get; set; } = 0;
+        public SemanticStructBin StructBin { get; set; } = null;
 
         public UInt16 NameStrId { get; set; } = 0;
         public UInt16 Type { get; set; } = 0;
         public UInt16 Offset { get; set; } = 0;
         public UInt16 ChildKind { get; set; } = 0;
 
-        public FieldData(Stream source)
+        public string Name => StructBin.GetString(NameStrId);
+        public string TypeName => GetTypeName(Type);
+        public string SizeDesc => GetSizeDesc(GetTypeSize(Type));
+
+        public FieldData(int id, SemanticStructBin sbin, Stream source)
         {
+            Id = id;
+            StructBin = sbin;
+
             NameStrId = source.ReadUnsigned16Little();
             Type = source.ReadUnsigned16Little();
             Offset = source.ReadUnsigned16Little();
             ChildKind = source.ReadUnsigned16Little();
         }
 
-        public int Size => GetSize(Type);
-        public string TypeName => GetTypeName(Type);
+        private static string GetSizeDesc(int size)
+            => size switch
+            {
+                var b when new int[] { 2, 4, 8 }.Contains(b) => $"{b} bytes",
+                1 => "1 byte",
+                _ => $"Unknown: {size}"
+            };
 
-        public static int GetSize(int fieldType)
-        {
-            return fieldType switch
+        public static int GetTypeSize(int fieldType)
+            => fieldType switch
             {
                 0x01 => 1,  // [PrimitiveType] Int8
                 0x02 => 1,  // [PrimitiveType] UInt8
@@ -55,11 +68,9 @@ namespace NotInfiltrator.Serialization.StructBin
                 0x16 => 4,
                 _ => throw new Exception("Unknown field type")
             };
-        }
 
         public static string GetTypeName(int fieldType)
-        {
-            return fieldType switch
+            => fieldType switch
             {
                 0x01 => "Int8",
                 0x02 => "UInt8",
@@ -85,6 +96,5 @@ namespace NotInfiltrator.Serialization.StructBin
                 0x16 => null,
                 _ => throw new Exception("Unknown field type")
             };
-        }
     }
 }

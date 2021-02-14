@@ -9,19 +9,15 @@ namespace NotInfiltrator.Serialization.StructBin
 {
     public class Section
     {
-        public long Start;
-        public long End;
+        public long Start { get; set; } = 0;
+        public long End { get; set; } = 0;
 
-        public string Label;
-        public Int32 DataLength;
-        public Int32 Hash;
-        public byte[] Data;
+        public string Label { get; set; } = null;
+        public Int32 DataLength { get; set; } = 0;
+        public Int32 Hash { get; set; } = 0;
+        public byte[] Data { get; set; } = null;
 
-        // https://stackoverflow.com/a/2022194
-        private int GetNextMultipleOfFour(int num)
-            => (num + 3) & ~3;
-
-        public Int32 RealDataLength
+        public Int32 AlignedDataLength
             => Label == "STRU" ? GetNextMultipleOfFour(DataLength) : DataLength;
 
         public static Section Read(Stream stream)
@@ -31,10 +27,14 @@ namespace NotInfiltrator.Serialization.StructBin
             entry.Label = Encoding.ASCII.GetString(stream.ReadBytes(4));
             entry.DataLength = stream.ReadSigned32Little();
             entry.Hash = stream.ReadSigned32Little();
-            entry.Data = stream.ReadBytes(entry.RealDataLength);
+            entry.Data = stream.ReadBytes(entry.AlignedDataLength);
             entry.End = stream.Position;
             return entry;
         }
+
+        // https://stackoverflow.com/a/2022194
+        private static int GetNextMultipleOfFour(int num)
+            => (num + 3) & ~3;
     }
 
     public static class SectionExtensions
