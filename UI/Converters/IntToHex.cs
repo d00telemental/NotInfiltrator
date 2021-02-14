@@ -10,7 +10,7 @@ namespace NotInfiltrator.UI.Converters
     {
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
-            var num = long.Parse($"{value}");
+            _ = long.Parse($"{value}");
             return $"0x{value:X}";
         }
 

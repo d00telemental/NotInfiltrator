@@ -11,51 +11,39 @@ namespace NotInfiltrator.Serialization
 {
     public class GameFilesystem
     {
-        public string Path = null;
+        public string Path { get; private set; } = null;
+        public GameFilesystemNode RootNode { get; private set; } = new GameFilesystemNode(null, "Filesystem");
+        public Dictionary<string, StructBin.BaseStructBin> StructBinMap { get; private set; } = new Dictionary<string, StructBin.BaseStructBin>();
 
-        public Dictionary<string, StructBin.BaseStructBin> SBinMap = new Dictionary<string, StructBin.BaseStructBin>();
-
-        public GameFilesystemNode Root = new GameFilesystemNode(null, "Filesystem");
 
         public GameFilesystem(string rootPath)
         {
             Path = rootPath;
         }
 
-        public MemoryStream LoadToMemory(string relativePath)
-        {
-            var bytes = File.ReadAllBytes(GetAbsolutePath(relativePath));
-            return new MemoryStream(bytes);
-        }
-
-        public string GetRelativePath(string absolutePath) => absolutePath.Replace(Path, "");
-
-        public string GetAbsolutePath(string relativePath) => Path + relativePath;
-
         public void LoadAllStructBins()
         {
             var files = Directory.GetFiles(Path, "*.sb", SearchOption.AllDirectories).Select(GetRelativePath).ToArray();
-
-            foreach (var filePath in files)
+            foreach (var file in files)
             {
-                var sbin = new StructBin.SemanticStructBin(this, filePath);
-                SBinMap.Add(filePath, sbin);
-                Debug.WriteLine($"Done {sbin.FileName}, {sbin.Sections.Count} entries read.");
+                var sbin = new StructBin.SemanticStructBin(this, file);
+                StructBinMap.Add(file, sbin);
+                Debug.WriteLine($"Done {sbin.Name}, {sbin.Sections.Count} sections read.");
             }
         }
 
         public void BuildFileTree()
         {
-            foreach (var sbin in SBinMap.Values)
+            foreach (var sbin in StructBinMap.Values)
             {
-                var path = sbin.FileName;
+                var path = sbin.Name;
                 if (string.IsNullOrEmpty(path))
                 {
                     continue;
                 }
 
                 var pathChunks = path.Split('\\', StringSplitOptions.RemoveEmptyEntries);
-                var floatingRoot = Root;
+                var floatingRoot = RootNode;
                 foreach (var pathChunk in pathChunks)
                 {
                     floatingRoot = floatingRoot.EmplaceChildIfNotExists(pathChunk);
@@ -70,5 +58,14 @@ namespace NotInfiltrator.Serialization
             LoadAllStructBins();
             BuildFileTree();
         }
+
+        public MemoryStream GetMemoryStreamFor(string relativePath)
+            => new MemoryStream(File.ReadAllBytes(GetAbsolutePath(relativePath)));
+
+        public string GetRelativePath(string absolutePath)
+            => absolutePath.Replace(Path, "");
+
+        public string GetAbsolutePath(string relativePath)
+            => Path + relativePath;
     }
 }

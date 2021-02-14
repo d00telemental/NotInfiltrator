@@ -132,7 +132,7 @@ namespace NotInfiltrator.UI.Windows
             }, "Loading filesystem");
 
             ExecuteOnUIWithStatus(() => {
-                ExecuteOnUIThread(() => { FsTreeView.Items.Add(Fs.Root); });
+                ExecuteOnUIThread(() => { FsTreeView.Items.Add(Fs.RootNode); });
             }, "Updating user interface");
         }
         #endregion

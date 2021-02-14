@@ -32,7 +32,7 @@ namespace NotInfiltrator.UI.Converters
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
             var sbin = value as Serialization.StructBin.SemanticStructBin;
-            if (sbin == null)
+            if (sbin is null)
             {
                 return string.Empty;
             }
@@ -42,27 +42,11 @@ namespace NotInfiltrator.UI.Converters
 
             var objs = new List<StructBinTempObjectData>();
 
-            Func<byte[], UInt32> f = (byte[] b) => {
-                if (b.Length != 4) throw new NullReferenceException();
-
-                UInt32 res = 0;
-
-                res |= (UInt32)((UInt32)b[0] >> (Int32)0x3);
-                res |= (UInt32)((UInt32)b[1] << (Int32)0x5);
-                res |= (UInt32)((UInt32)b[2] << (Int32)0xD);
-                res |= (UInt32)((UInt32)b[3] << (Int32)0x15);
-
-                return res;
-            };
-
-            var stringBuilder = new StringBuilder();
-
-
             var counter = 0;
             while (stream.Position < stream.Length)
             {
                 var origOffset = stream.ReadBytes(4);
-                var offset = f(origOffset);
+                var offset = DecodeOffset(origOffset);
                 if (counter > 0)
                 {
                     objs[counter - 1].Length = offset - objs[counter - 1].Offset;
@@ -71,7 +55,7 @@ namespace NotInfiltrator.UI.Converters
             }
             objs[counter - 1].Length = (uint)data.Length - objs[counter - 1].Offset;
 
-
+            var stringBuilder = new StringBuilder();
             stringBuilder.AppendLine($"Read {counter} indices...");
             stringBuilder.AppendLine("\n");
 
@@ -89,5 +73,21 @@ namespace NotInfiltrator.UI.Converters
 
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
             => throw new NotImplementedException();
+
+        private static uint DecodeOffset(byte[] b)
+        {
+            if (b is null || b.Length != 4)
+            {
+                throw new NullReferenceException();
+            }
+
+            UInt32 res = 0;
+            res |= (UInt32)((UInt32)b[0] >> (Int32)0x3);
+            res |= (UInt32)((UInt32)b[1] << (Int32)0x5);
+            res |= (UInt32)((UInt32)b[2] << (Int32)0xD);
+            res |= (UInt32)((UInt32)b[3] << (Int32)0x15);
+
+            return res;
+        }
     }
 }
