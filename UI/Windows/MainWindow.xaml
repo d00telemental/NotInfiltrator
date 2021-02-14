@@ -116,8 +116,8 @@
                                         <GridViewColumn Width="80" DisplayMemberBinding="{Binding Path=Length, Converter={StaticResource IntToHexConverter}}">
                                             <GridViewColumnHeader>Length</GridViewColumnHeader>
                                         </GridViewColumn>
-                                        <GridViewColumn Width="300px" DisplayMemberBinding="{Binding Path=Ascii}">
-                                            <GridViewColumnHeader>ASCII</GridViewColumnHeader>
+                                        <GridViewColumn Width="300px" DisplayMemberBinding="{Binding Path=Text}">
+                                            <GridViewColumnHeader>Text</GridViewColumnHeader>
                                         </GridViewColumn>
                                     </GridView>
                                 </ListView.View>
@@ -172,7 +172,7 @@
                                         <GridViewColumn Width="80px" DisplayMemberBinding="{Binding Path=Offset, Converter={StaticResource IntToHexConverter}}">
                                             <GridViewColumnHeader>Offset</GridViewColumnHeader>
                                         </GridViewColumn>
-                                        <GridViewColumn Width="80px" DisplayMemberBinding="{Binding Path=ChildKind}">
+                                        <GridViewColumn Width="80px" DisplayMemberBinding="{Binding Path=ChildKind, Converter={StaticResource IntToHexConverter}}">
                                             <GridViewColumnHeader>Child kind</GridViewColumnHeader>
                                         </GridViewColumn>
                                     </GridView>

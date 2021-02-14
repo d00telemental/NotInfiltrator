@@ -25,7 +25,7 @@ namespace NotInfiltrator.Serialization.StructBin
             Strings = ReadAllStrings();
         }
 
-        public string GetString(UInt16 id) => Strings[id].Ascii;
+        public string GetString(UInt16 id) => Strings[id].Text;
 
         protected List<EnumData> ReadAllEnumDatas()
         {
@@ -84,7 +84,7 @@ namespace NotInfiltrator.Serialization.StructBin
                     Id = strings.Count(),
                     Offset = offset,
                     Length = length,
-                    Ascii = Encoding.ASCII.GetString(cdatSection.Data.Skip(offset).Take(length).ToArray())
+                    Text = Encoding.UTF8.GetString(cdatSection.Data.Skip(offset).Take(length).ToArray())
                 });
             }
 

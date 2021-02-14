@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 
 using NotInfiltrator.Serialization;
@@ -12,7 +13,7 @@ namespace NotInfiltrator.UI.Presentation
         private Serialization.StructBin.SemanticStructBin _sbin = null;
 
         public int Id => _src.Id;
-        public string Name => _sbin.Strings[_src.NameStrId].Ascii;
+        public string Name => _sbin.Strings[_src.NameStrId].Text;
         public string Type => _src.TypeName ?? $"unk_0x{_src.Type:X}_t";
         public string SizeDesc => GetSizeDesc(_src.Size);
         public int Offset => _src.Offset;
@@ -27,11 +28,9 @@ namespace NotInfiltrator.UI.Presentation
         private string GetSizeDesc(int size)
             => size switch
             {
-                1 => "BYTE",
-                2 => "WORD",
-                4 => "DWORD",
-                8 => "QWORD",
-                _ => $"?({size})?"
+                var b when new int[] { 2, 4, 8 }.Contains(b) => $"{b} bytes",
+                1 => "1 byte",
+                _ => $"Unknown: {size}"
             };
     }
 }
