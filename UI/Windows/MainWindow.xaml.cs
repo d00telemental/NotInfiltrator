@@ -19,7 +19,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
-
+using System.Windows.Threading;
 using NotInfiltrator.Serialization;
 using NotInfiltrator.Utilities;
 
@@ -37,7 +37,9 @@ namespace NotInfiltrator.UI.Windows
         #endregion
 
         #region Non-bindable properties
-        private GameFilesystem Fs = new GameFilesystem(@"D:\Projects\NotInfiltrator\_game\com.ea.games.meinfiltrator_gamepad\published\");
+        private GameFilesystem Fs = null;
+
+        private readonly string BaseWindowTitle = "ME Infiltrator Data Explorer";
         #endregion
 
         #region Bindable Properties
@@ -59,9 +61,26 @@ namespace NotInfiltrator.UI.Windows
 
         private void UpdateStatus(string text)
             => ExecuteOnUIThread(() => { StatusBar_Status.Text = text; });
+
+        private void ResetStatus()
+            => UpdateStatus(null);
+
+        private async void ExecuteOnUIWithStatus(Action action, string status, int delayMs = 500)
+        {
+            UpdateStatus(status);
+            Dispatcher.Invoke(action, DispatcherPriority.ContextIdle);
+            await Task.Delay(delayMs);
+            ResetStatus();
+        }
+
+        private void UpdateWindowTitle(string title)
+            => ExecuteOnUIThread(() => { Title = $"{title} - {BaseWindowTitle}"; });
+
+        private void ResetWindowTitle()
+            => ExecuteOnUIThread(() => { Title = BaseWindowTitle; });
         #endregion
 
-        #region Window logic
+        #region Window procedures
         public MainWindow()
         {
             InitializeComponent();
@@ -71,22 +90,34 @@ namespace NotInfiltrator.UI.Windows
         private void Window_Loaded(object sender, RoutedEventArgs e)
         {
             Task.Run(() => {
-                UpdateStatus("Loading SBINs");
-                Fs.LoadAllStructBins();
-
-                UpdateStatus("Building filesystem tree");
-                Fs.BuildFileTree();
-
-                UpdateStatus("Updating UI");
-                ExecuteOnUIThread(() => { FsTreeView.Items.Add(Fs.Root); });
-
-                UpdateStatus("");
+                ResetWindowTitle();
+                LoadFilesystem(@"D:\Projects\NotInfiltrator\_game\com.ea.games.meinfiltrator_gamepad\published\");
                 return Task.CompletedTask;
             });
         }
         private void FsTreeView_SelectedItemChanged(object sender, RoutedPropertyChangedEventArgs<object> e)
         {
-            ActiveNode = e.NewValue as GameFilesystemNode;
+            Task.Run(() => {
+                var selection = e.NewValue as GameFilesystemNode;
+                ExecuteOnUIWithStatus(() => {
+                    ActiveNode = selection;
+                    UpdateWindowTitle(selection.Name);
+                }, $"Parsing {selection.Name}");
+            });
+        }
+        #endregion
+
+        #region Window logic
+        public void LoadFilesystem(string rootPath)
+        {
+            ExecuteOnUIWithStatus(() => {
+                Fs = new GameFilesystem(rootPath);
+                Fs.Load();
+            }, "Loading filesystem");
+
+            ExecuteOnUIWithStatus(() => {
+                ExecuteOnUIThread(() => { FsTreeView.Items.Add(Fs.Root); });
+            }, "Updating user interface");
         }
         #endregion
     }

@@ -9,7 +9,7 @@
         xmlns:serialization="clr-namespace:NotInfiltrator.Serialization"
         
         mc:Ignorable="d"
-        Title="ME:Infiltrator filesystem explorer"
+        Title="WINDOW TITLE NOT SET FROM CODE-BEHIND"
         Height="720" Width="1280"
         MinHeight="400" MinWidth="600"
         WindowState="Maximized" SizeToContent="Manual"
