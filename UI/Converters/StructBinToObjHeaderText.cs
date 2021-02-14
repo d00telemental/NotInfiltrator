@@ -7,7 +7,7 @@ using System.Text;
 using System.Windows.Data;
 
 using NotInfiltrator.Serialization;
-using NotInfiltrator.Serialization.StructBin;
+using NotInfiltrator.Serialization.Data;
 using NotInfiltrator.Utilities;
 
 namespace NotInfiltrator.UI.Converters
@@ -31,14 +31,14 @@ namespace NotInfiltrator.UI.Converters
 
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
-            var sbin = value as Serialization.StructBin.SemanticStructBin;
+            var sbin = value as Serialization.StructBin;
             if (sbin is null)
             {
                 return string.Empty;
             }
 
-            var stream = sbin.FindSection("OHDR").NewMemoryStream();
-            var data = sbin.FindSection("DATA").Data;
+            var stream = sbin.GetSection("OHDR").NewMemoryStream();
+            var data = sbin.GetSection("DATA").Data;
 
             var objs = new List<StructBinTempObjectData>();
 

@@ -6,12 +6,12 @@ using System.Text;
 
 using NotInfiltrator.Utilities;
 
-namespace NotInfiltrator.Serialization.StructBin
+namespace NotInfiltrator.Serialization.Data
 {
     public class FieldData
     {
         public int Id { get; set; } = 0;
-        public SemanticStructBin StructBin { get; set; } = null;
+        public StructBin StructBin { get; set; } = null;
 
         public UInt16 NameStrId { get; set; } = 0;
         public UInt16 Type { get; set; } = 0;
@@ -22,7 +22,7 @@ namespace NotInfiltrator.Serialization.StructBin
         public string TypeName => GetTypeName(Type);
         public int Size => GetTypeSize(Type);
 
-        public FieldData(int id, SemanticStructBin sbin, Stream source)
+        public FieldData(int id, StructBin sbin, Stream source)
         {
             Id = id;
             StructBin = sbin;

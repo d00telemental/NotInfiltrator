@@ -7,9 +7,9 @@ using System.Text;
 
 using NotInfiltrator.Utilities;
 
-namespace NotInfiltrator.Serialization.StructBin
+namespace NotInfiltrator.Serialization.Data
 {
-    public class String
+    public class StringData
     {
         public int Id { get; set; } = 0;
         public Int32 Offset { get; set; } = 0;

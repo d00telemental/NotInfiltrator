@@ -5,19 +5,19 @@ using System.Text;
 
 using NotInfiltrator.Utilities;
 
-namespace NotInfiltrator.Serialization.StructBin
+namespace NotInfiltrator.Serialization.Data
 {
     public class EnumData
     {
         public int Id { get; private set; } = 0;
-        public SemanticStructBin StructBin { get; private set; } = null;
+        public StructBin StructBin { get; private set; } = null;
 
         public UInt16 NameStrId { get; set; } = 0;
         public UInt32 ObjReference { get; set; } = 0;
 
         public string Name => StructBin.GetString(NameStrId);
 
-        public EnumData(int id, SemanticStructBin sbin, Stream source)
+        public EnumData(int id, StructBin sbin, Stream source)
         {
             Id = id;
             StructBin = sbin;

@@ -5,12 +5,12 @@ using System.Text;
 
 using NotInfiltrator.Utilities;
 
-namespace NotInfiltrator.Serialization.StructBin
+namespace NotInfiltrator.Serialization.Data
 {
     public class StructData
     {
         public int Id { get; private set; } = 0;
-        public SemanticStructBin StructBin { get; private set; } = null;
+        public StructBin StructBin { get; private set; } = null;
 
         public UInt16 NameStrId { get; set; } = 0;
         public UInt16 FirstFieldId { get; set; } = 0;
@@ -19,7 +19,7 @@ namespace NotInfiltrator.Serialization.StructBin
         public string Name => StructBin.GetString(NameStrId);
         public string CodeText => ComposeCodeDefinition();
 
-        public StructData(int id, SemanticStructBin sbin, Stream source)
+        public StructData(int id, StructBin sbin, Stream source)
         {
             Id = id;
             StructBin = sbin;

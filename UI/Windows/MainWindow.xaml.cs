@@ -20,8 +20,9 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 using System.Windows.Threading;
+
 using NotInfiltrator.Serialization;
-using NotInfiltrator.Serialization.StructBin;
+using NotInfiltrator.Serialization.Data;
 using NotInfiltrator.Utilities;
 
 namespace NotInfiltrator.UI.Windows

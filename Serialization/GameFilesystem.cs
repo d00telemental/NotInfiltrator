@@ -13,7 +13,7 @@ namespace NotInfiltrator.Serialization
     {
         public string Path { get; private set; } = null;
         public GameFilesystemNode RootNode { get; private set; } = new GameFilesystemNode(null, "Filesystem");
-        public Dictionary<string, StructBin.BaseStructBin> StructBinMap { get; private set; } = new Dictionary<string, StructBin.BaseStructBin>();
+        public Dictionary<string, StructBin> StructBinMap { get; private set; } = new Dictionary<string, StructBin>();
 
 
         public GameFilesystem(string rootPath)
@@ -26,7 +26,7 @@ namespace NotInfiltrator.Serialization
             var files = Directory.GetFiles(Path, "*.sb", SearchOption.AllDirectories).Select(GetRelativePath).ToArray();
             foreach (var file in files)
             {
-                var sbin = new StructBin.SemanticStructBin(this, file);
+                var sbin = new StructBin(this, file);
                 StructBinMap.Add(file, sbin);
                 Debug.WriteLine($"Done {sbin.Name}, {sbin.Sections.Count} sections read.");
             }
