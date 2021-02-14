@@ -20,7 +20,7 @@ namespace NotInfiltrator.Serialization.StructBin
 
         public string Name => StructBin.GetString(NameStrId);
         public string TypeName => GetTypeName(Type);
-        public string SizeDesc => GetSizeDesc(GetTypeSize(Type));
+        public int Size => GetTypeSize(Type);
 
         public FieldData(int id, SemanticStructBin sbin, Stream source)
         {
@@ -32,14 +32,6 @@ namespace NotInfiltrator.Serialization.StructBin
             Offset = source.ReadUnsigned16Little();
             ChildKind = source.ReadUnsigned16Little();
         }
-
-        private static string GetSizeDesc(int size)
-            => size switch
-            {
-                var b when new int[] { 2, 4, 8 }.Contains(b) => $"{b} bytes",
-                1 => "1 byte",
-                _ => $"Unknown: {size}"
-            };
 
         public static int GetTypeSize(int fieldType)
             => fieldType switch

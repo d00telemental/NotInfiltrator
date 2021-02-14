@@ -16,6 +16,7 @@
         Loaded="Window_Loaded">
     <Window.Resources>
         <converters:IntToHex x:Key="IntToHexConverter"/>
+        <converters:IntToFieldSizeDescription x:Key="IntToFieldSizeDescriptionConverter"/>
         <converters:StructBinToObjHeaderText x:Key="StructBinToObjHeaderTextConverter"/>
     </Window.Resources>
     <Grid>
@@ -64,7 +65,7 @@
                 <GridSplitter Grid.Row="1" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
                 <TabControl Grid.Row="2" TabStripPlacement="Bottom">
                     
-                    <!-- SBIN sections -->
+                    <!-- Sections -->
                     <TabItem Header="Blocks">
                         <Grid DataContext="{Binding Path=ActiveNode}">
                             <ListView ItemsSource="{Binding Path=Content.Sections}">
@@ -151,7 +152,7 @@
                                         <GridViewColumn Width="80px" DisplayMemberBinding="{Binding Path=TypeName}">
                                             <GridViewColumnHeader>Type</GridViewColumnHeader>
                                         </GridViewColumn>
-                                        <GridViewColumn Width="80px" DisplayMemberBinding="{Binding Path=SizeDesc}">
+                                        <GridViewColumn Width="80px" DisplayMemberBinding="{Binding Path=Size, Converter={StaticResource IntToFieldSizeDescriptionConverter}}">
                                             <GridViewColumnHeader>Size</GridViewColumnHeader>
                                         </GridViewColumn>
                                         <GridViewColumn Width="80px" DisplayMemberBinding="{Binding Path=Offset, Converter={StaticResource IntToHexConverter}}">
