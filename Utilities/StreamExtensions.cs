@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Text;
 
-namespace NotInfiltrator
+namespace NotInfiltrator.Utilities
 {
     public static class StreamExtensions
     {

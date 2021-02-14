@@ -1,9 +1,13 @@
-﻿<Window x:Class="NotInfiltrator.MainWindow"
+﻿<Window x:Class="NotInfiltrator.UI.Windows.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:local="clr-namespace:NotInfiltrator"
+        
+        xmlns:converters="clr-namespace:NotInfiltrator.UI.Converters"
+        xmlns:local="clr-namespace:NotInfiltrator.UI.Windows"
+        xmlns:serialization="clr-namespace:NotInfiltrator.Serialization"
+        
         mc:Ignorable="d"
         Title="ME:Infiltrator filesystem explorer"
         Height="720" Width="1280"
@@ -11,13 +15,13 @@
         WindowState="Maximized" SizeToContent="Manual"
         Loaded="Window_Loaded">
     <Window.Resources>
-        <local:StructBinSectionConverter x:Key="StructBinSectionConverter"/>
-        <local:StructBinEnumConverter x:Key="StructBinEnumConverter"/>
-        <local:StructBinStructConverter x:Key="StructBinStructConverter"/>
-        <local:StructBinFieldConverter x:Key="StructBinFieldConverter"/>
-        <local:StructBinStringConverter x:Key="StructBinStringConverter"/>
-        <local:StructBinToObjHeaderTextConverter x:Key="StructBinToObjHeaderTextConverter"/>
-        <local:IntToHexConverter x:Key="IntToHexConverter"/>
+        <converters:IntToHex x:Key="IntToHexConverter"/>
+        <converters:StructBinToSections x:Key="StructBinSectionConverter"/>
+        <converters:StructBinToStrings x:Key="StructBinStringConverter"/>
+        <converters:StructBinToEnums x:Key="StructBinEnumConverter"/>
+        <converters:StructBinToFields x:Key="StructBinFieldConverter"/>
+        <converters:StructBinToStructs x:Key="StructBinStructConverter"/>
+        <converters:StructBinToObjHeaderText x:Key="StructBinToObjHeaderTextConverter"/>
     </Window.Resources>
     <Grid>
         <Grid.RowDefinitions>
@@ -39,7 +43,7 @@
                     </Style>
                 </TreeView.ItemContainerStyle>
                 <TreeView.ItemTemplate>
-                    <HierarchicalDataTemplate DataType="{x:Type local:GameFilesystemNode}" ItemsSource="{Binding Children}">
+                    <HierarchicalDataTemplate DataType="{x:Type serialization:GameFilesystemNode}" ItemsSource="{Binding Children}">
                         <TextBlock Text="{Binding Name}" />
                     </HierarchicalDataTemplate>
                 </TreeView.ItemTemplate>

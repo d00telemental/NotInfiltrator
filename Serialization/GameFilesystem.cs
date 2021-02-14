@@ -7,7 +7,7 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text;
 
-namespace NotInfiltrator
+namespace NotInfiltrator.Serialization
 {
     [DebuggerDisplay("GameFilesystemNode({Name})")]
     public class GameFilesystemNode

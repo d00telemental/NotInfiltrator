@@ -5,7 +5,9 @@ using System.IO;
 using System.Linq;
 using System.Text;
 
-namespace NotInfiltrator
+using NotInfiltrator.Utilities;
+
+namespace NotInfiltrator.Serialization
 {
     public class SemanticStructBin
         : StructBin

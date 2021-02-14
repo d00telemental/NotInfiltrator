@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace NotInfiltrator
+namespace NotInfiltrator.Utilities
 {
     public class MyAssertException : NullReferenceException
     {

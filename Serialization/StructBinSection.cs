@@ -3,7 +3,9 @@ using System.Collections.Generic;
 using System.IO;
 using System.Text;
 
-namespace NotInfiltrator
+using NotInfiltrator.Utilities;
+
+namespace NotInfiltrator.Serialization
 {
     public class StructBinSection
     {
