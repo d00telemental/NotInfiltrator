@@ -42,37 +42,35 @@ namespace NotInfiltrator.Serialization
             Strings = ReadAllStrings();
         }
 
+        #region Utility accessors
         public string GetString(UInt16 id)
             => Strings[id].Text;
 
         public SectionData GetSection(string name)
             => Sections.Where(s => s.Label == name).Single();
+        #endregion
 
+        #region Section reading
         protected List<EnumData> ReadAllEnumDatas()
         {
             var enums = new List<EnumData>();
-
-            var enumSection = GetSection("ENUM");
-            var enumSectionStream = new MemoryStream(enumSection.Data);
-            while (enumSectionStream.Position < enumSection.DataLength)
+            var enumSectionStream = new MemoryStream(GetSection("ENUM").Data);
+            while (enumSectionStream.Position < enumSectionStream.Length)
             {
                 enums.Add(new EnumData(enums.Count, this, enumSectionStream));
             }
-
             return enums;
         }
 
         protected List<StructData> ReadAllStructDatas()
         {
             var structs = new List<StructData>();
-
             var struSection = GetSection("STRU");
             var struSectionStream = new MemoryStream(struSection.Data);
-            while (struSectionStream.Position < struSection.DataLength)
+            while (struSectionStream.Position < struSection.DataLength)  // can't read to stream length here because it = AlignedDataLength
             {
                 structs.Add(new StructData(structs.Count, this, struSectionStream));
             }
-
             return structs;
         }
 
@@ -84,7 +82,6 @@ namespace NotInfiltrator.Serialization
             {
                 fields.Add(new FieldData(fields.Count, this, fielSectionStream));
             }
-
             return fields;
         }
 
@@ -100,16 +97,20 @@ namespace NotInfiltrator.Serialization
                 var offset = chdrSectionStream.ReadSigned32Little();
                 var length = chdrSectionStream.ReadSigned32Little();
 
+                var textBuffer = new byte[length];
+                Array.Copy(cdatSection.Data, offset, textBuffer, 0, length);
+
                 strings.Add(new StringData
                 {
                     Id = strings.Count,
                     Offset = offset,
                     Length = length,
-                    Text = Encoding.UTF8.GetString(cdatSection.Data.Skip(offset).Take(length).ToArray())
+                    Text = Encoding.UTF8.GetString(textBuffer)
                 });
             }
 
             return strings;
         }
+        #endregion
     }
 }
