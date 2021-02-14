@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
@@ -35,7 +36,7 @@ namespace NotInfiltrator.Serialization.StructBin
             var enumSectionStream = new MemoryStream(enumSection.Data);
             while (enumSectionStream.Position < enumSection.DataLength)
             {
-                enums.Add(new EnumData(enumSectionStream) { Id = enums.Count() });
+                enums.Add(new EnumData(enumSectionStream) { Id = enums.Count });
             }
 
             return enums;
@@ -49,7 +50,7 @@ namespace NotInfiltrator.Serialization.StructBin
             var struSectionStream = new MemoryStream(struSection.Data);
             while (struSectionStream.Position < struSection.DataLength)
             {
-                structs.Add(new StructData(struSectionStream) { Id = structs.Count() });
+                structs.Add(new StructData(struSectionStream, this) { Id = structs.Count });
             }
 
             return structs;
@@ -61,7 +62,7 @@ namespace NotInfiltrator.Serialization.StructBin
             var fielSectionStream = new MemoryStream(FindSection("FIEL").Data);
             while (fielSectionStream.Position < fielSectionStream.Length)
             {
-                fields.Add(new FieldData(fielSectionStream) { Id = fields.Count() } );
+                fields.Add(new FieldData(fielSectionStream) { Id = fields.Count } );
             }
 
             return fields;
@@ -81,7 +82,7 @@ namespace NotInfiltrator.Serialization.StructBin
 
                 strings.Add(new String
                 {
-                    Id = strings.Count(),
+                    Id = strings.Count,
                     Offset = offset,
                     Length = length,
                     Text = Encoding.UTF8.GetString(cdatSection.Data.Skip(offset).Take(length).ToArray())

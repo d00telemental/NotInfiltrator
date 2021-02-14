@@ -21,6 +21,7 @@ using System.Windows.Navigation;
 using System.Windows.Shapes;
 using System.Windows.Threading;
 using NotInfiltrator.Serialization;
+using NotInfiltrator.Serialization.StructBin;
 using NotInfiltrator.Utilities;
 
 namespace NotInfiltrator.UI.Windows
@@ -36,10 +37,14 @@ namespace NotInfiltrator.UI.Windows
         }
         #endregion
 
-        #region Non-bindable properties
+        #region Internal fields
         private GameFilesystem Fs = null;
 
         private readonly string BaseWindowTitle = "ME Infiltrator Data Explorer";
+        #endregion
+
+        #region Non-bindable properties
+        //public List<StructData> StructDatas => (ActiveNode?.Content as SemanticStructBin)?.StructDatas;
         #endregion
 
         #region Bindable Properties
@@ -56,7 +61,7 @@ namespace NotInfiltrator.UI.Windows
         #endregion
 
         #region Common UI procedures
-        private void ExecuteOnUIThread(Action action)
+        private static void ExecuteOnUIThread(Action action)
             => Application.Current.Dispatcher.Invoke(action);
 
         private void UpdateStatus(string text)
