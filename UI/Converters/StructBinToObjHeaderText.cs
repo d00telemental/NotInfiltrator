@@ -37,8 +37,8 @@ namespace NotInfiltrator.UI.Converters
                 return string.Empty;
             }
 
-            var stream = sbin.GetSection("OHDR").NewMemoryStream();
-            var data = sbin.GetSection("DATA").Data;
+            var stream = sbin.Sections["OHDR"].NewMemoryStream();
+            var data = sbin.Sections["DATA"].Data;
 
             var objs = new List<StructBinTempObjectData>();
 

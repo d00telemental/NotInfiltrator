@@ -22,7 +22,7 @@ namespace NotInfiltrator.Serialization
         public string Name { get; private set; } = null;
         public string Magic { get; private set; } = null;
         public int Version { get; private set; } = 0;
-        public List<SectionData> Sections { get; private set; } = null;
+        public Dictionary<string, SectionData> Sections { get; private set; } = null;
         #endregion
 
         #region Parsed file 'data's
@@ -40,29 +40,27 @@ namespace NotInfiltrator.Serialization
             Common.AssertEquals(Magic = ReadingStream.ReadAscFixed(4), "SBIN", "Wrong SBIN magic");
             Common.AssertEquals(Version = ReadingStream.ReadSigned32Little(), 3, "Wrong SBIN version");
 
-            Sections = ReadAllSections();  // general section partitioning must be read before everything else
+            Sections = ReadSectionPartitioning();  // sections must be read before everything else
 
             EnumDatas = ReadAllEnumDatas();
             StructDatas = ReadAllStructDatas();
             FieldDatas = ReadAllFieldDatas();
-            Strings = ReadAllStrings();
+            Strings = ReadAllStringDatas();
         }
 
         #region Utility accessors
         public string GetString(UInt16 id)
             => Strings[id].Text;
-
-        public SectionData GetSection(string name)
-            => Sections.Where(s => s.Label == name).Single();
         #endregion
 
         #region Section reading
-        protected List<SectionData> ReadAllSections()
+        protected Dictionary<string, SectionData> ReadSectionPartitioning()
         {
-            var sections = new List<SectionData>();
+            var sections = new Dictionary<string, SectionData>();
             while (ReadingStream.Position < ReadingStream.Length)
             {
-                sections.Add(new(sections.Count, this, ReadingStream));
+                var sectionData = new SectionData(sections.Count, this, ReadingStream);
+                sections.Add(sectionData.Label, sectionData);
             }
             return sections;
         }
@@ -70,7 +68,7 @@ namespace NotInfiltrator.Serialization
         protected List<EnumData> ReadAllEnumDatas()
         {
             var enums = new List<EnumData>();
-            var enumSection = GetSection("ENUM");
+            var enumSection = Sections["ENUM"];
 
             ReadingStream.Seek(enumSection.Start + enumSection.HeaderSize, SeekOrigin.Begin);
             while (ReadingStream.Position < enumSection.End)
@@ -83,7 +81,7 @@ namespace NotInfiltrator.Serialization
         protected List<StructData> ReadAllStructDatas()
         {
             var structs = new List<StructData>();
-            var struSection = GetSection("STRU");
+            var struSection = Sections["STRU"];
 
             ReadingStream.Seek(struSection.Start + struSection.HeaderSize, SeekOrigin.Begin);
             while (ReadingStream.Position < struSection.End)
@@ -96,7 +94,7 @@ namespace NotInfiltrator.Serialization
         protected List<FieldData> ReadAllFieldDatas()
         {
             var fields = new List<FieldData>();
-            var fielSection = GetSection("FIEL");
+            var fielSection = Sections["FIEL"];
 
             ReadingStream.Seek(fielSection.Start + fielSection.HeaderSize, SeekOrigin.Begin);
             while (ReadingStream.Position < fielSection.End)
@@ -106,10 +104,10 @@ namespace NotInfiltrator.Serialization
             return fields;
         }
 
-        protected List<StringData> ReadAllStrings()
+        protected List<StringData> ReadAllStringDatas()
         {
-            var chdrSection = GetSection("CHDR");
-            var cdatSection = GetSection("CDAT");
+            var chdrSection = Sections["CHDR"];
+            var cdatSection = Sections["CDAT"];
 
             var strings = new List<StringData>();
             var textBuffer = new byte[4096];

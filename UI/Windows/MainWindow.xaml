@@ -71,19 +71,19 @@
                             <ListView ItemsSource="{Binding Path=Content.Sections}">
                                 <ListView.View>
                                     <GridView>
-                                        <GridViewColumn Width="160px" DisplayMemberBinding="{Binding Path=Label}">
+                                        <GridViewColumn Width="160px" DisplayMemberBinding="{Binding Path=Value.Label}">
                                             <GridViewColumnHeader>Label</GridViewColumnHeader>
                                         </GridViewColumn>
-                                        <GridViewColumn Width="80px" DisplayMemberBinding="{Binding Path=Start, Converter={StaticResource IntToHexConverter}}">
+                                        <GridViewColumn Width="80px" DisplayMemberBinding="{Binding Path=Value.Start, Converter={StaticResource IntToHexConverter}}">
                                             <GridViewColumnHeader>Start</GridViewColumnHeader>
                                         </GridViewColumn>
-                                        <GridViewColumn Width="80px" DisplayMemberBinding="{Binding Path=DataLength, Converter={StaticResource IntToHexConverter}}">
+                                        <GridViewColumn Width="80px" DisplayMemberBinding="{Binding Path=Value.DataLength, Converter={StaticResource IntToHexConverter}}">
                                             <GridViewColumnHeader>Length</GridViewColumnHeader>
                                         </GridViewColumn>
-                                        <GridViewColumn Width="80px" DisplayMemberBinding="{Binding Path=AlignedDataLength, Converter={StaticResource IntToHexConverter}}">
+                                        <GridViewColumn Width="80px" DisplayMemberBinding="{Binding Path=Value.AlignedDataLength, Converter={StaticResource IntToHexConverter}}">
                                             <GridViewColumnHeader>(Aligned)</GridViewColumnHeader>
                                         </GridViewColumn>
-                                        <GridViewColumn Width="80px" DisplayMemberBinding="{Binding Path=Hash, Converter={StaticResource IntToHexConverter}}">
+                                        <GridViewColumn Width="80px" DisplayMemberBinding="{Binding Path=Value.Hash, Converter={StaticResource IntToHexConverter}}">
                                             <GridViewColumnHeader>Hash</GridViewColumnHeader>
                                         </GridViewColumn>
                                     </GridView>
