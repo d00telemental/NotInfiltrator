@@ -39,7 +39,7 @@ namespace NotInfiltrator.UI.Windows
         #endregion
 
         #region Internal fields
-        private GameFilesystem Fs = null;
+        private GameFilesystem Filesystem = null;
 
         private readonly string BaseWindowTitle = "ME Infiltrator Data Explorer";
         #endregion
@@ -128,12 +128,11 @@ namespace NotInfiltrator.UI.Windows
         private void LoadFilesystem(string rootPath)
         {
             ExecuteOnUIWithStatus(() => {
-                Fs = new GameFilesystem(rootPath);
-                Fs.Load();
+                Filesystem = new GameFilesystem(rootPath);
             }, "Loading filesystem");
 
             ExecuteOnUIWithStatus(() => {
-                ExecuteOnUIThread(() => { FsTreeView.Items.Add(Fs.RootNode); });
+                ExecuteOnUIThread(() => { FsTreeView.Items.Add(Filesystem.RootNode); });
             }, "Updating user interface");
         }
         #endregion

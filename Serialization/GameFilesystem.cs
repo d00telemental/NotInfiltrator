@@ -12,23 +12,24 @@ namespace NotInfiltrator.Serialization
     public class GameFilesystem
     {
         public string Path { get; private set; } = null;
-        public GameFilesystemNode RootNode { get; private set; } = new GameFilesystemNode(null, "Filesystem");
-        public Dictionary<string, StructBin> StructBinMap { get; private set; } = new Dictionary<string, StructBin>();
+        public GameFilesystemNode RootNode { get; private set; } = new (null, "Filesystem");
+        public Dictionary<string, StructBin> StructBinMap { get; private set; } = new ();
 
 
         public GameFilesystem(string rootPath)
         {
             Path = rootPath;
+
+            LoadAllStructBins();
+            BuildFileTree();
         }
 
         public void LoadAllStructBins()
         {
-            var files = Directory.GetFiles(Path, "*.sb", SearchOption.AllDirectories).Select(GetRelativePath).ToArray();
-            foreach (var file in files)
+            var files = Directory.GetFiles(Path, "*.sb", SearchOption.AllDirectories).Select(GetRelativePath);
+            foreach (var fileName in files)
             {
-                var sbin = new StructBin(this, file);
-                StructBinMap.Add(file, sbin);
-                Debug.WriteLine($"Done {sbin.Name}, {sbin.Sections.Count} sections read.");
+                StructBinMap.Add(fileName, new (this, fileName));
             }
         }
 
@@ -49,18 +50,12 @@ namespace NotInfiltrator.Serialization
                     floatingRoot = floatingRoot.EmplaceChildIfNotExists(pathChunk);
                 }
 
-                floatingRoot.Content = sbin;
+                floatingRoot.Content = sbin;  // set the content of the branch tip
             }
         }
 
-        public void Load()
-        {
-            LoadAllStructBins();
-            BuildFileTree();
-        }
-
         public MemoryStream GetMemoryStreamFor(string relativePath)
-            => new MemoryStream(File.ReadAllBytes(GetAbsolutePath(relativePath)));
+            => new (File.ReadAllBytes(GetAbsolutePath(relativePath)));
 
         public string GetRelativePath(string absolutePath)
             => absolutePath.Replace(Path, "");

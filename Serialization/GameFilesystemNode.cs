@@ -9,37 +9,24 @@ namespace NotInfiltrator.Serialization
     [DebuggerDisplay("GameFilesystemNode({Name})")]
     public class GameFilesystemNode
     {
-        public WeakReference<GameFilesystemNode> ParentRef { get; } = null;
-
-        public string Name { get; } = null;
-
-        public List<GameFilesystemNode> Children { get; } = new List<GameFilesystemNode>();
-
+        public string Name { get; private set; } = null;
         public object Content { get; set; } = null;
+        public List<GameFilesystemNode> Children { get; } = new ();
+        public WeakReference<GameFilesystemNode> ParentRef { get; private set; } = null;
 
         public GameFilesystemNode(GameFilesystemNode parent, string name)
         {
             Name = name;
 
-            if (parent != null)
+            if (parent is not null)
             {
                 parent.Children.Add(this);
-                ParentRef = new WeakReference<GameFilesystemNode>(parent);
+                ParentRef = new (parent);
             }
         }
 
         public GameFilesystemNode EmplaceChildIfNotExists(string name)
-        {
-            var existingChild = FindDirectChild(name);
-            if (existingChild == null)
-            {
-                return new GameFilesystemNode(this, name);
-            }
-            else
-            {
-                return existingChild;
-            }
-        }
+            => FindDirectChild(name) ?? new (this, name);
 
         public GameFilesystemNode FindDirectChild(string name)
         {
