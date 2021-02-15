@@ -108,6 +108,7 @@ namespace NotInfiltrator.Serialization
 
         protected List<ObjectData> ReadAllObjectDatas()
         {
+            var objectOffsets = new List<byte[]>();
             var objectDatas = new List<ObjectData>();
 
             var ohdrSection = Sections["OHDR"];
@@ -116,16 +117,28 @@ namespace NotInfiltrator.Serialization
             ReadingStream.Seek(ohdrSection.Start + ohdrSection.HeaderSize, SeekOrigin.Begin);
             while (ReadingStream.Position < ohdrSection.End)
             {
-                var encodedOffset = ReadingStream.ReadBytes(4);
-
-                var offset = (int)DecodeObjectOffset(encodedOffset);
-                if (objectDatas.Count > 0)
-                {
-                    objectDatas[^1].AlignedLength = offset - objectDatas[^1].Offset;
-                }
-                objectDatas.Add(new(objectDatas.Count, this, offset, encodedOffset));
+                objectOffsets.Add(ReadingStream.ReadBytes(4));
             }
-            objectDatas[^1].AlignedLength = dataSection.Data.Length - objectDatas[^1].Offset;
+            Debug.WriteLine($"Read OHDR for {Name}: {objectOffsets.Count} indices");
+            
+
+            for (int index = 0; index < objectOffsets.Count; index++)
+            {
+                var decodedOffset = ObjectData.DecodeOffset(objectOffsets[index]);
+                var nextDecodedOffset = index switch
+                {
+                    var value when value + 1 < objectOffsets.Count => ObjectData.DecodeOffset(objectOffsets[index + 1]),
+                    _ => dataSection.Data.Length
+                };
+
+                objectDatas.Add(new(index, this)
+                {
+                    Offset = decodedOffset,
+                    AlignedLength = nextDecodedOffset - decodedOffset,
+                    AlignedData = dataSection.Data[decodedOffset..nextDecodedOffset],
+                    EncodedOffset = objectOffsets[index]
+                });
+            }
 
             return objectDatas;
         }
@@ -157,21 +170,5 @@ namespace NotInfiltrator.Serialization
             return strings;
         }
         #endregion
-
-        private static uint DecodeObjectOffset(byte[] b)
-        {
-            if (b is null || b.Length != 4)
-            {
-                throw new NullReferenceException();
-            }
-
-            UInt32 res = 0;
-            res |= (UInt32)((UInt32)b[0] >> (Int32)0x3);
-            res |= (UInt32)((UInt32)b[1] << (Int32)0x5);
-            res |= (UInt32)((UInt32)b[2] << (Int32)0xD);
-            res |= (UInt32)((UInt32)b[3] << (Int32)0x15);
-
-            return res;
-        }
     }
 }
