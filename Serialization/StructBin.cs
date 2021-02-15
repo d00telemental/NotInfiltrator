@@ -13,17 +13,24 @@ namespace NotInfiltrator.Serialization
 {
     public class StructBin
     {
+        /// <summary>
+        /// Stream used for reading operations while parsing.
+        /// </summary>
         private MemoryStream ReadingStream = null;
 
+        #region File contents as seen in their serialized form
         public string Name { get; private set; } = null;
         public string Magic { get; private set; } = null;
         public int Version { get; private set; } = 0;
         public List<SectionData> Sections { get; private set; } = null;
+        #endregion
 
+        #region Parsed file 'data's
         public List<EnumData> EnumDatas { get; private set; } = null;
         public List<StructData> StructDatas { get; private set; } = null;
         public List<FieldData> FieldDatas { get; private set; } = null;
         public List<StringData> Strings { get; private set; } = null;
+        #endregion
 
         public StructBin(GameFilesystem fs, string relativePath)
         {
@@ -33,11 +40,7 @@ namespace NotInfiltrator.Serialization
             Common.AssertEquals(Magic = ReadingStream.ReadAscFixed(4), "SBIN", "Wrong SBIN magic");
             Common.AssertEquals(Version = ReadingStream.ReadSigned32Little(), 3, "Wrong SBIN version");
 
-            Sections = new();
-            while (ReadingStream.Position < ReadingStream.Length)
-            {
-                Sections.Add(new(Sections.Count, this, ReadingStream));
-            }
+            Sections = ReadAllSections();  // general section partitioning must be read before everything else
 
             EnumDatas = ReadAllEnumDatas();
             StructDatas = ReadAllStructDatas();
@@ -54,6 +57,16 @@ namespace NotInfiltrator.Serialization
         #endregion
 
         #region Section reading
+        protected List<SectionData> ReadAllSections()
+        {
+            var sections = new List<SectionData>();
+            while (ReadingStream.Position < ReadingStream.Length)
+            {
+                sections.Add(new(sections.Count, this, ReadingStream));
+            }
+            return sections;
+        }
+
         protected List<EnumData> ReadAllEnumDatas()
         {
             var enums = new List<EnumData>();
@@ -109,9 +122,8 @@ namespace NotInfiltrator.Serialization
 
                 Array.Copy(cdatSection.Data, offset, textBuffer, 0, length);
 
-                strings.Add(new()
+                strings.Add(new(strings.Count, this)
                 {
-                    Id = strings.Count,
                     Offset = offset,
                     Length = length,
                     Text = Encoding.UTF8.GetString(textBuffer, 0, length)

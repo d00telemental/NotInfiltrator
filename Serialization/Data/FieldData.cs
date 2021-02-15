@@ -8,11 +8,8 @@ using NotInfiltrator.Utilities;
 
 namespace NotInfiltrator.Serialization.Data
 {
-    public class FieldData
+    public class FieldData : Data
     {
-        public int Id { get; set; } = 0;
-        public StructBin StructBin { get; set; } = null;
-
         public UInt16 NameStrId { get; set; } = 0;
         public UInt16 Type { get; set; } = 0;
         public UInt16 Offset { get; set; } = 0;
@@ -23,10 +20,8 @@ namespace NotInfiltrator.Serialization.Data
         public int Size => GetTypeSize(Type);
 
         public FieldData(int id, StructBin sbin, Stream source)
+            : base(id, sbin)
         {
-            Id = id;
-            StructBin = sbin;
-
             NameStrId = source.ReadUnsigned16Little();
             Type = source.ReadUnsigned16Little();
             Offset = source.ReadUnsigned16Little();

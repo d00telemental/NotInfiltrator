@@ -1,29 +1,26 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Text;
 
 using NotInfiltrator.Utilities;
 
 namespace NotInfiltrator.Serialization.Data
 {
-    public class StructData
+    public class StructData : Data
     {
-        public int Id { get; private set; } = 0;
-        public StructBin StructBin { get; private set; } = null;
-
         public UInt16 NameStrId { get; set; } = 0;
         public UInt16 FirstFieldId { get; set; } = 0;
         public UInt16 FieldCount { get; set; } = 0;
 
         public string Name => StructBin.GetString(NameStrId);
+        public List<FieldData> Fields => StructBin.FieldDatas.Skip(FirstFieldId).Take(FieldCount).ToList();
         public string CodeText => ComposeCodeDefinition();
 
         public StructData(int id, StructBin sbin, Stream source)
+            : base(id, sbin)
         {
-            Id = id;
-            StructBin = sbin;
-
             NameStrId = source.ReadUnsigned16Little();
             FirstFieldId = source.ReadUnsigned16Little();
             FieldCount = source.ReadUnsigned16Little();

@@ -119,7 +119,7 @@ namespace NotInfiltrator.UI.Windows
                 ExecuteOnUIWithStatus(() => {
                     ActiveNode = selection;
                     UpdateWindowTitle(selection.Name);
-                }, $"Parsing {selection.Name}");
+                }, $"Updating user interface for {selection.Name}");
             });
         }
         #endregion

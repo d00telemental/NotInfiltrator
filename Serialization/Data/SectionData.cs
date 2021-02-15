@@ -7,11 +7,8 @@ using NotInfiltrator.Utilities;
 
 namespace NotInfiltrator.Serialization.Data
 {
-    public class SectionData
+    public class SectionData : Data
     {
-        public int Id { get; private set; } = 0;
-        public StructBin StructBin { get; private set; } = null;
-
         public long Start { get; private set; } = 0;
         public long End { get; private set; } = 0;
         public long AlignedEnd { get; private set; } = 0;
@@ -27,10 +24,8 @@ namespace NotInfiltrator.Serialization.Data
         public readonly int HeaderSize = 4 * 3;
 
         public SectionData(int id, StructBin sbin, Stream source)
+            : base(id, sbin)
         {
-            Id = id;
-            StructBin = sbin;
-
             Start = source.Position;
 
             Label = Encoding.ASCII.GetString(source.ReadBytes(4));
