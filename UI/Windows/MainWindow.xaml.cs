@@ -120,6 +120,7 @@ namespace NotInfiltrator.UI.Windows
                     ActiveNode = selection;
                     UpdateWindowTitle(selection.Name);
                 }, $"Updating user interface for {selection.Name}");
+                GC.Collect();  // saves up to 100% of memory after some time of switching between GameFilesystemNodes.
             });
         }
         #endregion

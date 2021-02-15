@@ -15,8 +15,9 @@ namespace NotInfiltrator.Serialization.Data
         public UInt16 FieldCount { get; init; } = 0;
 
         public string Name => StructBin.GetString(NameId);
-        public List<FieldData> Fields => StructBin.FieldDatas.Skip(FirstFieldId).Take(FieldCount).ToList();
         public string CodeText => ComposeCodeDefinition();
+        public List<FieldData> Fields => StructBin.FieldDatas.GetRange(FirstFieldId, FieldCount);
+        public int Size => Fields.Select(f => f.Size).Sum();
 
         public StructData(int id, StructBin sbin) : base(id, sbin) { }
 

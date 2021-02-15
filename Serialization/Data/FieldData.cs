@@ -21,7 +21,7 @@ namespace NotInfiltrator.Serialization.Data
 
         public FieldData(int id, StructBin sbin) : base(id, sbin) { }
 
-        public static int GetTypeSize(int fieldType)
+        public int GetTypeSize(int fieldType)
             => fieldType switch
             {
                 0x01 => 1,  // [PrimitiveType] Int8
@@ -39,7 +39,7 @@ namespace NotInfiltrator.Serialization.Data
                 0x0D => 2,  // [PrimitiveType] String
                 0x0E => -1, // [PrimitiveType] POD             // TODO
                 0x0F => 4,  // [PrimitiveType] Reference
-                0x10 => -1, // [PrimitiveType] InlineStruct    // TODO
+                0x10 => StructBin.StructDatas[ChildKind].Size, // [PrimitiveType] InlineStruct
                 0x11 => 4,  // [PrimitiveType] Array
                 0x12 => 4,  // [PrimitiveType] Enum
                 0x13 => 4,  // [PrimitiveType] BitField
