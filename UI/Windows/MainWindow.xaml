@@ -35,12 +35,12 @@
             <TreeView x:Name="FsTreeView" Grid.Column="0" SelectedItemChanged="FsTreeView_SelectedItemChanged">
                 <TreeView.ItemContainerStyle>
                     <Style TargetType="{x:Type TreeViewItem}">
-                        <Setter Property="IsExpanded" Value="True" />
+                        <Setter Property="IsExpanded" Value="True"/>
                     </Style>
                 </TreeView.ItemContainerStyle>
                 <TreeView.ItemTemplate>
                     <HierarchicalDataTemplate DataType="{x:Type serialization:GameFilesystemNode}" ItemsSource="{Binding Children}">
-                        <TextBlock Text="{Binding Name}" />
+                        <TextBlock Text="{Binding Name}"/>
                     </HierarchicalDataTemplate>
                 </TreeView.ItemTemplate>
             </TreeView>

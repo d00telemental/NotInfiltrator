@@ -14,6 +14,7 @@ namespace NotInfiltrator.Serialization.Data
 
         public long Start { get; private set; } = 0;
         public long End { get; private set; } = 0;
+        public long AlignedEnd { get; private set; } = 0;
 
         public string Label { get; private set; } = null;
         public Int32 DataLength { get; private set; } = 0;
@@ -22,6 +23,8 @@ namespace NotInfiltrator.Serialization.Data
 
         public Int32 AlignedDataLength
             => Label == "STRU" ? NextMultipleOfFour(DataLength) : DataLength;
+
+        public readonly int HeaderSize = 4 * 3;
 
         public SectionData(int id, StructBin sbin, Stream source)
         {
@@ -35,7 +38,8 @@ namespace NotInfiltrator.Serialization.Data
             Hash = source.ReadSigned32Little();
             Data = source.ReadBytes(AlignedDataLength);
 
-            End = source.Position;
+            End = Start + HeaderSize + DataLength;
+            AlignedEnd = source.Position;
         }
 
         // https://stackoverflow.com/a/2022194

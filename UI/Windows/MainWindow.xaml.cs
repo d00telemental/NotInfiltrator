@@ -125,7 +125,7 @@ namespace NotInfiltrator.UI.Windows
         #endregion
 
         #region Window logic
-        public void LoadFilesystem(string rootPath)
+        private void LoadFilesystem(string rootPath)
         {
             ExecuteOnUIWithStatus(() => {
                 Fs = new GameFilesystem(rootPath);

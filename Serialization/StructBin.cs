@@ -13,10 +13,12 @@ namespace NotInfiltrator.Serialization
 {
     public class StructBin
     {
+        private MemoryStream ReadingStream = null;
+
         public string Name { get; private set; } = null;
         public string Magic { get; private set; } = null;
         public int Version { get; private set; } = 0;
-        public List<SectionData> Sections { get; private set; } = new List<SectionData>();
+        public List<SectionData> Sections { get; private set; } = null;
 
         public List<EnumData> EnumDatas { get; private set; } = null;
         public List<StructData> StructDatas { get; private set; } = null;
@@ -26,14 +28,15 @@ namespace NotInfiltrator.Serialization
         public StructBin(GameFilesystem fs, string relativePath)
         {
             Name = relativePath;
+            ReadingStream = fs.GetMemoryStreamFor(relativePath);
 
-            var stream = fs.GetMemoryStreamFor(relativePath);
-            Common.AssertEquals(Magic = stream.ReadAscFixed(4), "SBIN", "Wrong SBIN magic");
-            Common.AssertEquals(Version = stream.ReadSigned32Little(), 3, "Wrong SBIN version");
+            Common.AssertEquals(Magic = ReadingStream.ReadAscFixed(4), "SBIN", "Wrong SBIN magic");
+            Common.AssertEquals(Version = ReadingStream.ReadSigned32Little(), 3, "Wrong SBIN version");
 
-            while (stream.Position < stream.Length)
+            Sections = new();
+            while (ReadingStream.Position < ReadingStream.Length)
             {
-                Sections.Add(new SectionData(Sections.Count, this, stream));
+                Sections.Add(new(Sections.Count, this, ReadingStream));
             }
 
             EnumDatas = ReadAllEnumDatas();
@@ -54,10 +57,12 @@ namespace NotInfiltrator.Serialization
         protected List<EnumData> ReadAllEnumDatas()
         {
             var enums = new List<EnumData>();
-            var enumSectionStream = new MemoryStream(GetSection("ENUM").Data);
-            while (enumSectionStream.Position < enumSectionStream.Length)
+            var enumSection = GetSection("ENUM");
+
+            ReadingStream.Seek(enumSection.Start + enumSection.HeaderSize, SeekOrigin.Begin);
+            while (ReadingStream.Position < enumSection.End)
             {
-                enums.Add(new EnumData(enums.Count, this, enumSectionStream));
+                enums.Add(new(enums.Count, this, ReadingStream));
             }
             return enums;
         }
@@ -66,10 +71,11 @@ namespace NotInfiltrator.Serialization
         {
             var structs = new List<StructData>();
             var struSection = GetSection("STRU");
-            var struSectionStream = new MemoryStream(struSection.Data);
-            while (struSectionStream.Position < struSection.DataLength)  // can't read to stream length here because it = AlignedDataLength
+
+            ReadingStream.Seek(struSection.Start + struSection.HeaderSize, SeekOrigin.Begin);
+            while (ReadingStream.Position < struSection.End)
             {
-                structs.Add(new StructData(structs.Count, this, struSectionStream));
+                structs.Add(new(structs.Count, this, ReadingStream));
             }
             return structs;
         }
@@ -77,10 +83,12 @@ namespace NotInfiltrator.Serialization
         protected List<FieldData> ReadAllFieldDatas()
         {
             var fields = new List<FieldData>();
-            var fielSectionStream = new MemoryStream(GetSection("FIEL").Data);
-            while (fielSectionStream.Position < fielSectionStream.Length)
+            var fielSection = GetSection("FIEL");
+
+            ReadingStream.Seek(fielSection.Start + fielSection.HeaderSize, SeekOrigin.Begin);
+            while (ReadingStream.Position < fielSection.End)
             {
-                fields.Add(new FieldData(fields.Count, this, fielSectionStream));
+                fields.Add(new(fields.Count, this, ReadingStream));
             }
             return fields;
         }
@@ -91,21 +99,22 @@ namespace NotInfiltrator.Serialization
             var cdatSection = GetSection("CDAT");
 
             var strings = new List<StringData>();
-            var chdrSectionStream = new MemoryStream(chdrSection.Data);
-            while (chdrSectionStream.Position < chdrSectionStream.Length)
-            {
-                var offset = chdrSectionStream.ReadSigned32Little();
-                var length = chdrSectionStream.ReadSigned32Little();
+            var textBuffer = new byte[4096];
 
-                var textBuffer = new byte[length];
+            ReadingStream.Seek(chdrSection.Start + chdrSection.HeaderSize, SeekOrigin.Begin);
+            while (ReadingStream.Position < chdrSection.End)
+            {
+                var offset = ReadingStream.ReadSigned32Little();
+                var length = ReadingStream.ReadSigned32Little();
+
                 Array.Copy(cdatSection.Data, offset, textBuffer, 0, length);
 
-                strings.Add(new StringData
+                strings.Add(new()
                 {
                     Id = strings.Count,
                     Offset = offset,
                     Length = length,
-                    Text = Encoding.UTF8.GetString(textBuffer)
+                    Text = Encoding.UTF8.GetString(textBuffer, 0, length)
                 });
             }
 
