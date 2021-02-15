@@ -30,7 +30,7 @@ namespace NotInfiltrator.UI.Converters
 
             foreach (var obj in sbin.ObjectDatas)
             {
-                stringBuilder.AppendLine($"Object 0x{obj.Id:X}  @  0x{obj.Offset:X}  (len = 0x{obj.Length:X})   // original offset = {BitConverter.ToString(obj.EncodedOffset)}\n");
+                stringBuilder.AppendLine($"Object 0x{obj.Id:X}  @  0x{obj.Offset:X}  (al. len = 0x{obj.AlignedLength:X})   // original offset = {BitConverter.ToString(obj.EncodedOffset)}\n");
                 stringBuilder.AppendLine(BitConverter.ToString(obj.AlignedData).Replace('-', ' ') + "\n\n");
             }
 

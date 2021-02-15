@@ -110,20 +110,22 @@ namespace NotInfiltrator.Serialization
         {
             var objectDatas = new List<ObjectData>();
 
-            var headerStream = Sections["OHDR"].NewMemoryStream();
-            var objSectionData = Sections["DATA"].Data;
+            var ohdrSection = Sections["OHDR"];
+            var dataSection = Sections["DATA"];
 
-            while (headerStream.Position < headerStream.Length)
+            ReadingStream.Seek(ohdrSection.Start + ohdrSection.HeaderSize, SeekOrigin.Begin);
+            while (ReadingStream.Position < ohdrSection.End)
             {
-                var encodedOffset = headerStream.ReadBytes(4);
+                var encodedOffset = ReadingStream.ReadBytes(4);
+
                 var offset = (int)DecodeObjectOffset(encodedOffset);
                 if (objectDatas.Count > 0)
                 {
-                    objectDatas[^1].Length = offset - objectDatas[^1].Offset;
+                    objectDatas[^1].AlignedLength = offset - objectDatas[^1].Offset;
                 }
                 objectDatas.Add(new(objectDatas.Count, this, offset, encodedOffset));
             }
-            objectDatas[^1].Length = objSectionData.Length - objectDatas[^1].Offset;
+            objectDatas[^1].AlignedLength = dataSection.Data.Length - objectDatas[^1].Offset;
 
             return objectDatas;
         }
