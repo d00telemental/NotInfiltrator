@@ -17,7 +17,6 @@
     <Window.Resources>
         <converters:IntToHex x:Key="IntToHexConverter"/>
         <converters:IntToFieldSizeDescription x:Key="IntToFieldSizeDescriptionConverter"/>
-        <converters:StructBinToObjHeaderText x:Key="StructBinToObjHeaderTextConverter"/>
     </Window.Resources>
     <Grid>
         <Grid.RowDefinitions>
@@ -54,7 +53,7 @@
                 <TabControl Grid.Row="0">
                     <TabItem Header="Object data">
                         <Grid>
-                            <TextBox Text="{Binding Path=ActiveNode.Content, FallbackValue='', Converter={StaticResource StructBinToObjHeaderTextConverter}}"
+                            <TextBox Text="{Binding Path=ActiveNode.Content.AwfulObjectTextDump, Mode=OneWay}"
                                  Padding="10"
                                  VerticalScrollBarVisibility="Visible"
                                  TextWrapping="Wrap" FontFamily="Consolas"

@@ -33,6 +33,8 @@ namespace NotInfiltrator.Serialization
         public List<StringData> Strings { get; private set; } = null;
         #endregion
 
+        public string AwfulObjectTextDump => ComposeAwfulObjectTextDump();
+
         public StructBin(GameFilesystem fs, string relativePath)
         {
             Name = relativePath;
@@ -208,5 +210,18 @@ namespace NotInfiltrator.Serialization
         public string GetString(UInt16 id)
             => Strings[id].Text;
         #endregion
+
+        private string ComposeAwfulObjectTextDump()
+        {
+            var stringBuilder = new StringBuilder();
+
+            foreach (var obj in ObjectDatas)
+            {
+                stringBuilder.AppendLine($"Object 0x{obj.Id:X}  @  0x{obj.Offset:X}  (al. len = 0x{obj.AlignedLength:X})   // original offset = {BitConverter.ToString(obj.EncodedOffset)}\n");
+                stringBuilder.AppendLine(BitConverter.ToString(obj.AlignedData).Replace('-', ' ') + "\n\n");
+            }
+
+            return stringBuilder.ToString();
+        }
     }
 }
