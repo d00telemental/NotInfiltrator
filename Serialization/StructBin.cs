@@ -29,6 +29,7 @@ namespace NotInfiltrator.Serialization
         public List<EnumData> EnumDatas { get; private set; } = null;
         public List<StructData> StructDatas { get; private set; } = null;
         public List<FieldData> FieldDatas { get; private set; } = null;
+        public List<ObjectData> ObjectDatas { get; private set; } = null;
         public List<StringData> Strings { get; private set; } = null;
         #endregion
 
@@ -45,6 +46,7 @@ namespace NotInfiltrator.Serialization
             EnumDatas = ReadAllEnumDatas();
             StructDatas = ReadAllStructDatas();
             FieldDatas = ReadAllFieldDatas();
+            ObjectDatas = ReadAllObjectDatas();
             Strings = ReadAllStringDatas();
         }
 
@@ -104,6 +106,28 @@ namespace NotInfiltrator.Serialization
             return fields;
         }
 
+        protected List<ObjectData> ReadAllObjectDatas()
+        {
+            var objectDatas = new List<ObjectData>();
+
+            var headerStream = Sections["OHDR"].NewMemoryStream();
+            var objSectionData = Sections["DATA"].Data;
+
+            while (headerStream.Position < headerStream.Length)
+            {
+                var encodedOffset = headerStream.ReadBytes(4);
+                var offset = (int)DecodeObjectOffset(encodedOffset);
+                if (objectDatas.Count > 0)
+                {
+                    objectDatas[^1].Length = offset - objectDatas[^1].Offset;
+                }
+                objectDatas.Add(new(objectDatas.Count, this, offset, encodedOffset));
+            }
+            objectDatas[^1].Length = objSectionData.Length - objectDatas[^1].Offset;
+
+            return objectDatas;
+        }
+
         protected List<StringData> ReadAllStringDatas()
         {
             var chdrSection = Sections["CHDR"];
@@ -131,5 +155,21 @@ namespace NotInfiltrator.Serialization
             return strings;
         }
         #endregion
+
+        private static uint DecodeObjectOffset(byte[] b)
+        {
+            if (b is null || b.Length != 4)
+            {
+                throw new NullReferenceException();
+            }
+
+            UInt32 res = 0;
+            res |= (UInt32)((UInt32)b[0] >> (Int32)0x3);
+            res |= (UInt32)((UInt32)b[1] << (Int32)0x5);
+            res |= (UInt32)((UInt32)b[2] << (Int32)0xD);
+            res |= (UInt32)((UInt32)b[3] << (Int32)0x15);
+
+            return res;
+        }
     }
 }
