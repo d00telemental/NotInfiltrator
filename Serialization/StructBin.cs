@@ -75,7 +75,15 @@ namespace NotInfiltrator.Serialization
             ReadingStream.Seek(enumSection.Start + enumSection.HeaderSize, SeekOrigin.Begin);
             while (ReadingStream.Position < enumSection.End)
             {
-                enums.Add(new(enums.Count, this, ReadingStream));
+                var nameId = ReadingStream.ReadUnsigned16Little();
+                Common.Assert(0 == ReadingStream.ReadUnsigned16Little(), "EnumData padding != 0");  // TODO: write a checker for this, then move reading into the initializer
+                var objReference = ReadingStream.ReadUnsigned32Little();
+
+                enums.Add(new(enums.Count, this)
+                {
+                    NameId = nameId,
+                    ObjReference = objReference
+                });
             }
             return enums;
         }
@@ -88,7 +96,12 @@ namespace NotInfiltrator.Serialization
             ReadingStream.Seek(struSection.Start + struSection.HeaderSize, SeekOrigin.Begin);
             while (ReadingStream.Position < struSection.End)
             {
-                structs.Add(new(structs.Count, this, ReadingStream));
+                structs.Add(new(structs.Count, this)
+                {
+                    NameId = ReadingStream.ReadUnsigned16Little(),
+                    FirstFieldId = ReadingStream.ReadUnsigned16Little(),
+                    FieldCount = ReadingStream.ReadUnsigned16Little()
+                });
             }
             return structs;
         }
@@ -101,7 +114,13 @@ namespace NotInfiltrator.Serialization
             ReadingStream.Seek(fielSection.Start + fielSection.HeaderSize, SeekOrigin.Begin);
             while (ReadingStream.Position < fielSection.End)
             {
-                fields.Add(new(fields.Count, this, ReadingStream));
+                fields.Add(new(fields.Count, this)
+                {
+                    NameId = ReadingStream.ReadUnsigned16Little(),
+                    Type = ReadingStream.ReadUnsigned16Little(),
+                    Offset = ReadingStream.ReadUnsigned16Little(),
+                    ChildKind = ReadingStream.ReadUnsigned16Little()
+                });
             }
             return fields;
         }

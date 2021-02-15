@@ -9,17 +9,11 @@ namespace NotInfiltrator.Serialization.Data
 {
     public class EnumData : Data
     {
-        public UInt16 NameStrId { get; set; } = 0;
-        public UInt32 ObjReference { get; set; } = 0;
+        public UInt16 NameId { get; init; } = 0;
+        public UInt32 ObjReference { get; init; } = 0;
 
-        public string Name => StructBin.GetString(NameStrId);
+        public string Name => StructBin.GetString(NameId);
 
-        public EnumData(int id, StructBin sbin, Stream source)
-            : base(id, sbin)
-        {
-            NameStrId = source.ReadUnsigned16Little();
-            Common.Assert(0 == source.ReadUnsigned16Little(), "StructBinEnum name padding is not padding");
-            ObjReference = source.ReadUnsigned32Little();
-        }
+        public EnumData(int id, StructBin sbin) : base(id, sbin) { }
     }
 }

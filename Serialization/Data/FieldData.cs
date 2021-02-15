@@ -10,23 +10,16 @@ namespace NotInfiltrator.Serialization.Data
 {
     public class FieldData : Data
     {
-        public UInt16 NameStrId { get; set; } = 0;
-        public UInt16 Type { get; set; } = 0;
-        public UInt16 Offset { get; set; } = 0;
-        public UInt16 ChildKind { get; set; } = 0;
+        public UInt16 NameId { get; init; } = 0;
+        public UInt16 Type { get; init; } = 0;
+        public UInt16 Offset { get; init; } = 0;
+        public UInt16 ChildKind { get; init; } = 0;
 
-        public string Name => StructBin.GetString(NameStrId);
+        public string Name => StructBin.GetString(NameId);
         public string TypeName => GetTypeName(Type);
         public int Size => GetTypeSize(Type);
 
-        public FieldData(int id, StructBin sbin, Stream source)
-            : base(id, sbin)
-        {
-            NameStrId = source.ReadUnsigned16Little();
-            Type = source.ReadUnsigned16Little();
-            Offset = source.ReadUnsigned16Little();
-            ChildKind = source.ReadUnsigned16Little();
-        }
+        public FieldData(int id, StructBin sbin) : base(id, sbin) { }
 
         public static int GetTypeSize(int fieldType)
             => fieldType switch

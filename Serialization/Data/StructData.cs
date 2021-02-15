@@ -10,21 +10,15 @@ namespace NotInfiltrator.Serialization.Data
 {
     public class StructData : Data
     {
-        public UInt16 NameStrId { get; set; } = 0;
-        public UInt16 FirstFieldId { get; set; } = 0;
-        public UInt16 FieldCount { get; set; } = 0;
+        public UInt16 NameId { get; init; } = 0;
+        public UInt16 FirstFieldId { get; init; } = 0;
+        public UInt16 FieldCount { get; init; } = 0;
 
-        public string Name => StructBin.GetString(NameStrId);
+        public string Name => StructBin.GetString(NameId);
         public List<FieldData> Fields => StructBin.FieldDatas.Skip(FirstFieldId).Take(FieldCount).ToList();
         public string CodeText => ComposeCodeDefinition();
 
-        public StructData(int id, StructBin sbin, Stream source)
-            : base(id, sbin)
-        {
-            NameStrId = source.ReadUnsigned16Little();
-            FirstFieldId = source.ReadUnsigned16Little();
-            FieldCount = source.ReadUnsigned16Little();
-        }
+        public StructData(int id, StructBin sbin) : base(id, sbin) { }
 
         private string ComposeCodeDefinition()
         {
@@ -43,14 +37,14 @@ namespace NotInfiltrator.Serialization.Data
                 if (field.Type == 0x10)
                 {
                     var childStructRef = StructBin.StructDatas[field.ChildKind];
-                    stringBuilder.Append($"<{StructBin.GetString(childStructRef.NameStrId)}>");
+                    stringBuilder.Append($"<{StructBin.GetString(childStructRef.NameId)}>");
                 }
                 else if (field.Type == 0x11)
                 {
                     var childFieldRef = StructBin.FieldDatas[field.ChildKind];
                     if (childFieldRef.Type == 0x10)
                     {
-                        stringBuilder.Append($"<{StructBin.GetString(StructBin.StructDatas[childFieldRef.ChildKind].NameStrId)}>");
+                        stringBuilder.Append($"<{StructBin.GetString(StructBin.StructDatas[childFieldRef.ChildKind].NameId)}>");
                     }
                     else
                     {
@@ -60,14 +54,14 @@ namespace NotInfiltrator.Serialization.Data
                 else if (field.Type == 0x12)
                 {
                     var childFieldRef = StructBin.EnumDatas[field.ChildKind];
-                    stringBuilder.Append($"<{StructBin.GetString(childFieldRef.NameStrId)}>");
+                    stringBuilder.Append($"<{StructBin.GetString(childFieldRef.NameId)}>");
                 }
 
                 // Space
                 stringBuilder.Append(' ');
 
                 // Field name
-                stringBuilder.Append(StructBin.GetString(field.NameStrId));
+                stringBuilder.Append(StructBin.GetString(field.NameId));
 
                 // Semicolon and a new line
                 stringBuilder.Append(';');
