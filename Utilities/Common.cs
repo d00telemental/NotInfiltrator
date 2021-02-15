@@ -12,6 +12,10 @@ namespace NotInfiltrator.Utilities
 
     public static class Common
     {
+        // https://stackoverflow.com/a/2022194
+        public static int NextMultipleOfFour(int num)
+            => (num + 3) & ~3;
+
         public static void Assert(bool cond, string msg)
         {
             if (!cond)

@@ -50,29 +50,43 @@ namespace NotInfiltrator.Serialization
             Strings = ReadAllStringDatas();
         }
 
-        #region Utility accessors
-        public string GetString(UInt16 id)
-            => Strings[id].Text;
-        #endregion
-
-        #region Section reading
         protected Dictionary<string, SectionData> ReadSectionPartitioning()
         {
             var sections = new Dictionary<string, SectionData>();
             while (ReadingStream.Position < ReadingStream.Length)
             {
-                var sectionData = new SectionData(sections.Count, this, ReadingStream);
+                var start = ReadingStream.Position;
+                var label = Encoding.ASCII.GetString(ReadingStream.ReadBytes(4));
+                var dataLength = ReadingStream.ReadSigned32Little();
+                var hash = ReadingStream.ReadSigned32Little();
+                var data = ReadingStream.ReadBytes(SectionData.GetAlignedDataLength(label, dataLength));
+                var end = start + SectionData.HeaderSize + dataLength;
+                var alignedEnd = ReadingStream.Position;
+
+                var sectionData = new SectionData(sections.Count, this)
+                {
+                    Start = start,
+                    End = end,
+                    AlignedEnd = alignedEnd,
+
+                    Label = label,
+                    DataLength = dataLength,
+                    Hash = hash,
+                    Data = data
+                };
+
                 sections.Add(sectionData.Label, sectionData);
             }
             return sections;
         }
 
+        #region Section reading
         protected List<EnumData> ReadAllEnumDatas()
         {
             var enums = new List<EnumData>();
             var enumSection = Sections["ENUM"];
 
-            ReadingStream.Seek(enumSection.Start + enumSection.HeaderSize, SeekOrigin.Begin);
+            ReadingStream.Seek(enumSection.DataOffset, SeekOrigin.Begin);
             while (ReadingStream.Position < enumSection.End)
             {
                 var nameId = ReadingStream.ReadUnsigned16Little();
@@ -93,7 +107,7 @@ namespace NotInfiltrator.Serialization
             var structs = new List<StructData>();
             var struSection = Sections["STRU"];
 
-            ReadingStream.Seek(struSection.Start + struSection.HeaderSize, SeekOrigin.Begin);
+            ReadingStream.Seek(struSection.DataOffset, SeekOrigin.Begin);
             while (ReadingStream.Position < struSection.End)
             {
                 structs.Add(new(structs.Count, this)
@@ -111,7 +125,7 @@ namespace NotInfiltrator.Serialization
             var fields = new List<FieldData>();
             var fielSection = Sections["FIEL"];
 
-            ReadingStream.Seek(fielSection.Start + fielSection.HeaderSize, SeekOrigin.Begin);
+            ReadingStream.Seek(fielSection.DataOffset, SeekOrigin.Begin);
             while (ReadingStream.Position < fielSection.End)
             {
                 fields.Add(new(fields.Count, this)
@@ -133,7 +147,7 @@ namespace NotInfiltrator.Serialization
             var ohdrSection = Sections["OHDR"];
             var dataSection = Sections["DATA"];
 
-            ReadingStream.Seek(ohdrSection.Start + ohdrSection.HeaderSize, SeekOrigin.Begin);
+            ReadingStream.Seek(ohdrSection.DataOffset, SeekOrigin.Begin);
             while (ReadingStream.Position < ohdrSection.End)
             {
                 objectOffsets.Add(ReadingStream.ReadBytes(4));
@@ -170,7 +184,7 @@ namespace NotInfiltrator.Serialization
             var strings = new List<StringData>();
             var textBuffer = new byte[4096];
 
-            ReadingStream.Seek(chdrSection.Start + chdrSection.HeaderSize, SeekOrigin.Begin);
+            ReadingStream.Seek(chdrSection.DataOffset, SeekOrigin.Begin);
             while (ReadingStream.Position < chdrSection.End)
             {
                 var offset = ReadingStream.ReadSigned32Little();
@@ -188,6 +202,11 @@ namespace NotInfiltrator.Serialization
 
             return strings;
         }
+        #endregion
+
+        #region Utility accessors
+        public string GetString(UInt16 id)
+            => Strings[id].Text;
         #endregion
     }
 }
