@@ -16,6 +16,8 @@
         Loaded="Window_Loaded">
     <Window.Resources>
         <converters:IntToHex x:Key="IntToHexConverter"/>
+        <converters:FieldChildKindVisibilityConverter x:Key="FieldChildKindVisibilityConverter"/>
+        <converters:FieldChildKindTextConverter x:Key="FieldChildKindTextConverter"/>
     </Window.Resources>
     <Grid>
         <Grid.RowDefinitions>
@@ -169,9 +171,9 @@
                     <TabItem Header="Structs">
                         <Grid>
                             <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="3*"/>
+                                <ColumnDefinition Width="*"/>
                                 <ColumnDefinition Width="5px"/>
-                                <ColumnDefinition Width="4*"/>
+                                <ColumnDefinition Width="2*"/>
                             </Grid.ColumnDefinitions>
 
                             <ListView Grid.Column="0"
@@ -216,13 +218,48 @@
                                 </ListView.ItemTemplate>
                             </ListView>
                             <GridSplitter Grid.Column="1" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
-                            <TextBox Grid.Column="2"
-                                     Padding="10"
-                                     VerticalScrollBarVisibility="Visible"
-                                     TextWrapping="Wrap"
-                                     FontFamily="Consolas"
-                                     IsReadOnly="True"
-                                     Text="{Binding Path=ActiveStructData.CodeText, Mode=OneWay}"/>
+                            <ListView Grid.Column="2"
+                                      ItemsSource="{Binding Path=ActiveStructData.Fields, Mode=OneWay}">
+                                <ListView.ItemTemplate>
+                                    <DataTemplate>
+                                        <Grid>
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="40pt"/>
+                                                <ColumnDefinition Width="50pt"/>
+                                                <ColumnDefinition Width="160pt"/>
+                                                <ColumnDefinition Width="160pt"/>
+                                                <ColumnDefinition Width="70pt"/>
+                                                <ColumnDefinition Width="70pt"/>
+                                            </Grid.ColumnDefinitions>
+                                            <Grid.RowDefinitions>
+                                                <RowDefinition Height="16pt"/>
+                                            </Grid.RowDefinitions>
+                                            <TextBlock Grid.Column="0" VerticalAlignment="Center"
+                                                       Text="{Binding Path=Id, Converter={StaticResource IntToHexConverter}}"/>
+                                            <TextBlock Grid.Column="1" VerticalAlignment="Center" HorizontalAlignment="Left"
+                                                       Opacity="0.65">
+                                                <TextBlock Text="at" Padding="0 0 2pt 0"/>
+                                                <TextBlock Text="{Binding Path=Offset, Converter={StaticResource IntToHexConverter}}"/>
+                                            </TextBlock>
+                                            <TextBlock Grid.Column="2" VerticalAlignment="Center"
+                                                       FontWeight="SemiBold"
+                                                       Text="{Binding Path=Name}"/>
+                                            <TextBlock Grid.Column="3" VerticalAlignment="Center">
+                                                <TextBlock Text="{Binding Path=TypeName}" Padding="0 0 2pt 0"/>
+                                                <TextBlock Padding="1pt 0 0 0" Opacity="0.65" Visibility="{Binding Converter={StaticResource FieldChildKindVisibilityConverter}}">
+                                                    <TextBlock Text="of" Padding="0 0 2pt 0"/>
+                                                    <TextBlock Text="{Binding Converter={StaticResource FieldChildKindTextConverter}}" Padding="0 0 2pt 0"/>
+                                                </TextBlock>
+                                            </TextBlock>
+                                            <TextBlock Grid.Column="4"
+                                                       VerticalAlignment="Center" HorizontalAlignment="Right">
+                                                <TextBlock Text="{Binding Path=Size, Converter={StaticResource IntToHexConverter}}"/>
+                                                <TextBlock Text="byte(s)" Padding="2pt 0" Opacity="0.65"/>
+                                            </TextBlock>
+                                        </Grid>
+                                    </DataTemplate>
+                                </ListView.ItemTemplate>
+                            </ListView>
                         </Grid>
                     </TabItem>
                 </TabControl>
