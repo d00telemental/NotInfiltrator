@@ -16,7 +16,7 @@ namespace NotInfiltrator.Serialization.Data
 
         public string Name => StructBin.GetString(NameId);
         public List<FieldData> Fields => StructBin.FieldDatas.GetRange(FirstFieldId, FieldCount);
-        public int Size => Fields.Last().OffsetToEnd;  // TODO: account for the last field alignment
+        public int Size => Fields.DefaultIfEmpty().Last()?.OffsetToEnd ?? 0;  // TODO: account for the last field alignment
 
         public StructData(int id, StructBin sbin) : base(id, sbin) { }
     }
