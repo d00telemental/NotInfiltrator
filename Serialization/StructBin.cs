@@ -30,7 +30,7 @@ namespace NotInfiltrator.Serialization
         public List<StructData> StructDatas { get; private set; } = null;
         public List<FieldData> FieldDatas { get; private set; } = null;
         public List<ObjectData> ObjectDatas { get; private set; } = null;
-        public List<StringData> Strings { get; private set; } = null;
+        public List<StringData> StringDatas { get; private set; } = null;
         #endregion
 
         public string AwfulObjectTextDump => ComposeAwfulObjectTextDump();
@@ -49,7 +49,7 @@ namespace NotInfiltrator.Serialization
             StructDatas = ReadAllStructDatas();
             FieldDatas = ReadAllFieldDatas();
             ObjectDatas = ReadAllObjectDatas();
-            Strings = ReadAllStringDatas();
+            StringDatas = ReadAllStringDatas();
         }
 
         protected Dictionary<string, SectionData> ReadSectionPartitioning()
@@ -208,7 +208,7 @@ namespace NotInfiltrator.Serialization
 
         #region Utility accessors
         public string GetString(UInt16 id)
-            => Strings[id].Text;
+            => StringDatas[id].Text;
         #endregion
 
         private string ComposeAwfulObjectTextDump()

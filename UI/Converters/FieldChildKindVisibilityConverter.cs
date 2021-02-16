@@ -14,7 +14,7 @@ namespace NotInfiltrator.UI.Converters
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
             var field = value as FieldData ?? throw new NullReferenceException();
-            return field.Type switch
+            return (field?.Type ?? 0) switch
             {
                 0x10 => Visibility.Visible,  // InlineStruct
                 0x11 => Visibility.Visible,  // Array

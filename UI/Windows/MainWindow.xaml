@@ -10,7 +10,7 @@
         
         mc:Ignorable="d"
         Title="WINDOW TITLE NOT SET FROM CODE-BEHIND"
-        Height="720" Width="1280"
+        Height="860" Width="1400"
         MinHeight="400" MinWidth="600"
         WindowState="Maximized" SizeToContent="Manual"
         Loaded="Window_Loaded">
@@ -40,7 +40,9 @@
                 </TreeView.ItemContainerStyle>
                 <TreeView.ItemTemplate>
                     <HierarchicalDataTemplate DataType="{x:Type serialization:GameFilesystemNode}" ItemsSource="{Binding Children}">
-                        <TextBlock Text="{Binding Name}"/>
+                        <TextBlock>
+                            <TextBlock Text="{Binding Name}"/>
+                        </TextBlock>
                     </HierarchicalDataTemplate>
                 </TreeView.ItemTemplate>
             </TreeView>
@@ -95,7 +97,7 @@
                     <!-- Strings -->
                     <TabItem Header="Char data">
                         <Grid DataContext="{Binding Path=ActiveNode}">
-                            <ListView ItemsSource="{Binding Path=Content.Strings}">
+                            <ListView ItemsSource="{Binding Path=Content.StringDatas}">
                                 <ListView.View>
                                     <GridView>
                                         <GridViewColumn Width="80" DisplayMemberBinding="{Binding Path=Id, Converter={StaticResource IntToHexConverter}}">
