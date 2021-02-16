@@ -226,10 +226,9 @@
                                             <Grid.ColumnDefinitions>
                                                 <ColumnDefinition Width="40pt"/>
                                                 <ColumnDefinition Width="50pt"/>
-                                                <ColumnDefinition Width="160pt"/>
-                                                <ColumnDefinition Width="160pt"/>
-                                                <ColumnDefinition Width="70pt"/>
-                                                <ColumnDefinition Width="70pt"/>
+                                                <ColumnDefinition Width="150pt"/>
+                                                <ColumnDefinition Width="150pt"/>
+                                                <ColumnDefinition Width="60pt"/>
                                             </Grid.ColumnDefinitions>
                                             <Grid.RowDefinitions>
                                                 <RowDefinition Height="16pt"/>

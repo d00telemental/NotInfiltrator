@@ -18,6 +18,7 @@ namespace NotInfiltrator.Serialization.Data
         public string Name => StructBin.GetString(NameId);
         public string TypeName => GetTypeName(Type);
         public int Size => GetTypeSize(Type);
+        public int OffsetToEnd => Offset + Size;
 
         public FieldData(int id, StructBin sbin) : base(id, sbin) { }
 
