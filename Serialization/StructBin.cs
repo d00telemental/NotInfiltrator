@@ -16,7 +16,7 @@ namespace NotInfiltrator.Serialization
         /// <summary>
         /// Stream used for reading operations while parsing.
         /// </summary>
-        private MemoryStream ReadingStream = null;
+        private readonly MemoryStream ReadingStream = null;
 
         #region File contents as seen in their serialized form
         public string Name { get; private set; } = null;
