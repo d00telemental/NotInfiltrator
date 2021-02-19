@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.IO;
 using System.Text;
 
+#pragma warning disable CS0675
+
 namespace NotInfiltrator.Utilities
 {
     public static class StreamExtensions
@@ -112,3 +114,5 @@ namespace NotInfiltrator.Utilities
         }
     }
 }
+
+#pragma warning restore CS0675
