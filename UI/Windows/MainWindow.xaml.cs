@@ -70,6 +70,17 @@ namespace NotInfiltrator.UI.Windows
                 OnPropertyChanged();
             }
         }
+
+        private ObjectData _activeObjectData = null;
+        public ObjectData ActiveObjectData
+        {
+            get { return _activeObjectData; }
+            set
+            {
+                _activeObjectData = value;
+                OnPropertyChanged();
+            }
+        }
         #endregion
 
         #region Common UI procedures

@@ -18,6 +18,7 @@
         <converters:IntToHex x:Key="IntToHexConverter"/>
         <converters:FieldChildKindVisibilityConverter x:Key="FieldChildKindVisibilityConverter"/>
         <converters:FieldChildKindTextConverter x:Key="FieldChildKindTextConverter"/>
+        <converters:ByteArrayToStringConverter x:Key="ByteArrayToStringConverter"/>
     </Window.Resources>
     <Grid>
         <Grid.RowDefinitions>
@@ -54,23 +55,44 @@
                     <RowDefinition Height="360px"/>
                 </Grid.RowDefinitions>
                 <TabControl Grid.Row="0">
-                    <TabItem Header="Object data">
+                    <TabItem Header="Hierarchy" IsEnabled="False">
                         <Grid>
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="*"/>
                                 <ColumnDefinition Width="5px"/>
-                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="3*"/>
                             </Grid.ColumnDefinitions>
-                            <TextBox Text="{Binding Path=ActiveNode.Content.AwfulObjectTextDump, Mode=OneWay}"
-                                     Grid.Column="0"
-                                     VerticalScrollBarVisibility="Auto"
+                        </Grid>
+                    </TabItem>
+                    <TabItem Header="Object datas" IsSelected="True">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="5px"/>
+                                <ColumnDefinition Width="2*"/>
+                            </Grid.ColumnDefinitions>
+                            <ListView ItemsSource="{Binding Path=ActiveNode.Content.ObjectDatas}"
+                                      SelectedItem="{Binding Path=ActiveObjectData, Mode=TwoWay}"
+                                      Grid.Column="0">
+                                <ListView.View>
+                                    <GridView>
+                                        <GridViewColumn DisplayMemberBinding="{Binding Path=Id, Converter={StaticResource IntToHexConverter}}"
+                                                            Header="#" Width="60px"/>
+                                        <GridViewColumn DisplayMemberBinding="{Binding Path=Offset, Converter={StaticResource IntToHexConverter}}"
+                                                            Header="Offset" Width="100px"/>
+                                        <GridViewColumn DisplayMemberBinding="{Binding Path=AlignedLength, Converter={StaticResource IntToHexConverter}}"
+                                                            Header="Aligned length" Width="100px"/>
+                                    </GridView>
+                                </ListView.View>
+                            </ListView>
+                            <GridSplitter Grid.Column="1" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
+                            <TextBox Text="{Binding Path=ActiveObjectData.AlignedData, Mode=OneWay, Converter={StaticResource ByteArrayToStringConverter}}"
+                                     Grid.Column="2"
                                      Padding="10"
+                                     VerticalScrollBarVisibility="Auto"
                                      TextWrapping="Wrap"
                                      FontFamily="Consolas"
                                      IsReadOnly="True"/>
-                            <GridSplitter Grid.Column="1" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
-                            <Label Content="TODO"
-                                   Grid.Column="2"/>
                         </Grid>
                     </TabItem>
                 </TabControl>
