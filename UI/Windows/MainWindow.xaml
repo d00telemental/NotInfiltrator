@@ -64,7 +64,7 @@
                             </Grid.ColumnDefinitions>
                         </Grid>
                     </TabItem>
-                    <TabItem Header="Object datas" IsSelected="True">
+                    <TabItem Header="Object datas" IsSelected="False">
                         <Grid>
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="*"/>
@@ -94,6 +94,14 @@
                                      FontFamily="Consolas"
                                      IsReadOnly="True"/>
                         </Grid>
+                    </TabItem>
+                    <TabItem Header="Text view" IsSelected="True">
+                        <TextBox Text="{Binding Path=ActiveNode.Content.AwfulObjectTextDump, Mode=OneWay}"
+                                     Padding="10"
+                                     VerticalScrollBarVisibility="Auto"
+                                     TextWrapping="Wrap"
+                                     FontFamily="Consolas"
+                                     IsReadOnly="True"/>
                     </TabItem>
                 </TabControl>
                 <GridSplitter Grid.Row="1" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>

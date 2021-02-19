@@ -217,7 +217,8 @@ namespace NotInfiltrator.Serialization
 
             foreach (var obj in ObjectDatas)
             {
-                stringBuilder.AppendLine($"Object 0x{obj.Id:X}  @  0x{obj.Offset:X}  (al. len = 0x{obj.AlignedLength:X})   // original offset = {BitConverter.ToString(obj.EncodedOffset)}\n");
+                stringBuilder.AppendLine($"Object 0x{obj.Id:X}  @  0x{obj.Offset:X}  (al. len = 0x{obj.AlignedLength:X})   // original offset = {BitConverter.ToString(obj.EncodedOffset)}");
+                stringBuilder.AppendLine($"    First offset byte = 0x{obj.EncodedOffset[0]:X2}   ODS check = {obj.EncodedOffset[0] & 7}    ODS value = {(obj.EncodedOffset[0] & 7) * 4}\n");
                 stringBuilder.AppendLine(BitConverter.ToString(obj.AlignedData).Replace('-', ' ') + "\n\n");
             }
 
