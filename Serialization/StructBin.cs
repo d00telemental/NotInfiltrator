@@ -133,7 +133,7 @@ namespace NotInfiltrator.Serialization
                 fields.Add(new(fields.Count, this)
                 {
                     NameId = ReadingStream.ReadUnsigned16Little(),
-                    Type = ReadingStream.ReadUnsigned16Little(),
+                    Type = (Monkey.FieldType)ReadingStream.ReadUnsigned16Little(),
                     Offset = ReadingStream.ReadUnsigned16Little(),
                     ChildKind = ReadingStream.ReadUnsigned16Little()
                 });

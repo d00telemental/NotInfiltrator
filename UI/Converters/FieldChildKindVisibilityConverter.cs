@@ -6,6 +6,7 @@ using System.Windows;
 using System.Windows.Data;
 
 using NotInfiltrator.Serialization.Data;
+using NotInfiltrator.Serialization.Monkey;
 
 namespace NotInfiltrator.UI.Converters
 {
@@ -16,9 +17,9 @@ namespace NotInfiltrator.UI.Converters
             var field = value as FieldData ?? throw new NullReferenceException();
             return (field?.Type ?? 0) switch
             {
-                0x10 => Visibility.Visible,  // InlineStruct
-                0x11 => Visibility.Visible,  // Array
-                0x12 => Visibility.Visible,  // Enum
+                FieldType.InlineStruct => Visibility.Visible,
+                FieldType.Array => Visibility.Visible,
+                FieldType.Enum => Visibility.Visible,
                 _ => Visibility.Collapsed
             };
         }

@@ -6,6 +6,7 @@ using System.Windows;
 using System.Windows.Data;
 
 using NotInfiltrator.Serialization.Data;
+using NotInfiltrator.Serialization.Monkey;
 
 namespace NotInfiltrator.UI.Converters
 {
@@ -16,14 +17,14 @@ namespace NotInfiltrator.UI.Converters
             var field = value as FieldData ?? throw new NullReferenceException();
             return field.Type switch
             {
-                0x10 => field.StructBin.StructDatas[field.ChildKind].Name,  // InlineStruct
-                0x11 => field.StructBin.FieldDatas[field.ChildKind] switch  // Array
+                FieldType.InlineStruct => field.StructBin.StructDatas[field.ChildKind].Name,
+                FieldType.Array => field.StructBin.FieldDatas[field.ChildKind] switch
                 {
-                    var childKindRef when childKindRef.Type == 0x10 => field.StructBin.StructDatas[childKindRef.ChildKind].Name,
-                    var childKindRef when childKindRef.Type == 0x0F => $"{childKindRef.TypeName} (0x{childKindRef.ChildKind:X})",
+                    var childKindRef when childKindRef.Type == FieldType.InlineStruct => field.StructBin.StructDatas[childKindRef.ChildKind].Name,
+                    var childKindRef when childKindRef.Type == FieldType.Reference => $"{childKindRef.TypeName} (0x{childKindRef.ChildKind:X})",
                     _ => $"? (0x{field.ChildKind:X})"
                 },
-                0x12 => field.StructBin.EnumDatas[field.ChildKind].Name,    // Enum
+                FieldType.Enum => field.StructBin.EnumDatas[field.ChildKind].Name,
                 _ => $"0x{field.ChildKind:X}"
             };
         }
