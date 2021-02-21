@@ -82,6 +82,8 @@
                                                             Header="Offset" Width="100px"/>
                                         <GridViewColumn DisplayMemberBinding="{Binding Path=AlignedLength, Converter={StaticResource IntToHexConverter}}"
                                                             Header="Aligned length" Width="100px"/>
+                                        <GridViewColumn DisplayMemberBinding="{Binding Path=ObjectDefinitionSize, Converter={StaticResource IntToHexConverter}}"
+                                                            Header="ODS" Width="100px"/>
                                     </GridView>
                                 </ListView.View>
                             </ListView>

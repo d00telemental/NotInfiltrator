@@ -11,9 +11,11 @@ namespace NotInfiltrator.Serialization.Data
     {
         public int AlignedLength { get; init; } = 0;
         public byte[] AlignedData { get; init; } = null;
-        public byte[] EncodedOffset { get; init; } = null;  // keeping because there's some kind of check the game does with it
+        public byte[] EncodedOffset { get; init; } = null;
 
         public int Offset { get; init; } = 0;
+
+        public int ObjectDefinitionSize => (EncodedOffset[0] & 7) < 3 ? ((EncodedOffset[0] & 7) * 4) : 0;
 
         public ObjectData(int id, StructBin sbin) : base(id, sbin) { }
 
