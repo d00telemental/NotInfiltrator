@@ -7,6 +7,7 @@ using System.Linq;
 using System.Text;
 
 using NotInfiltrator.Serialization.Data;
+using NotInfiltrator.Serialization.Monkey;
 using NotInfiltrator.Utilities;
 
 namespace NotInfiltrator.Serialization
@@ -25,7 +26,7 @@ namespace NotInfiltrator.Serialization
         public Dictionary<string, SectionData> Sections { get; private set; } = null;
         #endregion
 
-        #region Parsed file 'data's
+        #region Parsed file datas
         public List<EnumData> EnumDatas { get; private set; } = null;
         public List<StructData> StructDatas { get; private set; } = null;
         public List<FieldData> FieldDatas { get; private set; } = null;
@@ -33,7 +34,10 @@ namespace NotInfiltrator.Serialization
         public List<StringData> StringDatas { get; private set; } = null;
         #endregion
 
+        public Monkey.Object RootObject { get; private set; } = null;
+
         public string AwfulObjectTextDump => ComposeAwfulObjectTextDump();
+
 
         public StructBin(GameFilesystem fs, string relativePath)
         {
@@ -43,13 +47,20 @@ namespace NotInfiltrator.Serialization
             Common.AssertEquals(Magic = ReadingStream.ReadAscFixed(4), "SBIN", "Wrong SBIN magic");
             Common.AssertEquals(Version = ReadingStream.ReadSigned32Little(), 3, "Wrong SBIN version");
 
-            Sections = ReadSectionPartitioning();  // sections must be read before everything else
+            // Sections must be read before everything else.
+            // Unlike further ReadAll*() functions, this returns
+            // a dictionary of section label to section.
+            Sections = ReadSectionPartitioning();
 
             EnumDatas = ReadAllEnumDatas();
             StructDatas = ReadAllStructDatas();
             FieldDatas = ReadAllFieldDatas();
             ObjectDatas = ReadAllObjectDatas();
             StringDatas = ReadAllStringDatas();
+
+            // Now that all 'data's are read,
+            // we have enough data to parse objects.
+            //RootObject = Monkey.Object.ParseTree(this, 0, null);
         }
 
         protected Dictionary<string, SectionData> ReadSectionPartitioning()
@@ -205,6 +216,13 @@ namespace NotInfiltrator.Serialization
             return strings;
         }
         #endregion
+
+        //#region Object reading
+        //protected Monkey.Object ParseObjectTree()
+        //{
+        //    return Monkey.Object.ParseTree(this, 0, null);
+        //}
+        //#endregion
 
         #region Utility accessors
         public string GetString(UInt16 id)
