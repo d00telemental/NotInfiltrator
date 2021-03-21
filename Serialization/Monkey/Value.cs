@@ -37,10 +37,36 @@ namespace NotInfiltrator.Serialization.Monkey
                     return new Int64Value() { StructBin = sbin };
                 case FieldType.UInt64:
                     return new UInt64Value() { StructBin = sbin };
+                case FieldType.Boolean:
+                    return new BooleanValue() { StructBin = sbin };
+                case FieldType.Float:
+                    return new FloatValue() { StructBin = sbin };
+                case FieldType.Double:
+                    return new DoubleValue() { StructBin = sbin };
+                case FieldType.Char:
+                    throw new NotImplementedException();
+                case FieldType.String:
+                    return new StringValue() { StructBin = sbin };
+                case FieldType.POD:
+                    throw new NotImplementedException();
                 case FieldType.Reference:
                     return new ReferenceValue() { StructBin = sbin };
+                case FieldType.InlineStruct:
+                    throw new NotImplementedException();
+                case FieldType.Array:
+                    return new ArrayValue() { StructBin = sbin };
+                case FieldType.Enum:
+                    return new EnumValue() { StructBin = sbin };
+                case FieldType.Bitfield:
+                    throw new NotImplementedException();
+                case FieldType.Symbol:
+                    throw new NotImplementedException();
+                case FieldType.Unknown15:
+                    throw new NotImplementedException();
+                case FieldType.Unknown16:
+                    throw new NotImplementedException();
                 default:
-                    return null;
+                    throw new NotImplementedException();
             }
         }
     }
@@ -122,31 +148,51 @@ namespace NotInfiltrator.Serialization.Monkey
             return this;
         }
     }
-    //public class BooleanValue : ImplementedValue<bool>
-    //{
-    //    public override FieldType Type => FieldType.Boolean;
-    //}
-    //public class FloatValue : ImplementedValue<float>
-    //{
-    //    public override FieldType Type => FieldType.Float;
-    //}
-    //public class DoubleValue : ImplementedValue<double>
-    //{
-    //    public override FieldType Type => FieldType.Double;
-    //}
+    public class BooleanValue : ImplementedValue<bool>
+    {
+        public override FieldType Type => FieldType.Boolean;
+        public override Value ReadFromStream(Stream source, Object currentObject)
+        {
+            Value = source.ReadByte() != 0;
+            return this;
+        }
+    }
+    public class FloatValue : ImplementedValue<float>
+    {
+        public override FieldType Type => FieldType.Float;
+        public override Value ReadFromStream(Stream source, Object currentObject)
+        {
+            Value = BitConverter.ToSingle(source.ReadBytes(4), 0);
+            return this;
+        }
+    }
+    public class DoubleValue : ImplementedValue<double>
+    {
+        public override FieldType Type => FieldType.Double;
+        public override Value ReadFromStream(Stream source, Object currentObject)
+        {
+            Value = BitConverter.ToDouble(source.ReadBytes(8), 0);
+            return this;
+        }
+    }
     //public class CharValue : ImplementedValue<char>
     //{
     //    public override FieldType Type => FieldType.Char;
     //}
-    //public class StringValue : ImplementedValue<StringData>
-    //{
-    //    public override FieldType Type => FieldType.String;
-    //}
+    public class StringValue : ImplementedValue<StringData>
+    {
+        public override FieldType Type => FieldType.String;
+        public override Value ReadFromStream(Stream source, Object currentObject)
+        {
+            int strId = source.ReadSigned16Little();
+            Value = StructBin.StringDatas[strId];
+            return this;
+        }
+    }
     //public class PodValue : ImplementedValue<object>
     //{
     //    public override FieldType Type => FieldType.POD;
     //}
-
     public class ReferenceValue : ImplementedValue<Object>
     {
         public override FieldType Type => FieldType.Reference;
@@ -161,6 +207,37 @@ namespace NotInfiltrator.Serialization.Monkey
             IsNil = RefId == -1;
             Value = !IsNil ? Object.ParseTree(StructBin, RefId, currentObject) : null;
 
+            return this;
+        }
+    }
+    //public class InlineStructValue : ImplementedValue<object>
+    //{
+    //    public override FieldType Type => FieldType.InlineStruct;
+    //}
+    public class ArrayValue : ReferenceValue
+    {
+        public override FieldType Type => FieldType.Array;
+
+        public override Value ReadFromStream(Stream source, Object currentObject)
+        {
+            RefId = source.ReadSigned32Little();
+
+            IsNil = RefId == -1;
+            Value = !IsNil ? Object.ParseTree(StructBin, RefId, currentObject) : null;
+
+            return this;
+        }
+    }
+    public class EnumValue : ImplementedValue<Tuple<EnumData, int>>
+    {
+        public override FieldType Type => FieldType.Enum;
+
+        public EnumData ValueMeta => Value.Item1;
+        public int ValueId => Value.Item2;
+
+        public override Value ReadFromStream(Stream source, Object currentObject)
+        {
+            Value = new(null, source.ReadSigned32Little());
             return this;
         }
     }

@@ -34,6 +34,7 @@ namespace NotInfiltrator.Serialization
         public List<StringData> StringDatas { get; private set; } = null;
         #endregion
 
+        public List<Monkey.EnumObject> EnumObjects { get; private set; } = null;
         public Monkey.Object RootObject { get; private set; } = null;
 
         public string AwfulObjectTextDump => ComposeAwfulObjectTextDump();
@@ -49,7 +50,7 @@ namespace NotInfiltrator.Serialization
 
             // Sections must be read before everything else.
             // Unlike further ReadAll*() functions, this returns
-            // a dictionary of section label to section.
+            // a dictionary of "section label => section".
             Sections = ReadSectionPartitioning();
 
             EnumDatas = ReadAllEnumDatas();
@@ -60,7 +61,8 @@ namespace NotInfiltrator.Serialization
 
             // Now that all 'data's are read,
             // we have enough data to parse objects.
-            //RootObject = Monkey.Object.ParseTree(this, 0, null);
+            EnumObjects = ParseEnums();
+            //RootObject = ParseObjectTree();
         }
 
         protected Dictionary<string, SectionData> ReadSectionPartitioning()
@@ -102,9 +104,9 @@ namespace NotInfiltrator.Serialization
             ReadingStream.Seek(enumSection.DataOffset, SeekOrigin.Begin);
             while (ReadingStream.Position < enumSection.End)
             {
-                var nameId = ReadingStream.ReadUnsigned16Little();
-                Common.Assert(0 == ReadingStream.ReadUnsigned16Little(), "EnumData padding != 0");  // TODO: write a checker for this, then move reading into the initializer
-                var objReference = ReadingStream.ReadUnsigned32Little();
+                var nameId = ReadingStream.ReadSigned16Little();
+                Common.Assert(0 == ReadingStream.ReadSigned16Little(), "EnumData padding != 0");  // TODO: write a checker for this, then move reading into the initializer
+                var objReference = ReadingStream.ReadSigned32Little();
 
                 enums.Add(new(enums.Count, this)
                 {
@@ -217,12 +219,13 @@ namespace NotInfiltrator.Serialization
         }
         #endregion
 
-        //#region Object reading
-        //protected Monkey.Object ParseObjectTree()
-        //{
-        //    return Monkey.Object.ParseTree(this, 0, null);
-        //}
-        //#endregion
+        #region Object reading
+        protected List<EnumObject> ParseEnums()
+            => EnumDatas.Select(ed => EnumObject.ParseSingular(ed)).ToList();
+
+        protected Monkey.Object ParseObjectTree()
+            => Monkey.Object.ParseTree(this, 0, null);
+        #endregion
 
         #region Utility accessors
         public string GetString(UInt16 id)

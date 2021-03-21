@@ -30,18 +30,14 @@ namespace NotInfiltrator.Serialization.Monkey
         {
             var objData = sbin.ObjectDatas[id];
             var objDataStream = new MemoryStream(objData.AlignedData);
-            Debug.WriteLine($"SBIN: {sbin.Name}, id: {id}, ODS/4: {objData.ObjectDefinitionSize / 4}");
             switch (objData.ObjectDefinitionSize / 4)
             {
                 case 0:
-                    // Struct
                     //throw new NotImplementedException();
-                    return null;
+                    return new StructObject(sbin, id, parent, objDataStream);
                 case 1:
-                    // Unstructured object
                     return new UnstructuredObject(sbin, id, parent, objDataStream);
                 case 2:
-                    // Array
                     return new ArrayObject(sbin, id, parent, objDataStream);
                 default:
                     Debug.WriteLine($"Invalid ODS encountered!");
@@ -50,10 +46,13 @@ namespace NotInfiltrator.Serialization.Monkey
         }
     }
 
-    //public class StructObject : Object
-    //{
-
-    //}
+    public class StructObject : Object
+    {
+        public StructObject(StructBin sbin, int id, Object parent, Stream source)
+            : base(sbin, id, parent)
+        {
+        }
+    }
 
     public class UnstructuredObjectEntry
     {
@@ -122,6 +121,37 @@ namespace NotInfiltrator.Serialization.Monkey
                 }
                 Debug.WriteLine($"Failed to get Value.NewForType for {ItemType:X}");
             }
+        }
+    }
+
+    public class EnumObject : Object
+    {
+        public StringData Name { get; set; }
+        public Dictionary<int, StringData> Items { get; private set; } = new();
+
+        public EnumObject(EnumData enumData, Stream source)
+            : base(enumData.StructBin, (int)enumData.ObjReference, null)
+        {
+            Common.AssertEquals((int)FieldType.String, source.ReadSigned32Little(), "Expected EnumObject to contain strings");
+            int count = source.ReadSigned32Little();
+            for (int i = 0; i < count; i++)
+            {
+                var item = new StringValue() {
+                    StructBin = StructBin
+                }.ReadFromStream(source, this) as StringValue ?? throw new Exception("WTF");
+                Items.Add(i, item.Value);
+            }
+        }
+
+        public static EnumObject ParseSingular(EnumData enumData)
+        {
+            var objData = enumData.StructBin.ObjectDatas[(int)enumData.ObjReference];
+            Common.AssertEquals(objData.ObjectDefinitionSize / 4, 2, "Expected an array-like object");
+
+            return new EnumObject(enumData, new MemoryStream(objData.AlignedData))
+            {
+                Name = enumData.StructBin.StringDatas[enumData.NameId]
+            };
         }
     }
 }
