@@ -135,7 +135,7 @@
                                     </HierarchicalDataTemplate>
 
                                     <DataTemplate x:Key="UnstructuredObjectIntegerValue"
-                                                              DataType="{x:Type monkey:UnstructuredObjectEntry}">
+                                                  DataType="{x:Type monkey:UnstructuredObjectEntry}">
                                         <TextBlock  Padding="4pt 2pt">
                                             <Grid>
                                                 <Grid.RowDefinitions>
@@ -146,6 +146,66 @@
                                                     <TextBlock Text="{Binding Path=Name.Text}" FontWeight="Bold"/>
                                                     <TextBlock Text="{Binding Path=Type}" FontStyle="Italic" Padding="5pt 0" Opacity="0.65"/>
                                                     <TextBlock Text="{Binding Path=Value.Value}"/>
+                                                </TextBlock>
+                                                <TextBlock Grid.Row="1" FontSize="11">
+                                                    <TextBlock Text="Inner offset:"/>
+                                                    <TextBlock Text="{Binding Path=InnerOffset, Converter={StaticResource IntToHexConverter}}"/>
+                                                </TextBlock>
+                                            </Grid>
+                                        </TextBlock>
+                                    </DataTemplate>
+                                    <DataTemplate x:Key="UnstructuredObjectFloatValue"
+                                                  DataType="{x:Type monkey:UnstructuredObjectEntry}">
+                                        <TextBlock  Padding="4pt 2pt">
+                                            <Grid>
+                                                <Grid.RowDefinitions>
+                                                    <RowDefinition Height="*"/>
+                                                    <RowDefinition Height="*"/>
+                                                </Grid.RowDefinitions>
+                                                <TextBlock Grid.Row="0">
+                                                    <TextBlock Text="{Binding Path=Name.Text}" FontWeight="Bold"/>
+                                                    <TextBlock Text="{Binding Path=Type}" FontStyle="Italic" Padding="5pt 0" Opacity="0.65"/>
+                                                    <TextBlock Text="{Binding Path=Value.Value}"/>
+                                                </TextBlock>
+                                                <TextBlock Grid.Row="1" FontSize="11">
+                                                    <TextBlock Text="Inner offset:"/>
+                                                    <TextBlock Text="{Binding Path=InnerOffset, Converter={StaticResource IntToHexConverter}}"/>
+                                                </TextBlock>
+                                            </Grid>
+                                        </TextBlock>
+                                    </DataTemplate>
+                                    <DataTemplate x:Key="UnstructuredObjectBooleanValue"
+                                                  DataType="{x:Type monkey:UnstructuredObjectEntry}">
+                                        <TextBlock  Padding="4pt 2pt">
+                                            <Grid>
+                                                <Grid.RowDefinitions>
+                                                    <RowDefinition Height="*"/>
+                                                    <RowDefinition Height="*"/>
+                                                </Grid.RowDefinitions>
+                                                <TextBlock Grid.Row="0">
+                                                    <TextBlock Text="{Binding Path=Name.Text}" FontWeight="Bold"/>
+                                                    <TextBlock Text="{Binding Path=Type}" FontStyle="Italic" Padding="5pt 0" Opacity="0.65"/>
+                                                    <TextBlock Text="{Binding Path=Value.Value}"/>
+                                                </TextBlock>
+                                                <TextBlock Grid.Row="1" FontSize="11">
+                                                    <TextBlock Text="Inner offset:"/>
+                                                    <TextBlock Text="{Binding Path=InnerOffset, Converter={StaticResource IntToHexConverter}}"/>
+                                                </TextBlock>
+                                            </Grid>
+                                        </TextBlock>
+                                    </DataTemplate>
+                                    <DataTemplate x:Key="UnstructuredObjectStringValue"
+                                                  DataType="{x:Type monkey:UnstructuredObjectEntry}">
+                                        <TextBlock  Padding="4pt 2pt">
+                                            <Grid>
+                                                <Grid.RowDefinitions>
+                                                    <RowDefinition Height="*"/>
+                                                    <RowDefinition Height="*"/>
+                                                </Grid.RowDefinitions>
+                                                <TextBlock Grid.Row="0">
+                                                    <TextBlock Text="{Binding Path=Name.Text}" FontWeight="Bold"/>
+                                                    <TextBlock Text="{Binding Path=Type}" FontStyle="Italic" Padding="5pt 0" Opacity="0.65"/>
+                                                    <TextBlock Text="{Binding Path=Value.Value.Text}"/>
                                                 </TextBlock>
                                                 <TextBlock Grid.Row="1" FontSize="11">
                                                     <TextBlock Text="Inner offset:"/>
@@ -175,22 +235,40 @@
                                         </TextBlock>
                                     </HierarchicalDataTemplate>
 
-
                                     <DataTemplate x:Key="IntegerValue">
                                         <TextBlock>
-                                            <TextBlock Text="{Binding Path=MetaData.Name}" FontWeight="Bold"/>
-                                            <TextBlock Text="{Binding Path=MetaData.TypeName}" FontStyle="Italic" Padding="5pt 0" Opacity="0.65"/>
-                                            <TextBlock Text="{Binding Path=Value.Value}"/>
+                                            <TextBlock Text="{Binding Path=Type}" FontStyle="Italic" Opacity="0.65"/>
+                                            <TextBlock Text="{Binding Path=Value}" Padding="5pt 0" FontWeight="Bold"/>
                                         </TextBlock>
                                     </DataTemplate>
                                     <DataTemplate x:Key="FloatValue">
                                         <TextBlock>
+                                            <TextBlock Text="{Binding Path=Type}" FontStyle="Italic" Opacity="0.65"/>
+                                            <TextBlock Text="{Binding Path=Value}" Padding="5pt 0" FontWeight="Bold"/>
+                                        </TextBlock>
+                                    </DataTemplate>
+                                    <DataTemplate x:Key="BooleanValue">
+                                        <TextBlock>
+                                            <TextBlock Text="{Binding Path=Type}" FontStyle="Italic" Opacity="0.65"/>
+                                            <TextBlock Text="{Binding Path=Value}" Padding="5pt 0" FontWeight="Bold"/>
+                                        </TextBlock>
+                                    </DataTemplate>
+                                    
+                                    <DataTemplate x:Key="IntegerFieldValue">
+                                        <TextBlock>
                                             <TextBlock Text="{Binding Path=MetaData.Name}" FontWeight="Bold"/>
                                             <TextBlock Text="{Binding Path=MetaData.TypeName}" FontStyle="Italic" Padding="5pt 0" Opacity="0.65"/>
                                             <TextBlock Text="{Binding Path=Value.Value}"/>
                                         </TextBlock>
                                     </DataTemplate>
-                                    <DataTemplate x:Key="BooleanValue">
+                                    <DataTemplate x:Key="FloatFieldValue">
+                                        <TextBlock>
+                                            <TextBlock Text="{Binding Path=MetaData.Name}" FontWeight="Bold"/>
+                                            <TextBlock Text="{Binding Path=MetaData.TypeName}" FontStyle="Italic" Padding="5pt 0" Opacity="0.65"/>
+                                            <TextBlock Text="{Binding Path=Value.Value}"/>
+                                        </TextBlock>
+                                    </DataTemplate>
+                                    <DataTemplate x:Key="BooleanFieldValue">
                                         <TextBlock>
                                             <TextBlock Text="{Binding Path=MetaData.Name}" FontWeight="Bold"/>
                                             <TextBlock Text="{Binding Path=MetaData.TypeName}" FontStyle="Italic" Padding="5pt 0" Opacity="0.65"/>
@@ -228,6 +306,13 @@
                                             <TextBlock Text="{Binding Path=MetaData.Name}" FontWeight="Bold"/>
                                             <TextBlock Text="{Binding Path=MetaData.TypeName}" FontStyle="Italic" Padding="5pt 0" Opacity="0.65"/>
                                             <TextBlock Text="{Binding Path=Value.ValueStringData.Text}"/>
+                                        </TextBlock>
+                                    </DataTemplate>
+                                    <DataTemplate x:Key="SymbolValue">
+                                        <TextBlock>
+                                            <TextBlock Text="{Binding Path=MetaData.Name}" FontWeight="Bold"/>
+                                            <TextBlock Text="{Binding Path=MetaData.TypeName}" FontStyle="Italic" Padding="5pt 0" Opacity="0.65"/>
+                                            <TextBlock Text="{Binding Path=Value.Value}"/>
                                         </TextBlock>
                                     </DataTemplate>
                                     
