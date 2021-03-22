@@ -66,7 +66,7 @@
                             <TreeView Grid.Column="0"
                                       ItemsSource="{Binding ActiveNode.Content.RootObject, Converter={StaticResource EnumerateConverter}}">
                                 <TreeView.Resources>
-                                    <!-- In use -->
+                                    
                                     <HierarchicalDataTemplate DataType="{x:Type monkey:UnstructuredObject}"
                                                               ItemsSource="{Binding Entries}"
                                                               ItemTemplateSelector="{StaticResource MonkeyValueDataTemplateSelector}">
@@ -89,7 +89,6 @@
                                             </Grid>
                                         </TextBlock>
                                     </HierarchicalDataTemplate>
-                                    
                                     <HierarchicalDataTemplate DataType="{x:Type monkey:StructObject}"
                                                               ItemsSource="{Binding Fields}"
                                                               ItemTemplateSelector="{StaticResource MonkeyValueDataTemplateSelector}">
@@ -135,6 +134,26 @@
                                         </TextBlock>
                                     </HierarchicalDataTemplate>
 
+                                    <DataTemplate x:Key="UnstructuredObjectIntegerValue"
+                                                              DataType="{x:Type monkey:UnstructuredObjectEntry}">
+                                        <TextBlock  Padding="4pt 2pt">
+                                            <Grid>
+                                                <Grid.RowDefinitions>
+                                                    <RowDefinition Height="*"/>
+                                                    <RowDefinition Height="*"/>
+                                                </Grid.RowDefinitions>
+                                                <TextBlock Grid.Row="0">
+                                                    <TextBlock Text="{Binding Path=Name.Text}" FontWeight="Bold"/>
+                                                    <TextBlock Text="{Binding Path=Type}" FontStyle="Italic" Padding="5pt 0" Opacity="0.65"/>
+                                                    <TextBlock Text="{Binding Path=Value.Value}"/>
+                                                </TextBlock>
+                                                <TextBlock Grid.Row="1" FontSize="11">
+                                                    <TextBlock Text="Inner offset:"/>
+                                                    <TextBlock Text="{Binding Path=InnerOffset, Converter={StaticResource IntToHexConverter}}"/>
+                                                </TextBlock>
+                                            </Grid>
+                                        </TextBlock>
+                                    </DataTemplate>
                                     <HierarchicalDataTemplate x:Key="UnstructuredObjectEntryValue"
                                                               DataType="{x:Type monkey:UnstructuredObjectEntry}"
                                                               ItemsSource="{Binding Path=Value, Converter={StaticResource EnumerateConverter}}">
@@ -171,6 +190,13 @@
                                             <TextBlock Text="{Binding Path=Value.Value}"/>
                                         </TextBlock>
                                     </DataTemplate>
+                                    <DataTemplate x:Key="BooleanValue">
+                                        <TextBlock>
+                                            <TextBlock Text="{Binding Path=MetaData.Name}" FontWeight="Bold"/>
+                                            <TextBlock Text="{Binding Path=MetaData.TypeName}" FontStyle="Italic" Padding="5pt 0" Opacity="0.65"/>
+                                            <TextBlock Text="{Binding Path=Value.Value}"/>
+                                        </TextBlock>
+                                    </DataTemplate>
                                     <DataTemplate x:Key="StringValue">
                                         <TextBlock>
                                             <TextBlock Text="{Binding Path=MetaData.Name}" FontWeight="Bold"/>
@@ -178,13 +204,49 @@
                                             <TextBlock Text="{Binding Path=Value.Value.Text}"/>
                                         </TextBlock>
                                     </DataTemplate>
+                                    <HierarchicalDataTemplate x:Key="InlineStructValue"
+                                                              DataType="{x:Type monkey:StructObject}"
+                                                              ItemsSource="{Binding Value.Fields}">
+                                        <TextBlock Padding="4pt 2pt">
+                                            <TextBlock Text="{Binding Path=Value.StructData.Name}" FontWeight="Bold"/>
+                                            <TextBlock Text="InlineStruct" FontStyle="Italic" Padding="5pt 0" Opacity="0.65"/>
+                                        </TextBlock>
+                                    </HierarchicalDataTemplate>
+                                    <HierarchicalDataTemplate x:Key="ArrayValue"
+                                                              DataType="{x:Type monkey:ArrayObject}"
+                                                              ItemsSource="{Binding Value.Value.Items}">
+                                        <TextBlock>
+                                            <TextBlock Text="{Binding Path=MetaData.Name}" FontWeight="Bold"/>
+                                            <TextBlock Text="{Binding Path=MetaData.TypeName}" FontStyle="Italic" Padding="5pt 0" Opacity="0.65"/>
+                                            <TextBlock Text="{Binding Path=Value.Value.Items.Count}"/>
+                                            <TextBlock Text="element(s) of"/>
+                                            <TextBlock Text="{Binding Path=Value.Value.ItemType}" FontStyle="Italic" Padding="5pt 0" Opacity="0.65"/>
+                                        </TextBlock>
+                                    </HierarchicalDataTemplate>
+                                    <DataTemplate x:Key="EnumValue">
+                                        <TextBlock>
+                                            <TextBlock Text="{Binding Path=MetaData.Name}" FontWeight="Bold"/>
+                                            <TextBlock Text="{Binding Path=MetaData.TypeName}" FontStyle="Italic" Padding="5pt 0" Opacity="0.65"/>
+                                            <TextBlock Text="{Binding Path=Value.ValueStringData.Text}"/>
+                                        </TextBlock>
+                                    </DataTemplate>
+                                    
+                                    <HierarchicalDataTemplate x:Key="InlineStructFieldValue"
+                                                              DataType="{x:Type monkey:StructObject}"
+                                                              ItemsSource="{Binding Value.Value.Fields}">
+                                        <TextBlock>
+                                            <TextBlock Text="{Binding Path=MetaData.Name}" FontWeight="Bold"/>
+                                            <TextBlock Text=" InlineStruct of " FontStyle="Italic" Opacity="0.65"/>
+                                            <TextBlock Text="{Binding Path=Value.Value.StructData.Name}"/>
+                                        </TextBlock>
+                                    </HierarchicalDataTemplate>
+                                    
                                     <HierarchicalDataTemplate x:Key="ReferenceFieldValue"
                                                               DataType="{x:Type monkey:ReferenceValue}"
                                                               ItemsSource="{Binding Value, Converter={StaticResource EnumerateConverter}}">
                                         <TextBlock>
                                             <TextBlock Text="{Binding Path=MetaData.Name}" FontWeight="Bold"/>
                                             <TextBlock Text="{Binding Path=MetaData.TypeName}" FontStyle="Italic" Padding="5pt 0" Opacity="0.65"/>
-                                            <TextBlock Text="{Binding Path=Value.Value.Text}"/>
                                         </TextBlock>
                                     </HierarchicalDataTemplate>
                                     <HierarchicalDataTemplate x:Key="NilReferenceValue"
@@ -201,17 +263,6 @@
                                         <TextBlock Text="Referenced value" FontSize="10"/>
                                     </HierarchicalDataTemplate>
                                     
-                                    <HierarchicalDataTemplate x:Key="ArrayValue"
-                                                              DataType="{x:Type monkey:ArrayObject}"
-                                                              ItemsSource="{Binding Value.Value.Items}">
-                                        <TextBlock>
-                                            <TextBlock Text="{Binding Path=MetaData.Name}" FontWeight="Bold"/>
-                                            <TextBlock Text="{Binding Path=MetaData.TypeName}" FontStyle="Italic" Padding="5pt 0" Opacity="0.65"/>
-                                            <TextBlock Text="{Binding Path=Value.Value.Items.Count}"/>
-                                            <TextBlock Text="element(s) of"/>
-                                            <TextBlock Text="{Binding Path=Value.Value.ItemType}" FontStyle="Italic" Padding="5pt 0" Opacity="0.65"/>
-                                        </TextBlock>
-                                    </HierarchicalDataTemplate>
                                     
                                     <HierarchicalDataTemplate x:Key="StructObjectValue"
                                                               DataType="{x:Type monkey:StructObject}"
@@ -220,6 +271,39 @@
                                             <TextBlock Text="{Binding Path=Value.StructData.Name}" FontWeight="Bold"/>
                                             <TextBlock Text="Struct" FontStyle="Italic" Padding="5pt 0" Opacity="0.65"/>
                                             <TextBlock Text="{Binding Path=Value.Id, Converter={StaticResource IntToHexConverter}}"/>
+                                        </TextBlock>
+                                    </HierarchicalDataTemplate>
+                                    <HierarchicalDataTemplate x:Key="UnstructuredObjectValue"
+                                                              DataType="{x:Type monkey:UnstructuredObject}"
+                                                              ItemsSource="{Binding Value.Entries}">
+                                        <TextBlock Padding="4pt 2pt">
+                                            <Grid>
+                                                <Grid.RowDefinitions>
+                                                    <RowDefinition Height="*"/>
+                                                    <RowDefinition Height="*"/>
+                                                </Grid.RowDefinitions>
+                                                <TextBlock Grid.Row="0" FontWeight="Bold">
+                                                    <TextBlock Text="Unstructured object"/>
+                                                    <TextBlock Text="{Binding Path=Value.Id, Converter={StaticResource IntToHexConverter}}"/>
+                                                </TextBlock>
+                                                <TextBlock Grid.Row="1" Padding="0 0 0 0" Opacity="0.6"  FontSize="11">
+                                                    <TextBlock Text="Binary size"/>
+                                                    <TextBlock Text="{Binding Path=Value.Size}"/>
+                                                    <TextBlock Text="Entry count" Padding="5pt 0 0 0"/>
+                                                    <TextBlock Text="{Binding Path=Value.Entries.Count}"/>
+                                                </TextBlock>
+                                            </Grid>
+                                        </TextBlock>
+                                    </HierarchicalDataTemplate>
+                                    <HierarchicalDataTemplate x:Key="ArrayObjectValue"
+                                                              DataType="{x:Type monkey:ArrayObject}"
+                                                              ItemsSource="{Binding Value.Items}">
+                                        <TextBlock Padding="4pt 2pt">
+                                            <TextBlock Text="{Binding Path=Value.Id, Converter={StaticResource IntToHexConverter}}" FontWeight="Bold"/>
+                                            <TextBlock Text="Array" FontStyle="Italic" Padding="5pt 0" Opacity="0.65"/>
+                                            <TextBlock Text="{Binding Path=Value.Items.Count}"/>
+                                            <TextBlock Text="element(s) of"/>
+                                            <TextBlock Text="{Binding Path=Value.ItemType}" FontStyle="Italic" Padding="5pt 0" Opacity="0.65"/>
                                         </TextBlock>
                                     </HierarchicalDataTemplate>
 

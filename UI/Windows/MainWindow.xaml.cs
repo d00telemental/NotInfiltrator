@@ -182,18 +182,24 @@ namespace NotInfiltrator.UI.Windows
                     StructObjectField { MetaData: { Type: FieldType.Float } } => element.FindResource("FloatValue") as DataTemplate,
                     StructObjectField { MetaData: { Type: FieldType.Double } } => element.FindResource("FloatValue") as DataTemplate,
                     StructObjectField { MetaData: { Type: FieldType.String } } => element.FindResource("StringValue") as DataTemplate,
-
                     StructObjectField { MetaData: { Type: FieldType.Reference } } => element.FindResource("ReferenceFieldValue") as HierarchicalDataTemplate,
+                    StructObjectField { MetaData: { Type: FieldType.InlineStruct } } => element.FindResource("InlineStructFieldValue") as HierarchicalDataTemplate,
                     StructObjectField { MetaData: { Type: FieldType.Array } } => element.FindResource("ArrayValue") as HierarchicalDataTemplate,
-
+                    StructObjectField { MetaData: { Type: FieldType.Enum } } => element.FindResource("EnumValue") as DataTemplate,
                     ArrayObject => element.FindResource("ArrayValue") as HierarchicalDataTemplate,
 
                     ReferenceValue rv when rv.Value is StructObject => element.FindResource("StructObjectValue") as HierarchicalDataTemplate,
+                    ReferenceValue rv when rv.Value is UnstructuredObject => element.FindResource("UnstructuredObjectValue") as HierarchicalDataTemplate,
+                    ReferenceValue rv when rv.Value is ArrayObject => element.FindResource("ArrayObjectValue") as HierarchicalDataTemplate,
                     ReferenceValue { IsNil: true } => element.FindResource("NilReferenceValue") as DataTemplate,
 
                     StructObject => element.FindResource("StructObjectValue") as HierarchicalDataTemplate,
 
+                    UnstructuredObjectEntry { Type: FieldType.Int32 } => element.FindResource("UnstructuredObjectIntegerValue") as DataTemplate,
                     UnstructuredObjectEntry => element.FindResource("UnstructuredObjectEntryValue") as HierarchicalDataTemplate,
+
+                    Int32Value => element.FindResource("IntegerValue") as DataTemplate,
+                    InlineStructValue => element.FindResource("InlineStructValue") as HierarchicalDataTemplate,
 
                     _ => element.FindResource("OtherValue") as DataTemplate
                 };

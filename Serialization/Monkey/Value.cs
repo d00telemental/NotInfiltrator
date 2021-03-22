@@ -218,6 +218,8 @@ namespace NotInfiltrator.Serialization.Monkey
         public EnumData ValueMeta => Value.Item1;
         public int ValueId => Value.Item2;
 
+        public object ValueStringData => ValueMeta.Object.Items[ValueId];
+
         public override Value ReadFromStream(Stream source, Object currentObject, FieldData currentFD, StructData currentSD, EnumData currentED)
         {
             Value = new(null, source.ReadSigned32Little());
