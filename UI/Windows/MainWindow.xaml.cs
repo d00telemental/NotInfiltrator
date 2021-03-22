@@ -162,4 +162,43 @@ namespace NotInfiltrator.UI.Windows
         }
         #endregion
     }
+
+    public class MonkeyValueDataTemplateSelector : DataTemplateSelector
+    {
+        public override DataTemplate SelectTemplate(object item, DependencyObject container)
+        {
+            FrameworkElement element = container as FrameworkElement;
+            if (element != null && item != null)
+            {
+                return item switch
+                {
+                    StructObjectField { MetaData: { Type: FieldType.Int8 } } => element.FindResource("IntegerValue") as DataTemplate,
+                    StructObjectField { MetaData: { Type: FieldType.UInt8 } } => element.FindResource("IntegerValue") as DataTemplate,
+                    StructObjectField { MetaData: { Type: FieldType.Int16 } } => element.FindResource("IntegerValue") as DataTemplate,
+                    StructObjectField { MetaData: { Type: FieldType.UInt16 } } => element.FindResource("IntegerValue") as DataTemplate,
+                    StructObjectField { MetaData: { Type: FieldType.Int32 } } => element.FindResource("IntegerValue") as DataTemplate,
+                    StructObjectField { MetaData: { Type: FieldType.UInt32 } } => element.FindResource("IntegerValue") as DataTemplate,
+                    StructObjectField { MetaData: { Type: FieldType.Boolean } } => element.FindResource("BooleanValue") as DataTemplate,
+                    StructObjectField { MetaData: { Type: FieldType.Float } } => element.FindResource("FloatValue") as DataTemplate,
+                    StructObjectField { MetaData: { Type: FieldType.Double } } => element.FindResource("FloatValue") as DataTemplate,
+                    StructObjectField { MetaData: { Type: FieldType.String } } => element.FindResource("StringValue") as DataTemplate,
+
+                    StructObjectField { MetaData: { Type: FieldType.Reference } } => element.FindResource("ReferenceFieldValue") as HierarchicalDataTemplate,
+                    StructObjectField { MetaData: { Type: FieldType.Array } } => element.FindResource("ArrayValue") as HierarchicalDataTemplate,
+
+                    ArrayObject => element.FindResource("ArrayValue") as HierarchicalDataTemplate,
+
+                    ReferenceValue rv when rv.Value is StructObject => element.FindResource("StructObjectValue") as HierarchicalDataTemplate,
+                    ReferenceValue { IsNil: true } => element.FindResource("NilReferenceValue") as DataTemplate,
+
+                    StructObject => element.FindResource("StructObjectValue") as HierarchicalDataTemplate,
+
+                    UnstructuredObjectEntry => element.FindResource("UnstructuredObjectEntryValue") as HierarchicalDataTemplate,
+
+                    _ => element.FindResource("OtherValue") as DataTemplate
+                };
+            }
+            return null;
+        }
+    }
 }
