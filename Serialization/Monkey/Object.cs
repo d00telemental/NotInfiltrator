@@ -46,11 +46,49 @@ namespace NotInfiltrator.Serialization.Monkey
         }
     }
 
+    public class StructObjectField
+    {
+        public FieldData MetaData;
+        public Value Value;
+    }
+
     public class StructObject : Object
     {
-        public StructObject(StructBin sbin, int id, Object parent, Stream source)
+        public StructData StructData { get; set; }
+        public List<StructObjectField> Fields { get; set; } = new();
+
+        public StructObject(StructBin sbin, int id, Object parent, Stream source, int structDataId)
             : base(sbin, id, parent)
         {
+            StructData = sbin.StructDatas[structDataId];
+
+            long structStartOffset = source.Position;
+
+            foreach (var fieldData in StructData.Fields)
+            {
+                source.Seek(structStartOffset + fieldData.Offset, SeekOrigin.Begin);
+
+                var value = fieldData.Type switch
+                {
+                    FieldType.InlineStruct
+                        => Value.NewForType(sbin, fieldData.Type).ReadFromStream(source, this, null, sbin.StructDatas[fieldData.ChildKind], null),
+                    _
+                        => Value.NewForType(sbin, fieldData.Type).ReadFromStream(source, this, null, null, null)
+                };
+
+                if (value is EnumValue valueAsEnum)
+                {
+                    valueAsEnum.Value = new(sbin.EnumDatas[fieldData.ChildKind], valueAsEnum.ValueId);
+                }
+
+                Fields.Add(new() { MetaData = fieldData, Value = value });
+            }
+        }
+
+        public StructObject(StructBin sbin, int id, Object parent, Stream source)
+            : this(sbin, id, parent, source, source.ReadSigned16Little())
+        {
+
         }
     }
 
@@ -80,10 +118,11 @@ namespace NotInfiltrator.Serialization.Monkey
                 var innerOffset = source.ReadSigned32Little();
                 if (source.Position != innerOffset)
                 {
-                    Debug.WriteLine($"UnstructuredObjectEntry InnerOffset ({innerOffset:X}) != stream position ({source.Position})!");
-                    throw new Exception("UnstructuredObjectEntry InnerOffset != stream position!");
+                    Debug.WriteLine($"UnstructuredObjectEntry InnerOffset ({innerOffset}) != stream position ({source.Position})!");
+                    //throw new Exception("UnstructuredObjectEntry InnerOffset != stream position!");
+                    source.Seek(innerOffset, SeekOrigin.Begin);
                 }
-                var value = Value.NewForType(StructBin, typeId)?.ReadFromStream(source, this);
+                var value = Value.NewForType(StructBin, typeId)?.ReadFromStream(source, this, null, null, null);
 
                 Debug.WriteLine($"Name: {sbin.GetString(nameRef)}, type: {Enum.GetName(typeof(FieldType), typeId)} ({typeId:X}), offset = 0x{innerOffset:X4}");
 
@@ -103,19 +142,21 @@ namespace NotInfiltrator.Serialization.Monkey
     public class ArrayObject : Object
     {
         public FieldType ItemType { get; set; }
+        public short ChildKind { get; set; }
         public List<Value> Items { get; set; } = new();
 
         public ArrayObject(StructBin sbin, int id, Object parent, Stream source)
             : base(sbin, id, parent)
         {
-            ItemType = (FieldType)source.ReadSigned32Little();
+            ItemType = (FieldType)source.ReadSigned16Little();
+            ChildKind = source.ReadSigned16Little();
             int count = source.ReadSigned32Little();
             for (int i = 0; i < count; i++)
             {
                 var item = Value.NewForType(StructBin, ItemType);
                 if (item != null)
                 {
-                    item = item.ReadFromStream(source, this);
+                    item = item.ReadFromStream(source, this, null, (sbin.StructDatas.Count > 0 ? sbin.StructDatas[ChildKind] : null), null);
                     Items.Add(item);
                     continue;
                 }
@@ -138,7 +179,7 @@ namespace NotInfiltrator.Serialization.Monkey
             {
                 var item = new StringValue() {
                     StructBin = StructBin
-                }.ReadFromStream(source, this) as StringValue ?? throw new Exception("WTF");
+                }.ReadFromStream(source, this, null, null, null) as StringValue ?? throw new Exception("WTF");
                 Items.Add(i, item.Value);
             }
         }

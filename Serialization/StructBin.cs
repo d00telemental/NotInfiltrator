@@ -62,7 +62,7 @@ namespace NotInfiltrator.Serialization
             // Now that all 'data's are read,
             // we have enough data to parse objects.
             EnumObjects = ParseEnums();
-            //RootObject = ParseObjectTree();
+            RootObject = ParseObjectTree();
         }
 
         protected Dictionary<string, SectionData> ReadSectionPartitioning()

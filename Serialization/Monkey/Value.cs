@@ -13,62 +13,37 @@ namespace NotInfiltrator.Serialization.Monkey
     public abstract class Value
     {
         public abstract FieldType Type { get; }
-        public abstract Value ReadFromStream(Stream source, Object currentObject);
+        public abstract Value ReadFromStream(Stream source, Object currentObject, FieldData currentFD, StructData currentSD, EnumData currentED);
 
         public StructBin StructBin { get; set; }
 
         public static Value NewForType(StructBin sbin, FieldType type)
+            => type switch
         {
-            switch (type)
-            {
-                case FieldType.Int8:
-                    return new Int8Value() { StructBin = sbin };
-                case FieldType.UInt8:
-                    return new UInt8Value() { StructBin = sbin };
-                case FieldType.Int16:
-                    return new Int16Value() { StructBin = sbin };
-                case FieldType.UInt16:
-                    return new UInt16Value() { StructBin = sbin };
-                case FieldType.Int32:
-                    return new Int32Value() { StructBin = sbin };
-                case FieldType.UInt32:
-                    return new UInt32Value() { StructBin = sbin };
-                case FieldType.Int64:
-                    return new Int64Value() { StructBin = sbin };
-                case FieldType.UInt64:
-                    return new UInt64Value() { StructBin = sbin };
-                case FieldType.Boolean:
-                    return new BooleanValue() { StructBin = sbin };
-                case FieldType.Float:
-                    return new FloatValue() { StructBin = sbin };
-                case FieldType.Double:
-                    return new DoubleValue() { StructBin = sbin };
-                case FieldType.Char:
-                    throw new NotImplementedException();
-                case FieldType.String:
-                    return new StringValue() { StructBin = sbin };
-                case FieldType.POD:
-                    throw new NotImplementedException();
-                case FieldType.Reference:
-                    return new ReferenceValue() { StructBin = sbin };
-                case FieldType.InlineStruct:
-                    throw new NotImplementedException();
-                case FieldType.Array:
-                    return new ArrayValue() { StructBin = sbin };
-                case FieldType.Enum:
-                    return new EnumValue() { StructBin = sbin };
-                case FieldType.Bitfield:
-                    throw new NotImplementedException();
-                case FieldType.Symbol:
-                    throw new NotImplementedException();
-                case FieldType.Unknown15:
-                    throw new NotImplementedException();
-                case FieldType.Unknown16:
-                    throw new NotImplementedException();
-                default:
-                    throw new NotImplementedException();
-            }
-        }
+            FieldType.Int8 => new Int8Value() { StructBin = sbin },
+            FieldType.UInt8 => new UInt8Value() { StructBin = sbin },
+            FieldType.Int16 => new Int16Value() { StructBin = sbin },
+            FieldType.UInt16 => new UInt16Value() { StructBin = sbin },
+            FieldType.Int32 => new Int32Value() { StructBin = sbin },
+            FieldType.UInt32 => new UInt32Value() { StructBin = sbin },
+            FieldType.Int64 => new Int64Value() { StructBin = sbin },
+            FieldType.UInt64 => new UInt64Value() { StructBin = sbin },
+            FieldType.Boolean => new BooleanValue() { StructBin = sbin },
+            FieldType.Float => new FloatValue() { StructBin = sbin },
+            FieldType.Double => new DoubleValue() { StructBin = sbin },
+            FieldType.Char => throw new NotImplementedException(),
+            FieldType.String => new StringValue() { StructBin = sbin },
+            FieldType.POD => throw new NotImplementedException(),
+            FieldType.Reference => new ReferenceValue() { StructBin = sbin },
+            FieldType.InlineStruct => new InlineStructValue() { StructBin = sbin },
+            FieldType.Array => new ArrayValue() { StructBin = sbin },
+            FieldType.Enum => new EnumValue() { StructBin = sbin },
+            FieldType.Bitfield => throw new NotImplementedException(),
+            FieldType.Symbol => new SymbolValue() { StructBin = sbin },
+            FieldType.Unknown15 => throw new NotImplementedException(),
+            FieldType.Unknown16 => throw new NotImplementedException(),
+            _ => throw new NotImplementedException(),
+        };
     }
 
     public abstract class ImplementedValue<T> : Value
@@ -79,7 +54,7 @@ namespace NotInfiltrator.Serialization.Monkey
     public class Int8Value : ImplementedValue<int>
     {
         public override FieldType Type => FieldType.Int8;
-        public override Value ReadFromStream(Stream source, Object currentObject)
+        public override Value ReadFromStream(Stream source, Object currentObject, FieldData currentFD, StructData currentSD, EnumData currentED)
         {
             Value = source.ReadByte();
             return this;
@@ -88,7 +63,7 @@ namespace NotInfiltrator.Serialization.Monkey
     public class UInt8Value : ImplementedValue<uint>
     {
         public override FieldType Type => FieldType.UInt8;
-        public override Value ReadFromStream(Stream source, Object currentObject)
+        public override Value ReadFromStream(Stream source, Object currentObject, FieldData currentFD, StructData currentSD, EnumData currentED)
         {
             Value = (uint)source.ReadByte();
             return this;
@@ -97,7 +72,7 @@ namespace NotInfiltrator.Serialization.Monkey
     public class Int16Value : ImplementedValue<int>
     {
         public override FieldType Type => FieldType.Int16;
-        public override Value ReadFromStream(Stream source, Object currentObject)
+        public override Value ReadFromStream(Stream source, Object currentObject, FieldData currentFD, StructData currentSD, EnumData currentED)
         {
             Value = source.ReadSigned16Little();
             return this;
@@ -106,7 +81,7 @@ namespace NotInfiltrator.Serialization.Monkey
     public class UInt16Value : ImplementedValue<uint>
     {
         public override FieldType Type => FieldType.UInt16;
-        public override Value ReadFromStream(Stream source, Object currentObject)
+        public override Value ReadFromStream(Stream source, Object currentObject, FieldData currentFD, StructData currentSD, EnumData currentED)
         {
             Value = source.ReadUnsigned16Little();
             return this;
@@ -115,7 +90,7 @@ namespace NotInfiltrator.Serialization.Monkey
     public class Int32Value : ImplementedValue<int>
     {
         public override FieldType Type => FieldType.Int32;
-        public override Value ReadFromStream(Stream source, Object currentObject)
+        public override Value ReadFromStream(Stream source, Object currentObject, FieldData currentFD, StructData currentSD, EnumData currentED)
         {
             Value = source.ReadSigned32Little();
             return this;
@@ -124,7 +99,7 @@ namespace NotInfiltrator.Serialization.Monkey
     public class UInt32Value : ImplementedValue<uint>
     {
         public override FieldType Type => FieldType.UInt32;
-        public override Value ReadFromStream(Stream source, Object currentObject)
+        public override Value ReadFromStream(Stream source, Object currentObject, FieldData currentFD, StructData currentSD, EnumData currentED)
         {
             Value = source.ReadUnsigned32Little();
             return this;
@@ -133,7 +108,7 @@ namespace NotInfiltrator.Serialization.Monkey
     public class Int64Value : ImplementedValue<long>
     {
         public override FieldType Type => FieldType.Int64;
-        public override Value ReadFromStream(Stream source, Object currentObject)
+        public override Value ReadFromStream(Stream source, Object currentObject, FieldData currentFD, StructData currentSD, EnumData currentED)
         {
             Value = source.ReadSigned64Little();
             return this;
@@ -142,7 +117,7 @@ namespace NotInfiltrator.Serialization.Monkey
     public class UInt64Value : ImplementedValue<ulong>
     {
         public override FieldType Type => FieldType.UInt64;
-        public override Value ReadFromStream(Stream source, Object currentObject)
+        public override Value ReadFromStream(Stream source, Object currentObject, FieldData currentFD, StructData currentSD, EnumData currentED)
         {
             Value = source.ReadUnsigned64Little();
             return this;
@@ -151,7 +126,7 @@ namespace NotInfiltrator.Serialization.Monkey
     public class BooleanValue : ImplementedValue<bool>
     {
         public override FieldType Type => FieldType.Boolean;
-        public override Value ReadFromStream(Stream source, Object currentObject)
+        public override Value ReadFromStream(Stream source, Object currentObject, FieldData currentFD, StructData currentSD, EnumData currentED)
         {
             Value = source.ReadByte() != 0;
             return this;
@@ -160,7 +135,7 @@ namespace NotInfiltrator.Serialization.Monkey
     public class FloatValue : ImplementedValue<float>
     {
         public override FieldType Type => FieldType.Float;
-        public override Value ReadFromStream(Stream source, Object currentObject)
+        public override Value ReadFromStream(Stream source, Object currentObject, FieldData currentFD, StructData currentSD, EnumData currentED)
         {
             Value = BitConverter.ToSingle(source.ReadBytes(4), 0);
             return this;
@@ -169,7 +144,7 @@ namespace NotInfiltrator.Serialization.Monkey
     public class DoubleValue : ImplementedValue<double>
     {
         public override FieldType Type => FieldType.Double;
-        public override Value ReadFromStream(Stream source, Object currentObject)
+        public override Value ReadFromStream(Stream source, Object currentObject, FieldData currentFD, StructData currentSD, EnumData currentED)
         {
             Value = BitConverter.ToDouble(source.ReadBytes(8), 0);
             return this;
@@ -182,7 +157,7 @@ namespace NotInfiltrator.Serialization.Monkey
     public class StringValue : ImplementedValue<StringData>
     {
         public override FieldType Type => FieldType.String;
-        public override Value ReadFromStream(Stream source, Object currentObject)
+        public override Value ReadFromStream(Stream source, Object currentObject, FieldData currentFD, StructData currentSD, EnumData currentED)
         {
             int strId = source.ReadSigned16Little();
             Value = StructBin.StringDatas[strId];
@@ -200,7 +175,7 @@ namespace NotInfiltrator.Serialization.Monkey
         public int RefId { get; set; }
         public bool IsNil { get; set; } = false;
 
-        public override Value ReadFromStream(Stream source, Object currentObject)
+        public override Value ReadFromStream(Stream source, Object currentObject, FieldData currentFD, StructData currentSD, EnumData currentED)
         {
             RefId = source.ReadSigned32Little();
 
@@ -210,15 +185,23 @@ namespace NotInfiltrator.Serialization.Monkey
             return this;
         }
     }
-    //public class InlineStructValue : ImplementedValue<object>
-    //{
-    //    public override FieldType Type => FieldType.InlineStruct;
-    //}
+    public class InlineStructValue : ImplementedValue<StructObject>
+    {
+        public override FieldType Type => FieldType.InlineStruct;
+
+        public override Value ReadFromStream(Stream source, Object currentObject, FieldData currentFD, StructData currentSD, EnumData currentED)
+        {
+            Value = currentSD != null
+                ? new StructObject(StructBin, -1, null, source, currentSD.Id)
+                : new StructObject(StructBin, -1, null, source);
+            return this;
+        }
+    }
     public class ArrayValue : ReferenceValue
     {
         public override FieldType Type => FieldType.Array;
 
-        public override Value ReadFromStream(Stream source, Object currentObject)
+        public override Value ReadFromStream(Stream source, Object currentObject, FieldData currentFD, StructData currentSD, EnumData currentED)
         {
             RefId = source.ReadSigned32Little();
 
@@ -235,9 +218,23 @@ namespace NotInfiltrator.Serialization.Monkey
         public EnumData ValueMeta => Value.Item1;
         public int ValueId => Value.Item2;
 
-        public override Value ReadFromStream(Stream source, Object currentObject)
+        public override Value ReadFromStream(Stream source, Object currentObject, FieldData currentFD, StructData currentSD, EnumData currentED)
         {
             Value = new(null, source.ReadSigned32Little());
+            return this;
+        }
+    }
+    //public class BitfieldValue : ImplementedValue<object>
+    //{
+    //    public override FieldType Type => FieldType.Bitfield;
+    //}
+    public class SymbolValue : ImplementedValue<short>
+    {
+        public override FieldType Type => FieldType.Symbol;
+        
+        public override Value ReadFromStream(Stream source, Object currentObject, FieldData currentFD, StructData currentSD, EnumData currentED)
+        {
+            Value = source.ReadSigned16Little();
             return this;
         }
     }
