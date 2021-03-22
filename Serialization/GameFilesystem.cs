@@ -30,6 +30,7 @@ namespace NotInfiltrator.Serialization
             foreach (var fileName in files)
             {
                 StructBinMap.Add(fileName, new (this, fileName));
+                /* DEV */ break;
             }
         }
 

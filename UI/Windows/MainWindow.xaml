@@ -6,6 +6,7 @@
         
         xmlns:converters="clr-namespace:NotInfiltrator.UI.Converters"
         xmlns:local="clr-namespace:NotInfiltrator.UI.Windows"
+        xmlns:monkey="clr-namespace:NotInfiltrator.Serialization.Monkey"
         xmlns:serialization="clr-namespace:NotInfiltrator.Serialization"
         
         mc:Ignorable="d"
@@ -19,6 +20,7 @@
         <converters:FieldChildKindVisibilityConverter x:Key="FieldChildKindVisibilityConverter"/>
         <converters:FieldChildKindTextConverter x:Key="FieldChildKindTextConverter"/>
         <converters:ByteArrayToStringConverter x:Key="ByteArrayToStringConverter"/>
+        <converters:EnumerateConverter x:Key="EnumerateConverter"/>
     </Window.Resources>
     <Grid>
         <Grid.RowDefinitions>
@@ -55,13 +57,48 @@
                     <RowDefinition Height="360px"/>
                 </Grid.RowDefinitions>
                 <TabControl Grid.Row="0">
-                    <TabItem Header="Hierarchy" IsEnabled="False">
+                    <TabItem Header="Hierarchy" IsSelected="True" IsEnabled="True">
                         <Grid>
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="*"/>
-                                <ColumnDefinition Width="5px"/>
-                                <ColumnDefinition Width="3*"/>
                             </Grid.ColumnDefinitions>
+                            <TreeView Grid.Column="0"
+                                      ItemsSource="{Binding ActiveNode.Content.RootObject, Converter={StaticResource EnumerateConverter}}">
+                                <TreeView.Resources>
+                                    <HierarchicalDataTemplate DataType="{x:Type monkey:UnstructuredObject}" ItemsSource="{Binding Entries}">
+                                        <TextBlock Text="UNSTRUCTURED OBJECT"/>
+                                    </HierarchicalDataTemplate>
+                                    <HierarchicalDataTemplate DataType="{x:Type monkey:StructObject}" ItemsSource="{Binding Fields}">
+                                        <TextBlock Text="STRUCT OBJECT"/>
+                                    </HierarchicalDataTemplate>
+                                    <HierarchicalDataTemplate DataType="{x:Type monkey:ArrayObject}" ItemsSource="{Binding Items}">
+                                        <TextBlock Text="ARRAY OBJECT"/>
+                                    </HierarchicalDataTemplate>
+
+                                    <HierarchicalDataTemplate DataType="{x:Type monkey:UnstructuredObjectEntry}" ItemsSource="{Binding Value, Converter={StaticResource EnumerateConverter}}">
+                                        <TextBlock>
+                                            <TextBlock Text="Name ="/>
+                                            <TextBlock Text="{Binding Path=Name.Text}"/>
+                                            <TextBlock Text=" Type = "/>
+                                            <TextBlock Text="{Binding Path=Type}"/>
+                                        </TextBlock>
+                                    </HierarchicalDataTemplate>
+
+                                    <HierarchicalDataTemplate DataType="{x:Type monkey:StructObjectField}" ItemsSource="{Binding Path=Value, Converter={StaticResource EnumerateConverter}}">
+                                        <TextBlock>
+                                            <TextBlock Text="Name ="/>
+                                            <TextBlock Text="{Binding Path=MetaData.Name}"/>
+                                            <TextBlock Text=" Type = "/>
+                                            <TextBlock Text="{Binding Path=MetaData.TypeName}"/>
+                                        </TextBlock>
+                                    </HierarchicalDataTemplate>
+
+                                    <HierarchicalDataTemplate DataType="{x:Type monkey:ReferenceValue}" ItemsSource="{Binding Value, Converter={StaticResource EnumerateConverter}}">
+                                        <TextBlock Text="Referenced value"/>
+                                    </HierarchicalDataTemplate>
+
+                                </TreeView.Resources>
+                            </TreeView>
                         </Grid>
                     </TabItem>
                     <TabItem Header="Object datas" IsSelected="False">
@@ -97,7 +134,7 @@
                                      IsReadOnly="True"/>
                         </Grid>
                     </TabItem>
-                    <TabItem Header="Text view" IsSelected="True">
+                    <TabItem Header="Text view" IsSelected="False">
                         <TextBox Text="{Binding Path=ActiveNode.Content.AwfulObjectTextDump, Mode=OneWay}"
                                      Padding="10"
                                      VerticalScrollBarVisibility="Auto"
@@ -163,8 +200,16 @@
 
                     <!-- Enumerations -->
                     <TabItem Header="Enums">
-                        <Grid DataContext="{Binding Path=ActiveNode}">
-                            <ListView ItemsSource="{Binding Path=Content.EnumDatas}">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="5px"/>
+                                <ColumnDefinition Width="2*"/>
+                            </Grid.ColumnDefinitions>
+
+                            <ListView Grid.Column="0"
+                                      ItemsSource="{Binding Path=ActiveNode.Content.EnumDatas}"
+                                      SelectedItem="{Binding Path=ActiveEnumData, Mode=TwoWay}">
                                 <ListView.View>
                                     <GridView>
                                         <GridViewColumn Width="80" DisplayMemberBinding="{Binding Path=Id, Converter={StaticResource IntToHexConverter}}">
@@ -175,6 +220,20 @@
                                         </GridViewColumn>
                                         <GridViewColumn Width="160" DisplayMemberBinding="{Binding Path=ObjReference, Converter={StaticResource IntToHexConverter}}">
                                             <GridViewColumnHeader>Obj. reference</GridViewColumnHeader>
+                                        </GridViewColumn>
+                                    </GridView>
+                                </ListView.View>
+                            </ListView>
+                            <GridSplitter Grid.Column="1" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
+                            <ListView Grid.Column="2"
+                                      ItemsSource="{Binding Path=ActiveEnumData.Object.Items, Mode=OneWay}">
+                                <ListView.View>
+                                    <GridView>
+                                        <GridViewColumn Width="80" DisplayMemberBinding="{Binding Path=Key, Converter={StaticResource IntToHexConverter}}">
+                                            <GridViewColumnHeader>#</GridViewColumnHeader>
+                                        </GridViewColumn>
+                                        <GridViewColumn Width="160px" DisplayMemberBinding="{Binding Path=Value.Text}">
+                                            <GridViewColumnHeader>Value</GridViewColumnHeader>
                                         </GridViewColumn>
                                     </GridView>
                                 </ListView.View>

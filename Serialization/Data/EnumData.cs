@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Text;
 
 using NotInfiltrator.Utilities;
@@ -15,5 +16,7 @@ namespace NotInfiltrator.Serialization.Data
         public string Name => StructBin.GetString((ushort)NameId);
 
         public EnumData(int id, StructBin sbin) : base(id, sbin) { }
+
+        public Monkey.EnumObject Object => StructBin.EnumObjects.First(eo => eo.Name.Text == Name);
     }
 }

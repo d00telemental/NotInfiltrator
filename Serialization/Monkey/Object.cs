@@ -33,7 +33,6 @@ namespace NotInfiltrator.Serialization.Monkey
             switch (objData.ObjectDefinitionSize / 4)
             {
                 case 0:
-                    //throw new NotImplementedException();
                     return new StructObject(sbin, id, parent, objDataStream);
                 case 1:
                     return new UnstructuredObject(sbin, id, parent, objDataStream);
@@ -48,8 +47,8 @@ namespace NotInfiltrator.Serialization.Monkey
 
     public class StructObjectField
     {
-        public FieldData MetaData;
-        public Value Value;
+        public FieldData MetaData { get; set; }
+        public Value Value { get; set; }
     }
 
     public class StructObject : Object

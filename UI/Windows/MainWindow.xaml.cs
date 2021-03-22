@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
@@ -23,6 +24,7 @@ using System.Windows.Threading;
 
 using NotInfiltrator.Serialization;
 using NotInfiltrator.Serialization.Data;
+using NotInfiltrator.Serialization.Monkey;
 using NotInfiltrator.Utilities;
 
 namespace NotInfiltrator.UI.Windows
@@ -41,7 +43,7 @@ namespace NotInfiltrator.UI.Windows
         #region Internal fields
         private GameFilesystem Filesystem = null;
 
-        private readonly string BaseWindowTitle = "ME Infiltrator Data Explorer";
+        private readonly string BaseWindowTitle = "ME:Infiltrator Data Explorer";
         #endregion
 
         #region Non-bindable properties
@@ -56,6 +58,17 @@ namespace NotInfiltrator.UI.Windows
             set
             {
                 _activeNode = value;
+                OnPropertyChanged();
+            }
+        }
+
+        private EnumData _activeEnumData = null;
+        public EnumData ActiveEnumData
+        {
+            get { return _activeEnumData; }
+            set
+            {
+                _activeEnumData = value;
                 OnPropertyChanged();
             }
         }
