@@ -29,7 +29,6 @@ namespace NotInfiltrator.Serialization
             var files = Directory.GetFiles(Path, "*.sb", SearchOption.AllDirectories).Select(GetRelativePath);
             foreach (var fileName in files)
             {
-                //if (true && !fileName.Contains("layouts.sb")) continue;
                 StructBinMap.Add(fileName, new (this, fileName));
             }
         }

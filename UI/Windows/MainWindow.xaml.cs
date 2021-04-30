@@ -43,7 +43,7 @@ namespace NotInfiltrator.UI.Windows
         #region Internal fields
         private GameFilesystem Filesystem = null;
 
-        private readonly string BaseWindowTitle = "ME:Infiltrator Data Explorer";
+        private readonly string BaseWindowTitle = "ME:Infiltrator Data Research Tool";
         #endregion
 
         #region Non-bindable properties
