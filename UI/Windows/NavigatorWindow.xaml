@@ -17,9 +17,10 @@
     </Window.Resources>
     <Grid x:Name="ANavigatorGrid">
         <Grid.RowDefinitions>
-            <RowDefinition Height="Auto"/>  <!-- Menu -->
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>     <!-- Tree view -->
-            <RowDefinition Height="Auto"/>  <!-- Quick options -->
+            <RowDefinition Height="Auto"/>  <!-- View listing -->
             <RowDefinition Height="Auto"/>  <!-- Status bar -->
         </Grid.RowDefinitions>
         <Menu Grid.Row="0" Height="Auto">
@@ -42,7 +43,7 @@
             <MenuItem Header="_Tools">
                 <MenuItem Header="_Bulk extract"/>
                 <Separator/>
-                <MenuItem Header="Log_ic (.sb) tool"/>
+                <MenuItem Header="SB_IN (.sb) tool"/>
                 <MenuItem Header="M_3G (.bin + .m3g) tool"/>
                 <MenuItem Header="FM_OD (.fev + .fsb) tool"/>
                 <Separator/>
@@ -60,16 +61,17 @@
                 <MenuItem Header="_About"/>
             </MenuItem>
         </Menu>
-        <Grid Grid.Row="1" Margin="10,10,10,0">
+        <Grid Grid.Row="2" Margin="10,10,10,0">
             <Grid.RowDefinitions>
                 <RowDefinition Height="*"/>
                 <RowDefinition Height="Auto"/>
             </Grid.RowDefinitions>
-            <TreeView x:Name="DbTreeView" Grid.Column="0">
+            <TreeView x:Name="DbTreeView" Grid.Column="0"
+                      PreviewMouseDoubleClick="DbTreeView_PreviewMouseDoubleClick">
                 <TreeView.ItemContainerStyle>
                     <Style TargetType="{x:Type TreeViewItem}">
                         <Setter Property="IsExpanded" Value="True"/>
-                        <EventSetter Event="MouseDoubleClick" Handler="DbTreeView_MouseDoubleClick"/>
+                        <EventSetter Event="PreviewMouseDoubleClick" Handler="DbViewItem_PreviewMouseDoubleClick"/>
                         <EventSetter Event="PreviewKeyDown" Handler="DbTreeView_PreviewKeyDown"/>
                     </Style>
                 </TreeView.ItemContainerStyle>
@@ -93,7 +95,7 @@
             </TreeView>
             <TextBox Grid.Row="1" Margin="0,10" Padding="5"/>
         </Grid>
-        <Grid Grid.Row="2" Margin="10,0,10,10">
+        <Grid Grid.Row="3" Margin="10,0,10,10">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*"/>
                 <ColumnDefinition Width="*"/>
@@ -112,7 +114,7 @@
             <CheckBox Grid.Column="2" Grid.Row="0" Content="FMOD events (.fev)" IsChecked="True" Margin="0,0,0,3"/>
             <CheckBox Grid.Column="2" Grid.Row="1" Content="FMOD banks (.fsb)" IsChecked="True" Margin="0,3,0,0"/>
         </Grid>
-        <StatusBar Grid.Row="3" Height="Auto">
+        <StatusBar Grid.Row="4" Height="Auto">
             <StatusBarItem>
                 <TextBlock x:Name="StatusBar_Status" Text="STATUS TEXT" />
             </StatusBarItem>

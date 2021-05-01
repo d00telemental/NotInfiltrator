@@ -57,6 +57,21 @@ namespace NotInfiltrator.UI.Windows
             }, "Updating user interface...");
         }
 
+        private void _handleTreeViewSelection(GameFilesystemNode node)
+        {
+            Action action = node.Content switch
+            {
+                StructBin sbin => () => {
+                    Debug.WriteLine($"Opening SBIN tool for {node.Name}...");
+                    var sbinWindow = new StructBinWindow(node);
+                    sbinWindow.Show();
+                },
+                _ => () => Debug.WriteLine($"WTF")
+            };
+
+            action.Invoke();
+        }
+
         #region Notifying properties
         #endregion
 
@@ -90,18 +105,9 @@ namespace NotInfiltrator.UI.Windows
             });
         }
 
-        private void DbTreeView_MouseDoubleClick(object sender, MouseButtonEventArgs e)
+        private void DbTreeView_PreviewMouseDoubleClick(object sender, MouseButtonEventArgs e)
         {
-            if (sender is not TreeViewItem tvItem || DbTreeView.SelectedItem is not GameFilesystemNode gfsNode)
-            {
-                throw new Exception();
-            }
-
-            // Do not handle events for parent nodes.
-            if (tvItem.Items.Count == 0)
-            {
-                handleTreeViewSelection_(gfsNode);
-            }            
+            e.Handled = true;
         }
 
         private void DbTreeView_PreviewKeyDown(object sender, KeyEventArgs e)
@@ -120,24 +126,23 @@ namespace NotInfiltrator.UI.Windows
             switch (e.Key)
             {
                 case Key.Return:
-                    handleTreeViewSelection_(gfsNode);
+                    _handleTreeViewSelection(gfsNode);
                     return;
             }
         }
 
-        private void handleTreeViewSelection_(GameFilesystemNode node)
+        private void DbViewItem_PreviewMouseDoubleClick(object sender, MouseButtonEventArgs e)
         {
-            Action action = node.Content switch
+            if (sender is not TreeViewItem tvItem || DbTreeView.SelectedItem is not GameFilesystemNode gfsNode)
             {
-                StructBin sbin => () => {
-                    Debug.WriteLine($"Opening SBIN tool for {node.Name}...");
-                    var sbinWindow = new StructBinWindow(node);
-                    sbinWindow.Show();
-                } ,
-                _ => () => Debug.WriteLine($"WTF")
-            };
+                throw new Exception();
+            }
 
-            action.Invoke();
+            // Do not handle events for parent nodes.
+            if (tvItem.Items.Count == 0)
+            {
+                _handleTreeViewSelection(gfsNode);
+            }
         }
     }
 }

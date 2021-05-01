@@ -3,10 +3,135 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+                  
+        xmlns:converters="clr-namespace:NotInfiltrator.UI.Converters"
         xmlns:local="clr-namespace:NotInfiltrator.UI.Windows"
+        xmlns:monkey="clr-namespace:NotInfiltrator.Serialization.Monkey"
+        xmlns:serialization="clr-namespace:NotInfiltrator.Serialization"
+                  
         mc:Ignorable="d"
-        Title="StructBinWindow" Height="450" Width="800">
+        Title="WINDOW TITLE NOT SET FROM CODE-BEHIND"
+        Height="760" Width="1260"
+        MinHeight="400" MinWidth="600"
+        SizeToContent="Manual">
+    <Window.Resources>
+        <converters:IntToHex x:Key="IntToHexConverter"/>
+        <converters:FieldChildKindVisibilityConverter x:Key="FieldChildKindVisibilityConverter"/>
+        <converters:FieldChildKindTextConverter x:Key="FieldChildKindTextConverter"/>
+        <converters:ByteArrayToStringConverter x:Key="ByteArrayToStringConverter"/>
+        <converters:EnumerateConverter x:Key="EnumerateConverter"/>
+        <converters:StringDataToStringConverter x:Key="StringDataToStringConverter"/>
+        <local:MonkeyValueDataTemplateSelector x:Key="MonkeyValueDataTemplateSelector"/>
+    </Window.Resources>
     <Grid>
-        
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+        <Grid Grid.Row="1">
+            <TabControl TabStripPlacement="Left" Margin="10">
+                <TabControl.Resources>
+                    <RotateTransform x:Key="TabHeaderRotation" Angle="270" />
+                    <Style TargetType="TabControl">
+                        <Setter Property="BorderThickness" Value="0"/>
+                        <Setter Property="BorderBrush" Value="Gray"/>
+                    </Style>
+                    <Style TargetType="TabItem">
+                        <Setter Property="Template">
+                            <Setter.Value>
+                                <ControlTemplate TargetType="TabItem">
+                                    <Border Name="BorderSite"
+                                            BorderThickness="0,0,0,3" BorderBrush="#A0000000"
+                                            CornerRadius="0"
+                                            Margin="0,0,0,10"
+                                            LayoutTransform="{StaticResource TabHeaderRotation}">
+                                        <TextBlock Name="ContentSite"
+                                                   SnapsToDevicePixels="True"
+                                                   VerticalAlignment="Center" HorizontalAlignment="Center"
+                                                   Padding="5"
+                                                   Foreground="#F0000000">
+                                            <ContentPresenter ContentSource="Header"/>
+                                        </TextBlock>
+                                    </Border>
+                                    <ControlTemplate.Triggers>
+                                        <Trigger Property="IsSelected" Value="False">
+                                            <Setter TargetName="BorderSite" Property="BorderBrush" Value="Transparent"/>
+                                            <Setter TargetName="ContentSite" Property="Foreground" Value="#60000000"/>
+                                        </Trigger>
+                                        <Trigger Property="IsMouseOver" Value="True">
+                                            <Setter TargetName="ContentSite" Property="Background" Value="#10000000"/>
+                                        </Trigger>
+                                    </ControlTemplate.Triggers>
+                                </ControlTemplate>
+                            </Setter.Value>
+                        </Setter>
+                    </Style>
+                </TabControl.Resources>
+                <TabItem Header="Object hierarchy">
+                    
+                </TabItem>
+                <TabItem Header="Enumerations">
+
+                </TabItem>
+                <TabItem Header="Fields + structs">
+
+                </TabItem>
+                <TabItem Header="String data" IsSelected="True">
+                    <Grid>
+                        <Grid.Resources>
+                            <Style TargetType="ListView">
+                                <Setter Property="BorderThickness" Value="1"/>
+                                <Setter Property="BorderBrush" Value="LightGray"/>
+                            </Style>
+                            <Style TargetType="TextBox">
+                                <Setter Property="BorderThickness" Value="1"/>
+                                <Setter Property="BorderBrush" Value="LightGray"/>
+                            </Style>
+                        </Grid.Resources>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="5"/>
+                            <ColumnDefinition Width="2*"/>
+                        </Grid.ColumnDefinitions>
+                        <ListView Grid.Column="0" ItemsSource="{Binding Path=ActiveStructBin.StringDatas}" SelectedItem="{Binding Path=ActiveStringData, Mode=TwoWay}">
+                            <ListView.View>
+                                <GridView>
+                                    <GridViewColumn Width="60" DisplayMemberBinding="{Binding Path=Id, Converter={StaticResource IntToHexConverter}}">
+                                        <GridViewColumnHeader>#</GridViewColumnHeader>
+                                    </GridViewColumn>
+                                    <GridViewColumn Width="80" DisplayMemberBinding="{Binding Path=Offset, Converter={StaticResource IntToHexConverter}}">
+                                        <GridViewColumnHeader>Offset</GridViewColumnHeader>
+                                    </GridViewColumn>
+                                    <GridViewColumn Width="80" DisplayMemberBinding="{Binding Path=Length, Converter={StaticResource IntToHexConverter}}">
+                                        <GridViewColumnHeader>Length</GridViewColumnHeader>
+                                    </GridViewColumn>
+                                    <GridViewColumn Width="140" DisplayMemberBinding="{Binding Path=Text}">
+                                        <GridViewColumnHeader>Text</GridViewColumnHeader>
+                                    </GridViewColumn>
+                                </GridView>
+                            </ListView.View>
+                        </ListView>
+                        <GridSplitter Grid.Column="1" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Background="Transparent"/>
+                        <TextBox Grid.Column="2"
+                                 Padding="10pt"
+                                 FontFamily="Consolas"
+                                 TextWrapping="Wrap"
+                                 AcceptsReturn="True"
+                                 VerticalScrollBarVisibility="Visible"
+                                 IsReadOnly="True"
+                                 Text="{Binding Path=ActiveStringData, Converter={StaticResource StringDataToStringConverter}}"/>
+                    </Grid>
+                </TabItem>
+                <TabItem Header="Sections">
+
+                </TabItem>
+            </TabControl>
+        </Grid>
+        <StatusBar Grid.Row="2" Height="Auto">
+            <StatusBarItem>
+                <TextBlock x:Name="StatusBar_Status" Text="STATUS TEXT" />
+            </StatusBarItem>
+        </StatusBar>
     </Grid>
 </local:BaseWindow>

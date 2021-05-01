@@ -5,6 +5,7 @@
              StartupUri="UI/Windows/NavigatorWindow.xaml"
              ShutdownMode="OnMainWindowClose">
     <Application.Resources>
-         
+        <!-- NavigatorWindow -->
+        <!-- StructBinWindow -->
     </Application.Resources>
 </Application>

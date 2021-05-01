@@ -13,6 +13,8 @@ using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
 
 using NotInfiltrator.Serialization;
+using NotInfiltrator.Serialization.Monkey;
+using NotInfiltrator.Serialization.Monkey.Data;
 
 namespace NotInfiltrator.UI.Windows
 {
@@ -21,24 +23,51 @@ namespace NotInfiltrator.UI.Windows
     /// </summary>
     public partial class StructBinWindow : BaseWindow
     {
+        private StructBin _activeStructBin = null;
+        public StructBin ActiveStructBin
+        {
+            get { return _activeStructBin; }
+            set
+            {
+                _activeStructBin = value;
+                OnPropertyChanged();
+            }
+        }
+
+        private StringData _activeStringData = null;
+        public StringData ActiveStringData
+        {
+            get { return _activeStringData; }
+            set
+            {
+                _activeStringData = value;
+                OnPropertyChanged();
+            }
+        }
+
+
         public StructBinWindow()
         {
             InitializeComponent();
-            //StatusTextBlock = StatusBar_Status;
+            StatusTextBlock = StatusBar_Status; 
             DataContext = this;
 
-            UpdateWindowTitle("StructBin Tool");
+            BaseWindowTitle = $"SBIN tool - {BaseWindowTitle}";
+            ResetWindowTitle();
+
+            ResetStatusText();
         }
 
         public StructBinWindow(GameFilesystemNode contentNode)
-            : base()
+            : this()
         {
             if (contentNode is not null && contentNode.Content is not StructBin sbin)
             {
                 throw new ArgumentException();
             }
 
-            UpdateWindowTitle($"{contentNode.Name} - StructBin Tool");
+            ActiveStructBin = contentNode.Content as StructBin;
+            UpdateWindowTitle($"{contentNode.Name}");
         }
     }
 }
