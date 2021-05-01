@@ -1,0 +1,101 @@
+﻿<local:BaseWindow
+        x:Class="NotInfiltrator.UI.Windows.NavigatorWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:NotInfiltrator.UI.Windows"
+        xmlns:monkey="clr-namespace:NotInfiltrator.Serialization.Monkey"
+        xmlns:serialization="clr-namespace:NotInfiltrator.Serialization"
+        mc:Ignorable="d"
+        Title="WINDOW TITLE NOT SET FROM CODE-BEHIND"
+        Height="760" Width="520"
+        WindowStartupLocation="CenterScreen">
+    <Window.Resources>
+        <BitmapImage x:Key="GraphicsBinImage" UriSource="../../Resources/document-block.png" />
+        <BitmapImage x:Key="StructBinImage" UriSource="../../Resources/document-node.png" />
+    </Window.Resources>
+    <Grid x:Name="ANavigatorGrid">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>  <!-- Menu -->
+            <RowDefinition Height="*"/>     <!-- Tree view -->
+            <RowDefinition Height="Auto"/>  <!-- Quick options -->
+            <RowDefinition Height="Auto"/>  <!-- Status bar -->
+        </Grid.RowDefinitions>
+        <Menu Grid.Row="0" Height="Auto">
+            <MenuItem Header="_Database">
+                <MenuItem Header="_Open directory"/>
+                <MenuItem Header="Open _manifest"/>
+                <Separator/>
+                <MenuItem Header="_Close database"/>
+                <Separator/>
+                <MenuItem Header="E_xit"/>
+            </MenuItem>
+            <MenuItem Header="_Tools">
+                <MenuItem Header="_Build a manifest"/>
+                <MenuItem Header="_Validate manifest"/>
+                <Separator/>
+                <MenuItem Header="Reload from disk"/>
+                <Separator/>
+                <MenuItem Header="Bulk _extract"/>
+            </MenuItem>
+            <MenuItem Header="_Options"/>
+        </Menu>
+        <Grid Grid.Row="1" Margin="10,10,10,0">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+            <TreeView x:Name="DbTreeView" Grid.Column="0">
+                <TreeView.ItemContainerStyle>
+                    <Style TargetType="{x:Type TreeViewItem}">
+                        <Setter Property="IsExpanded" Value="True"/>
+                    </Style>
+                </TreeView.ItemContainerStyle>
+                <TreeView.ItemTemplate>
+                    <HierarchicalDataTemplate ItemsSource="{Binding Children}">
+                        <Grid>
+                            <Grid.Resources>
+                                <DataTemplate DataType="{x:Type serialization:StructBin}">
+                                    <Image Source="{StaticResource StructBinImage}" MaxHeight="14" Width="20" HorizontalAlignment="Left"/>
+                                </DataTemplate>
+                            </Grid.Resources>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <!--<Image Grid.Column="0" Source="{StaticResource StructBinImage}" MaxHeight="14" Width="20" HorizontalAlignment="Left"/>-->
+                            <ContentPresenter Grid.Column="0" Content="{Binding Content}"/>
+                            <TextBlock Grid.Column="1" Text="{Binding Name}" Padding="0,2,6,3" VerticalAlignment="Top"/>
+                        </Grid>
+                    </HierarchicalDataTemplate>
+                </TreeView.ItemTemplate>
+            </TreeView>
+            <TextBox Grid.Row="1" Margin="0,10" Padding="5"/>
+        </Grid>
+        <Grid Grid.Row="2" Margin="10,0,10,10">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+            <CheckBox Grid.Column="0" Grid.Row="0" Content="Logic assets (.sb)" IsChecked="True" Margin="0,0,0,3"/>
+            <CheckBox Grid.Column="0" Grid.Row="1" Content="Graphic assets (.bin)" IsChecked="True" Margin="0,3,0,0"/>
+
+            <CheckBox Grid.Column="1" Grid.Row="0" Content="M3G containers (.m3g)" IsChecked="True" Margin="0,0,0,3"/>
+            <CheckBox Grid.Column="1" Grid.Row="1" Content="FMOD Metas (.txt)" IsChecked="True" Margin="0,3,0,0"/>
+
+            <CheckBox Grid.Column="2" Grid.Row="0" Content="FMOD Events (.fev)" IsChecked="True" Margin="0,0,0,3"/>
+            <CheckBox Grid.Column="2" Grid.Row="1" Content="FMOD Banks (.fsb)" IsChecked="True" Margin="0,3,0,0"/>
+        </Grid>
+        <StatusBar Grid.Row="3" Height="Auto">
+            <StatusBarItem>
+                <TextBlock x:Name="StatusBar_Status" Text="STATUS TEXT" />
+            </StatusBarItem>
+        </StatusBar>
+    </Grid>
+</local:BaseWindow>

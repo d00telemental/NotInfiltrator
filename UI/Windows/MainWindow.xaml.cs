@@ -29,26 +29,9 @@ using NotInfiltrator.Utilities;
 
 namespace NotInfiltrator.UI.Windows
 {
-    public partial class MainWindow : Window, INotifyPropertyChanged
+    public partial class MainWindow : BaseWindow, INotifyPropertyChanged
     {
-        #region INotifyPropertyChanged implementation
-        public event PropertyChangedEventHandler PropertyChanged;
-
-        protected void OnPropertyChanged([CallerMemberName] string name = null)
-        {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
-        }
-        #endregion
-
-        #region Internal fields
-        private GameFilesystem Filesystem = null;
-
-        private readonly string BaseWindowTitle = "ME:Infiltrator Data Research Tool";
-        #endregion
-
-        #region Non-bindable properties
-
-        #endregion
+        private GameFilesystem _filesystem = null;
 
         #region Bindable Properties
         private GameFilesystemNode _activeNode = null;
@@ -96,43 +79,29 @@ namespace NotInfiltrator.UI.Windows
         }
         #endregion
 
-        #region Common UI procedures
-        private static void ExecuteOnUIThread(Action action)
-            => Application.Current.Dispatcher.Invoke(action);
-
-        private void UpdateStatus(string text)
-            => ExecuteOnUIThread(() => { StatusBar_Status.Text = text; });
-
-        private void ResetStatus()
-            => UpdateStatus(null);
-
-        private async void ExecuteOnUIWithStatus(Action action, string status, int delayMs = 500)
-        {
-            UpdateStatus(status);
-            Dispatcher.Invoke(action, DispatcherPriority.ContextIdle);
-            await Task.Delay(delayMs);
-            ResetStatus();
-        }
-
-        private void UpdateWindowTitle(string title)
-            => ExecuteOnUIThread(() => { Title = $"{title} - {BaseWindowTitle}"; });
-
-        private void ResetWindowTitle()
-            => ExecuteOnUIThread(() => { Title = BaseWindowTitle; });
-        #endregion
-
         #region Window procedures
         public MainWindow()
         {
             InitializeComponent();
-            this.DataContext = this;
+            BaseWindowTitle = "ME:Infiltrator Data Research Tool";
+            StatusTextBlock = StatusBar_Status;
+            DataContext = this;
+
+            Loaded += MainWindow_Loaded;
+            FsTreeView.SelectedItemChanged += FsTreeView_SelectedItemChanged;
         }
 
-        private void Window_Loaded(object sender, RoutedEventArgs e)
+        ~MainWindow()
+        {
+            FsTreeView.SelectedItemChanged -= FsTreeView_SelectedItemChanged;
+            Loaded -= MainWindow_Loaded;
+        }
+
+        private void MainWindow_Loaded(object sender, RoutedEventArgs e)
         {
             Task.Run(() => {
                 ResetWindowTitle();
-                LoadFilesystem(@"D:\Projects\NotInfiltrator\_game\com.ea.games.meinfiltrator_gamepad\published\");
+                _loadFilesystem(@"D:\Projects\NotInfiltrator\_game\com.ea.games.meinfiltrator_gamepad\published\");
                 return Task.CompletedTask;
             });
         }
@@ -140,24 +109,24 @@ namespace NotInfiltrator.UI.Windows
         {
             Task.Run(() => {
                 var selection = e.NewValue as GameFilesystemNode;
-                ExecuteOnUIWithStatus(() => {
+                ExecuteOnUI(() => {
                     ActiveNode = selection;
                     UpdateWindowTitle(selection.Name);
-                }, $"Updating user interface for {selection.Name}");
+                }, $"Updating UI for {selection.Name}");
                 GC.Collect();  // saves up to 100% of memory after some time of switching between GameFilesystemNodes.
             });
         }
         #endregion
 
         #region Window logic
-        private void LoadFilesystem(string rootPath)
+        private void _loadFilesystem(string rootPath)
         {
-            ExecuteOnUIWithStatus(() => {
-                Filesystem = new GameFilesystem(rootPath);
+            ExecuteOnUI(() => {
+                _filesystem = new GameFilesystem(rootPath);
             }, "Loading filesystem");
 
-            ExecuteOnUIWithStatus(() => {
-                ExecuteOnUIThread(() => { FsTreeView.Items.Add(Filesystem.RootNode); });
+            ExecuteOnUI(() => {
+                ExecuteOnUI(() => { FsTreeView.Items.Add(_filesystem.RootNode); });
             }, "Updating user interface");
         }
         #endregion
