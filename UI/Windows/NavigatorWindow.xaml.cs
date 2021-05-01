@@ -1,7 +1,7 @@
-﻿using NotInfiltrator.Serialization;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Diagnostics;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
@@ -15,6 +15,8 @@ using System.Windows.Interop;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
+
+using NotInfiltrator.Serialization;
 
 namespace NotInfiltrator.UI.Windows
 {
@@ -61,7 +63,6 @@ namespace NotInfiltrator.UI.Windows
         public NavigatorWindow()
         {
             InitializeComponent();
-            BaseWindowTitle = "ME:Infiltrator Data Research Tool";
             StatusTextBlock = StatusBar_Status;
             DataContext = this;
 
@@ -87,6 +88,56 @@ namespace NotInfiltrator.UI.Windows
                 UpdateStatusText("Database loaded");
                 return Task.CompletedTask;
             });
+        }
+
+        private void DbTreeView_MouseDoubleClick(object sender, MouseButtonEventArgs e)
+        {
+            if (sender is not TreeViewItem tvItem || DbTreeView.SelectedItem is not GameFilesystemNode gfsNode)
+            {
+                throw new Exception();
+            }
+
+            // Do not handle events for parent nodes.
+            if (tvItem.Items.Count == 0)
+            {
+                handleTreeViewSelection_(gfsNode);
+            }            
+        }
+
+        private void DbTreeView_PreviewKeyDown(object sender, KeyEventArgs e)
+        {
+            if (sender is not TreeViewItem tvItem || DbTreeView.SelectedItem is not GameFilesystemNode gfsNode)
+            {
+                throw new Exception();
+            }
+
+            // Do not handle events for parent nodes.
+            if (tvItem.Items.Count != 0)
+            {
+                return;
+            }
+
+            switch (e.Key)
+            {
+                case Key.Return:
+                    handleTreeViewSelection_(gfsNode);
+                    return;
+            }
+        }
+
+        private void handleTreeViewSelection_(GameFilesystemNode node)
+        {
+            Action action = node.Content switch
+            {
+                StructBin sbin => () => {
+                    Debug.WriteLine($"Opening SBIN tool for {node.Name}...");
+                    var sbinWindow = new StructBinWindow(node);
+                    sbinWindow.Show();
+                } ,
+                _ => () => Debug.WriteLine($"WTF")
+            };
+
+            action.Invoke();
         }
     }
 }

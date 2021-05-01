@@ -6,7 +6,7 @@ using System.Text;
 
 using NotInfiltrator.Utilities;
 
-namespace NotInfiltrator.Serialization.Data
+namespace NotInfiltrator.Serialization.Monkey.Data
 {
     public class StructData : Data
     {

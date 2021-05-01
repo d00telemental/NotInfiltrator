@@ -7,7 +7,7 @@ using System.Text;
 using NotInfiltrator.Serialization.Monkey;
 using NotInfiltrator.Utilities;
 
-namespace NotInfiltrator.Serialization.Data
+namespace NotInfiltrator.Serialization.Monkey.Data
 {
     public class FieldData : Data
     {

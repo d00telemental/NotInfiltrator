@@ -33,7 +33,7 @@ namespace NotInfiltrator.UI.Windows
         #endregion
 
         protected TextBlock StatusTextBlock { get; set; }
-        protected string BaseWindowTitle { get; set; }
+        protected string BaseWindowTitle { get; set; } = "ME:I Research Tool";
 
         protected void ExecuteOnUI(Action action)
             => Application.Current.Dispatcher.Invoke(action);

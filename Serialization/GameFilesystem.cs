@@ -21,17 +21,27 @@ namespace NotInfiltrator.Serialization
             Path = rootPath;
 
             LoadAllStructBins();
+            LoadAllLocalizations();
             BuildFileTree();
         }
 
         public void LoadAllStructBins()
         {
             var files = Directory.GetFiles(Path, "*.sb", SearchOption.AllDirectories).Select(GetRelativePath);
-            StructBinMap = new (files.Count());
             foreach (var fileName in files)
             {
-                StructBinMap.Add(fileName, new (this, fileName));
-                /**/ if (StructBinMap.Count() % 3 == 0) break;
+                StructBinMap.Add(fileName, new(this, fileName));
+                /**/ if (StructBinMap.Count() % 6 == 0) break;
+            }
+
+        }
+
+        public void LoadAllLocalizations()
+        {
+            var files = Directory.GetFiles(Path, "masseffect.bin", SearchOption.AllDirectories).Select(GetRelativePath);
+            foreach (var fileName in files)
+            {
+                StructBinMap.Add(fileName, new(this, fileName));
             }
         }
 

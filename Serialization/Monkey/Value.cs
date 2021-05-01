@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-using NotInfiltrator.Serialization.Data;
+using NotInfiltrator.Serialization.Monkey.Data;
 using NotInfiltrator.Utilities;
 
 namespace NotInfiltrator.Serialization.Monkey

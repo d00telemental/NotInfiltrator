@@ -24,36 +24,40 @@
         </Grid.RowDefinitions>
         <Menu Grid.Row="0" Height="Auto">
             <MenuItem Header="_Database">
-                <MenuItem Header="_Open directory"/>
-                <MenuItem Header="Open _manifest"/>
-                <Separator/>
-                <MenuItem Header="_Reload from disk"/>
-                <Separator/>
+                <MenuItem Header="_Open">
+                    <MenuItem Header="_Directory" InputGestureText="Ctrl+Shift+O"/>
+                    <MenuItem Header="_Manifest" InputGestureText="Ctrl+Alt+O"/>
+                    <Separator/>
+                    <MenuItem Header="_Free file" InputGestureText="Ctrl+O"/>
+                </MenuItem>
                 <MenuItem Header="_Close database"/>
                 <Separator/>
-                <MenuItem Header="Build a manifest"/>
-                <MenuItem Header="Validate a manifest"/>
+                <MenuItem Header="_Reload from disk" InputGestureText="Ctrl+Shift+R"/>
                 <Separator/>
-                <MenuItem Header="E_xit"/>
+                <MenuItem Header="_Build a manifest"/>
+                <MenuItem Header="_Validate a manifest"/>
+                <Separator/>
+                <MenuItem Header="E_xit" InputGestureText="Alt+F4"/>
             </MenuItem>
             <MenuItem Header="_Tools">
                 <MenuItem Header="_Bulk extract"/>
                 <Separator/>
-                <MenuItem Header="Logic (.sb) tool"/>
-                <MenuItem Header="Graphics (.bin) tool"/>
-                <MenuItem Header="Scene (.m3g) tool"/>
-                <MenuItem Header="FMOD events (.fev) tool"/>
-                <MenuItem Header="FMOD bank (.fsb) tool"/>
+                <MenuItem Header="Log_ic (.sb) tool"/>
+                <MenuItem Header="M_3G (.bin + .m3g) tool"/>
+                <MenuItem Header="FM_OD (.fev + .fsb) tool"/>
                 <Separator/>
-                <MenuItem Header="Level viewer"/>
-                <MenuItem Header="Model viewer"/>
-                <MenuItem Header="Texture viewer"/>
-                <MenuItem Header="Sound viewer"/>
+                <MenuItem Header="_Map viewer" InputGestureText="Ctrl+M"/>
+                <MenuItem Header="_Graphics viewer" InputGestureText="Ctrl+G"/>
+                <MenuItem Header="_Localization viewer"/>
+                <MenuItem Header="_Sound viewer"/>
             </MenuItem>
             <MenuItem Header="_Options">
-                <MenuItem Header="Preferences"/>
+                <MenuItem Header="_Log window" Foreground="DarkRed"/>
+                <MenuItem Header="_Debug profiler" Foreground="DarkRed"/>
+                <Separator/>
+                <MenuItem Header="_Preferences" InputGestureText="Ctrl+,"/>
                 <MenuItem Header="Version 0.1.0-dev" IsEnabled="False"/>
-                <MenuItem Header="About"/>
+                <MenuItem Header="_About"/>
             </MenuItem>
         </Menu>
         <Grid Grid.Row="1" Margin="10,10,10,0">
@@ -65,6 +69,8 @@
                 <TreeView.ItemContainerStyle>
                     <Style TargetType="{x:Type TreeViewItem}">
                         <Setter Property="IsExpanded" Value="True"/>
+                        <EventSetter Event="MouseDoubleClick" Handler="DbTreeView_MouseDoubleClick"/>
+                        <EventSetter Event="PreviewKeyDown" Handler="DbTreeView_PreviewKeyDown"/>
                     </Style>
                 </TreeView.ItemContainerStyle>
                 <TreeView.ItemTemplate>
@@ -79,7 +85,6 @@
                                 <ColumnDefinition Width="Auto"/>
                                 <ColumnDefinition Width="*"/>
                             </Grid.ColumnDefinitions>
-                            <!--<Image Grid.Column="0" Source="{StaticResource StructBinImage}" MaxHeight="14" Width="20" HorizontalAlignment="Left"/>-->
                             <ContentPresenter Grid.Column="0" Content="{Binding Content}"/>
                             <TextBlock Grid.Column="1" Text="{Binding Name}" Padding="0,2,6,3" VerticalAlignment="Top"/>
                         </Grid>
@@ -99,13 +104,13 @@
                 <RowDefinition Height="Auto"/>
             </Grid.RowDefinitions>
             <CheckBox Grid.Column="0" Grid.Row="0" Content="Logic assets (.sb)" IsChecked="True" Margin="0,0,0,3"/>
-            <CheckBox Grid.Column="0" Grid.Row="1" Content="Graphic assets (.bin)" IsChecked="True" Margin="0,3,0,0"/>
+            <CheckBox Grid.Column="0" Grid.Row="1" Content="Localizations (.bin)" IsChecked="True" Margin="0,3,0,0"/>
 
-            <CheckBox Grid.Column="1" Grid.Row="0" Content="M3G containers (.m3g)" IsChecked="True" Margin="0,0,0,3"/>
-            <CheckBox Grid.Column="1" Grid.Row="1" Content="FMOD Metas (.txt)" IsChecked="True" Margin="0,3,0,0"/>
+            <CheckBox Grid.Column="1" Grid.Row="0" Content="Graphic assets (.bin)" IsChecked="True" Margin="0,0,0,3"/>
+            <CheckBox Grid.Column="1" Grid.Row="1" Content="M3G containers (.m3g)" IsChecked="True" Margin="0,3,0,0"/>
 
-            <CheckBox Grid.Column="2" Grid.Row="0" Content="FMOD Events (.fev)" IsChecked="True" Margin="0,0,0,3"/>
-            <CheckBox Grid.Column="2" Grid.Row="1" Content="FMOD Banks (.fsb)" IsChecked="True" Margin="0,3,0,0"/>
+            <CheckBox Grid.Column="2" Grid.Row="0" Content="FMOD events (.fev)" IsChecked="True" Margin="0,0,0,3"/>
+            <CheckBox Grid.Column="2" Grid.Row="1" Content="FMOD banks (.fsb)" IsChecked="True" Margin="0,3,0,0"/>
         </Grid>
         <StatusBar Grid.Row="3" Height="Auto">
             <StatusBarItem>

@@ -6,8 +6,8 @@ using System.IO;
 using System.Linq;
 using System.Text;
 
-using NotInfiltrator.Serialization.Data;
 using NotInfiltrator.Serialization.Monkey;
+using NotInfiltrator.Serialization.Monkey.Data;
 using NotInfiltrator.Utilities;
 
 namespace NotInfiltrator.Serialization
@@ -197,7 +197,7 @@ namespace NotInfiltrator.Serialization
             var cdatSection = Sections["CDAT"];
 
             var strings = new List<StringData>();
-            var textBuffer = new byte[4096];
+            var textBuffer = new byte[16384];
 
             ReadingStream.Seek(chdrSection.DataOffset, SeekOrigin.Begin);
             while (ReadingStream.Position < chdrSection.End)

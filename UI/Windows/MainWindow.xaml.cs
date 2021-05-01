@@ -23,8 +23,8 @@ using System.Windows.Shapes;
 using System.Windows.Threading;
 
 using NotInfiltrator.Serialization;
-using NotInfiltrator.Serialization.Data;
 using NotInfiltrator.Serialization.Monkey;
+using NotInfiltrator.Serialization.Monkey.Data;
 using NotInfiltrator.Utilities;
 
 namespace NotInfiltrator.UI.Windows
@@ -83,7 +83,6 @@ namespace NotInfiltrator.UI.Windows
         public MainWindow()
         {
             InitializeComponent();
-            BaseWindowTitle = "ME:Infiltrator Data Research Tool";
             StatusTextBlock = StatusBar_Status;
             DataContext = this;
 

@@ -5,7 +5,7 @@ using System.Text;
 using System.Windows;
 using System.Windows.Data;
 
-using NotInfiltrator.Serialization.Data;
+using NotInfiltrator.Serialization.Monkey.Data;
 using NotInfiltrator.Serialization.Monkey;
 
 namespace NotInfiltrator.UI.Converters

@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace NotInfiltrator.Serialization.Data
+namespace NotInfiltrator.Serialization.Monkey.Data
 {
     public abstract class Data
     {
