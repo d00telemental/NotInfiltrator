@@ -27,19 +27,34 @@
                 <MenuItem Header="_Open directory"/>
                 <MenuItem Header="Open _manifest"/>
                 <Separator/>
+                <MenuItem Header="_Reload from disk"/>
+                <Separator/>
                 <MenuItem Header="_Close database"/>
+                <Separator/>
+                <MenuItem Header="Build a manifest"/>
+                <MenuItem Header="Validate a manifest"/>
                 <Separator/>
                 <MenuItem Header="E_xit"/>
             </MenuItem>
             <MenuItem Header="_Tools">
-                <MenuItem Header="_Build a manifest"/>
-                <MenuItem Header="_Validate manifest"/>
+                <MenuItem Header="_Bulk extract"/>
                 <Separator/>
-                <MenuItem Header="Reload from disk"/>
+                <MenuItem Header="Logic (.sb) tool"/>
+                <MenuItem Header="Graphics (.bin) tool"/>
+                <MenuItem Header="Scene (.m3g) tool"/>
+                <MenuItem Header="FMOD events (.fev) tool"/>
+                <MenuItem Header="FMOD bank (.fsb) tool"/>
                 <Separator/>
-                <MenuItem Header="Bulk _extract"/>
+                <MenuItem Header="Level viewer"/>
+                <MenuItem Header="Model viewer"/>
+                <MenuItem Header="Texture viewer"/>
+                <MenuItem Header="Sound viewer"/>
             </MenuItem>
-            <MenuItem Header="_Options"/>
+            <MenuItem Header="_Options">
+                <MenuItem Header="Preferences"/>
+                <MenuItem Header="Version 0.1.0-dev" IsEnabled="False"/>
+                <MenuItem Header="About"/>
+            </MenuItem>
         </Menu>
         <Grid Grid.Row="1" Margin="10,10,10,0">
             <Grid.RowDefinitions>
