@@ -123,7 +123,7 @@ namespace NotInfiltrator.Serialization.Monkey
                 }
                 var value = Value.NewForType(StructBin, typeId)?.ReadFromStream(source, this, null, null, null);
 
-                Debug.WriteLine($"Name: {sbin.GetString(nameRef)}, type: {Enum.GetName(typeof(FieldType), typeId)} ({typeId:X}), offset = 0x{innerOffset:X4}");
+                //Debug.WriteLine($"Name: {sbin.GetString(nameRef)}, type: {Enum.GetName(typeof(FieldType), typeId)} ({typeId:X}), offset = 0x{innerOffset:X4}");
 
                 var entry = new UnstructuredObjectEntry()
                 {

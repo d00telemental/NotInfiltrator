@@ -31,7 +31,7 @@ namespace NotInfiltrator.Serialization
             foreach (var fileName in files)
             {
                 StructBinMap.Add(fileName, new(this, fileName));
-                /**/ if (StructBinMap.Count() % 6 == 0) break;
+                // /**/ if (StructBinMap.Count() % 6 == 0) break;
             }
 
         }

@@ -167,7 +167,7 @@ namespace NotInfiltrator.Serialization
             {
                 objectOffsets.Add(ReadingStream.ReadBytes(4));
             }
-            Debug.WriteLine($"Read OHDR for {Name}: {objectOffsets.Count} indices");
+            //Debug.WriteLine($"Read OHDR for {Name}: {objectOffsets.Count} indices");
             
 
             for (int index = 0; index < objectOffsets.Count; index++)

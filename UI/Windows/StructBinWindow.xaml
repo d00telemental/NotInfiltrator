@@ -5,6 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
                   
         xmlns:converters="clr-namespace:NotInfiltrator.UI.Converters"
+        xmlns:dts="clr-namespace:NotInfiltrator.UI.DataTemplateSelectors"
         xmlns:local="clr-namespace:NotInfiltrator.UI.Windows"
         xmlns:monkey="clr-namespace:NotInfiltrator.Serialization.Monkey"
         xmlns:serialization="clr-namespace:NotInfiltrator.Serialization"
@@ -21,7 +22,7 @@
         <converters:ByteArrayToStringConverter x:Key="ByteArrayToStringConverter"/>
         <converters:EnumerateConverter x:Key="EnumerateConverter"/>
         <converters:StringDataToStringConverter x:Key="StringDataToStringConverter"/>
-        <local:MonkeyValueDataTemplateSelector x:Key="MonkeyValueDataTemplateSelector"/>
+        <dts:MonkeyValueDataTemplateSelector x:Key="MonkeyValueDataTemplateSelector"/>
     </Window.Resources>
     <Grid>
         <Grid.RowDefinitions>
@@ -68,16 +69,479 @@
                         </Setter>
                     </Style>
                 </TabControl.Resources>
-                <TabItem Header="Object hierarchy">
-                    
+                <TabItem Header="Object hierarchy" IsSelected="True">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <TreeView Grid.Column="0" ItemsSource="{Binding ActiveStructBin.RootObject, Converter={StaticResource EnumerateConverter}}">
+                            <TreeView.Resources>
+                                <HierarchicalDataTemplate DataType="{x:Type monkey:UnstructuredObject}"
+                                                          ItemsSource="{Binding Entries}" ItemTemplateSelector="{StaticResource MonkeyValueDataTemplateSelector}">
+                                    <TextBlock Padding="4pt 2pt">
+                                        <Grid>
+                                            <Grid.RowDefinitions>
+                                                <RowDefinition Height="*"/>
+                                                <RowDefinition Height="*"/>
+                                            </Grid.RowDefinitions>
+                                            <TextBlock Grid.Row="0" FontWeight="Bold">
+                                                <TextBlock Text="Unstructured object"/>
+                                                <TextBlock Text="{Binding Path=Id}"/>
+                                            </TextBlock>
+                                            <TextBlock Grid.Row="1" Padding="0 0 0 0" Opacity="0.6"  FontSize="11">
+                                                <TextBlock Text="Binary size"/>
+                                                <TextBlock Text="{Binding Path=Size}"/>
+                                                <TextBlock Text="Entry count" Padding="5pt 0 0 0"/>
+                                                <TextBlock Text="{Binding Path=Entries.Count}"/>
+                                            </TextBlock>
+                                        </Grid>
+                                    </TextBlock>
+                                </HierarchicalDataTemplate>
+                                <HierarchicalDataTemplate DataType="{x:Type monkey:StructObject}"
+                                                          ItemsSource="{Binding Fields}" ItemTemplateSelector="{StaticResource MonkeyValueDataTemplateSelector}">
+                                    <TextBlock Padding="4pt 2pt">
+                                        <Grid>
+                                            <Grid.RowDefinitions>
+                                                <RowDefinition Height="*"/>
+                                                <RowDefinition Height="*"/>
+                                            </Grid.RowDefinitions>
+                                            <TextBlock Grid.Row="0">
+                                                <TextBlock Text="Struct"/>
+                                                <TextBlock Text="{Binding Path=StructData.Name}" FontWeight="Bold"/>
+                                                <TextBlock Text="{Binding Path=Id, Converter={StaticResource IntToHexConverter}}"/>
+                                            </TextBlock>
+                                            <TextBlock Grid.Row="1" Padding="0 0 0 0" Opacity="0.6">
+                                                <TextBlock Text="Binary size"/>
+                                                <TextBlock Text="{Binding Path=StructData.Size}"/>
+                                                <TextBlock Text="Field count" Padding="5pt 0 0 0"/>
+                                                <TextBlock Text="{Binding Path=Fields.Count}"/>
+                                            </TextBlock>
+                                        </Grid>
+                                    </TextBlock>
+                                </HierarchicalDataTemplate>
+                                <HierarchicalDataTemplate DataType="{x:Type monkey:ArrayObject}"
+                                                          ItemsSource="{Binding Items}">
+                                    <TextBlock Padding="4pt 2pt">
+                                        <Grid>
+                                            <Grid.RowDefinitions>
+                                                <RowDefinition Height="*"/>
+                                                <RowDefinition Height="*"/>
+                                            </Grid.RowDefinitions>
+                                            <TextBlock Grid.Row="0" FontWeight="Bold">
+                                                <TextBlock Text="Array"/>
+                                                <TextBlock Text="{Binding Path=Id, Converter={StaticResource IntToHexConverter}}"/>
+                                            </TextBlock>
+                                            <TextBlock Grid.Row="1" Padding="0 0 0 0" Opacity="0.6">
+                                                <TextBlock Text="Type"/>
+                                                <TextBlock Text="{Binding Path=ItemType}"/>
+                                                <TextBlock Text="Item count" Padding="5pt 0 0 0"/>
+                                                <TextBlock Text="{Binding Path=Items.Count}"/>
+                                            </TextBlock>
+                                        </Grid>
+                                    </TextBlock>
+                                </HierarchicalDataTemplate>
+
+                                    <DataTemplate x:Key="UnstructuredObjectIntegerValue"
+                                                  DataType="{x:Type monkey:UnstructuredObjectEntry}">
+                                        <TextBlock  Padding="4pt 2pt">
+                                            <Grid>
+                                                <Grid.RowDefinitions>
+                                                    <RowDefinition Height="*"/>
+                                                    <RowDefinition Height="*"/>
+                                                </Grid.RowDefinitions>
+                                                <TextBlock Grid.Row="0">
+                                                    <TextBlock Text="{Binding Path=Name.Text}" FontWeight="Bold"/>
+                                                    <TextBlock Text="{Binding Path=Type}" FontStyle="Italic" Padding="5pt 0" Opacity="0.65"/>
+                                                    <TextBlock Text="{Binding Path=Value.Value}"/>
+                                                </TextBlock>
+                                                <TextBlock Grid.Row="1" FontSize="11">
+                                                    <TextBlock Text="Inner offset:"/>
+                                                    <TextBlock Text="{Binding Path=InnerOffset, Converter={StaticResource IntToHexConverter}}"/>
+                                                </TextBlock>
+                                            </Grid>
+                                        </TextBlock>
+                                    </DataTemplate>
+                                    <DataTemplate x:Key="UnstructuredObjectFloatValue"
+                                                  DataType="{x:Type monkey:UnstructuredObjectEntry}">
+                                        <TextBlock  Padding="4pt 2pt">
+                                            <Grid>
+                                                <Grid.RowDefinitions>
+                                                    <RowDefinition Height="*"/>
+                                                    <RowDefinition Height="*"/>
+                                                </Grid.RowDefinitions>
+                                                <TextBlock Grid.Row="0">
+                                                    <TextBlock Text="{Binding Path=Name.Text}" FontWeight="Bold"/>
+                                                    <TextBlock Text="{Binding Path=Type}" FontStyle="Italic" Padding="5pt 0" Opacity="0.65"/>
+                                                    <TextBlock Text="{Binding Path=Value.Value}"/>
+                                                </TextBlock>
+                                                <TextBlock Grid.Row="1" FontSize="11">
+                                                    <TextBlock Text="Inner offset:"/>
+                                                    <TextBlock Text="{Binding Path=InnerOffset, Converter={StaticResource IntToHexConverter}}"/>
+                                                </TextBlock>
+                                            </Grid>
+                                        </TextBlock>
+                                    </DataTemplate>
+                                    <DataTemplate x:Key="UnstructuredObjectBooleanValue"
+                                                  DataType="{x:Type monkey:UnstructuredObjectEntry}">
+                                        <TextBlock  Padding="4pt 2pt">
+                                            <Grid>
+                                                <Grid.RowDefinitions>
+                                                    <RowDefinition Height="*"/>
+                                                    <RowDefinition Height="*"/>
+                                                </Grid.RowDefinitions>
+                                                <TextBlock Grid.Row="0">
+                                                    <TextBlock Text="{Binding Path=Name.Text}" FontWeight="Bold"/>
+                                                    <TextBlock Text="{Binding Path=Type}" FontStyle="Italic" Padding="5pt 0" Opacity="0.65"/>
+                                                    <TextBlock Text="{Binding Path=Value.Value}"/>
+                                                </TextBlock>
+                                                <TextBlock Grid.Row="1" FontSize="11">
+                                                    <TextBlock Text="Inner offset:"/>
+                                                    <TextBlock Text="{Binding Path=InnerOffset, Converter={StaticResource IntToHexConverter}}"/>
+                                                </TextBlock>
+                                            </Grid>
+                                        </TextBlock>
+                                    </DataTemplate>
+                                    <DataTemplate x:Key="UnstructuredObjectStringValue"
+                                                  DataType="{x:Type monkey:UnstructuredObjectEntry}">
+                                        <TextBlock  Padding="4pt 2pt">
+                                            <Grid>
+                                                <Grid.RowDefinitions>
+                                                    <RowDefinition Height="*"/>
+                                                    <RowDefinition Height="*"/>
+                                                </Grid.RowDefinitions>
+                                                <TextBlock Grid.Row="0">
+                                                    <TextBlock Text="{Binding Path=Name.Text}" FontWeight="Bold"/>
+                                                    <TextBlock Text="{Binding Path=Type}" FontStyle="Italic" Padding="5pt 0" Opacity="0.65"/>
+                                                    <TextBlock Text="{Binding Path=Value.Value.Text}"/>
+                                                </TextBlock>
+                                                <TextBlock Grid.Row="1" FontSize="11">
+                                                    <TextBlock Text="Inner offset:"/>
+                                                    <TextBlock Text="{Binding Path=InnerOffset, Converter={StaticResource IntToHexConverter}}"/>
+                                                </TextBlock>
+                                            </Grid>
+                                        </TextBlock>
+                                    </DataTemplate>
+                                    <HierarchicalDataTemplate x:Key="UnstructuredObjectEntryValue"
+                                                              DataType="{x:Type monkey:UnstructuredObjectEntry}"
+                                                              ItemsSource="{Binding Path=Value, Converter={StaticResource EnumerateConverter}}">
+                                        <TextBlock  Padding="4pt 2pt">
+                                            <Grid>
+                                                <Grid.RowDefinitions>
+                                                    <RowDefinition Height="*"/>
+                                                    <RowDefinition Height="*"/>
+                                                </Grid.RowDefinitions>
+                                                <TextBlock Grid.Row="0">
+                                                    <TextBlock Text="{Binding Path=Name.Text}" FontWeight="Bold"/>
+                                                    <TextBlock Text="{Binding Path=Type}" FontStyle="Italic" Padding="5pt 0" Opacity="0.65"/>
+                                                </TextBlock>
+                                                <TextBlock Grid.Row="1" FontSize="11">
+                                                    <TextBlock Text="Inner offset:"/>
+                                                    <TextBlock Text="{Binding Path=InnerOffset, Converter={StaticResource IntToHexConverter}}"/>
+                                                </TextBlock>
+                                            </Grid>
+                                        </TextBlock>
+                                    </HierarchicalDataTemplate>
+
+                                    <DataTemplate x:Key="IntegerValue">
+                                        <TextBlock>
+                                            <TextBlock Text="{Binding Path=Type}" FontStyle="Italic" Opacity="0.65"/>
+                                            <TextBlock Text="{Binding Path=Value}" Padding="5pt 0" FontWeight="Bold"/>
+                                        </TextBlock>
+                                    </DataTemplate>
+                                    <DataTemplate x:Key="FloatValue">
+                                        <TextBlock>
+                                            <TextBlock Text="{Binding Path=Type}" FontStyle="Italic" Opacity="0.65"/>
+                                            <TextBlock Text="{Binding Path=Value}" Padding="5pt 0" FontWeight="Bold"/>
+                                        </TextBlock>
+                                    </DataTemplate>
+                                    <DataTemplate x:Key="BooleanValue">
+                                        <TextBlock>
+                                            <TextBlock Text="{Binding Path=Type}" FontStyle="Italic" Opacity="0.65"/>
+                                            <TextBlock Text="{Binding Path=Value}" Padding="5pt 0" FontWeight="Bold"/>
+                                        </TextBlock>
+                                    </DataTemplate>
+                                    
+                                    <DataTemplate x:Key="IntegerFieldValue">
+                                        <TextBlock>
+                                            <TextBlock Text="{Binding Path=MetaData.Name}" FontWeight="Bold"/>
+                                            <TextBlock Text="{Binding Path=MetaData.TypeName}" FontStyle="Italic" Padding="5pt 0" Opacity="0.65"/>
+                                            <TextBlock Text="{Binding Path=Value.Value}"/>
+                                        </TextBlock>
+                                    </DataTemplate>
+                                    <DataTemplate x:Key="FloatFieldValue">
+                                        <TextBlock>
+                                            <TextBlock Text="{Binding Path=MetaData.Name}" FontWeight="Bold"/>
+                                            <TextBlock Text="{Binding Path=MetaData.TypeName}" FontStyle="Italic" Padding="5pt 0" Opacity="0.65"/>
+                                            <TextBlock Text="{Binding Path=Value.Value}"/>
+                                        </TextBlock>
+                                    </DataTemplate>
+                                    <DataTemplate x:Key="BooleanFieldValue">
+                                        <TextBlock>
+                                            <TextBlock Text="{Binding Path=MetaData.Name}" FontWeight="Bold"/>
+                                            <TextBlock Text="{Binding Path=MetaData.TypeName}" FontStyle="Italic" Padding="5pt 0" Opacity="0.65"/>
+                                            <TextBlock Text="{Binding Path=Value.Value}"/>
+                                        </TextBlock>
+                                    </DataTemplate>
+                                    <DataTemplate x:Key="StringValue">
+                                        <TextBlock>
+                                            <TextBlock Text="{Binding Path=MetaData.Name}" FontWeight="Bold"/>
+                                            <TextBlock Text="{Binding Path=MetaData.TypeName}" FontStyle="Italic" Padding="5pt 0" Opacity="0.65"/>
+                                            <TextBlock Text="{Binding Path=Value.Value.Text}"/>
+                                        </TextBlock>
+                                    </DataTemplate>
+                                    <HierarchicalDataTemplate x:Key="InlineStructValue"
+                                                              DataType="{x:Type monkey:StructObject}"
+                                                              ItemsSource="{Binding Value.Fields}">
+                                        <TextBlock Padding="4pt 2pt">
+                                            <TextBlock Text="{Binding Path=Value.StructData.Name}" FontWeight="Bold"/>
+                                            <TextBlock Text="InlineStruct" FontStyle="Italic" Padding="5pt 0" Opacity="0.65"/>
+                                        </TextBlock>
+                                    </HierarchicalDataTemplate>
+                                    <HierarchicalDataTemplate x:Key="ArrayValue"
+                                                              DataType="{x:Type monkey:ArrayObject}"
+                                                              ItemsSource="{Binding Value.Value.Items}">
+                                        <TextBlock>
+                                            <TextBlock Text="{Binding Path=MetaData.Name}" FontWeight="Bold"/>
+                                            <TextBlock Text="{Binding Path=MetaData.TypeName}" FontStyle="Italic" Padding="5pt 0" Opacity="0.65"/>
+                                            <TextBlock Text="{Binding Path=Value.Value.Items.Count}"/>
+                                            <TextBlock Text="element(s) of"/>
+                                            <TextBlock Text="{Binding Path=Value.Value.ItemType}" FontStyle="Italic" Padding="5pt 0" Opacity="0.65"/>
+                                        </TextBlock>
+                                    </HierarchicalDataTemplate>
+                                    <DataTemplate x:Key="EnumValue">
+                                        <TextBlock>
+                                            <TextBlock Text="{Binding Path=MetaData.Name}" FontWeight="Bold"/>
+                                            <TextBlock Text="{Binding Path=MetaData.TypeName}" FontStyle="Italic" Padding="5pt 0" Opacity="0.65"/>
+                                            <TextBlock Text="{Binding Path=Value.ValueStringData.Text}"/>
+                                        </TextBlock>
+                                    </DataTemplate>
+                                    <DataTemplate x:Key="SymbolValue">
+                                        <TextBlock>
+                                            <TextBlock Text="{Binding Path=MetaData.Name}" FontWeight="Bold"/>
+                                            <TextBlock Text="{Binding Path=MetaData.TypeName}" FontStyle="Italic" Padding="5pt 0" Opacity="0.65"/>
+                                            <TextBlock Text="{Binding Path=Value.Value}"/>
+                                        </TextBlock>
+                                    </DataTemplate>
+                                    
+                                    <HierarchicalDataTemplate x:Key="InlineStructFieldValue"
+                                                              DataType="{x:Type monkey:StructObject}"
+                                                              ItemsSource="{Binding Value.Value.Fields}">
+                                        <TextBlock>
+                                            <TextBlock Text="{Binding Path=MetaData.Name}" FontWeight="Bold"/>
+                                            <TextBlock Text=" InlineStruct of " FontStyle="Italic" Opacity="0.65"/>
+                                            <TextBlock Text="{Binding Path=Value.Value.StructData.Name}"/>
+                                        </TextBlock>
+                                    </HierarchicalDataTemplate>
+                                    
+                                    <HierarchicalDataTemplate x:Key="ReferenceFieldValue"
+                                                              DataType="{x:Type monkey:ReferenceValue}"
+                                                              ItemsSource="{Binding Value, Converter={StaticResource EnumerateConverter}}">
+                                        <TextBlock>
+                                            <TextBlock Text="{Binding Path=MetaData.Name}" FontWeight="Bold"/>
+                                            <TextBlock Text="{Binding Path=MetaData.TypeName}" FontStyle="Italic" Padding="5pt 0" Opacity="0.65"/>
+                                        </TextBlock>
+                                    </HierarchicalDataTemplate>
+                                
+                                <HierarchicalDataTemplate x:Key="NilReferenceValue" DataType="{x:Type monkey:ReferenceValue}" ItemsSource="{Binding Value, Converter={StaticResource EnumerateConverter}}">
+                                    <TextBlock>
+                                        <TextBlock Text="Nil reference" Foreground="Red"/>
+                                    </TextBlock>
+                                </HierarchicalDataTemplate>
+                                <HierarchicalDataTemplate x:Key="ReferenceValue" DataType="{x:Type monkey:ReferenceValue}" ItemsSource="{Binding Value, Converter={StaticResource EnumerateConverter}}">
+                                    <TextBlock Text="Referenced value" FontSize="10"/>
+                                </HierarchicalDataTemplate>
+                                <HierarchicalDataTemplate x:Key="StructObjectValue" DataType="{x:Type monkey:StructObject}" ItemsSource="{Binding Value.Fields}">
+                                    <TextBlock Padding="4pt 2pt">
+                                        <TextBlock Text="{Binding Path=Value.StructData.Name}" FontWeight="Bold"/>
+                                        <TextBlock Text="Struct" FontStyle="Italic" Padding="5pt 0" Opacity="0.65"/>
+                                        <TextBlock Text="{Binding Path=Value.Id, Converter={StaticResource IntToHexConverter}}"/>
+                                    </TextBlock>
+                                </HierarchicalDataTemplate>
+                                <HierarchicalDataTemplate x:Key="UnstructuredObjectValue" DataType="{x:Type monkey:UnstructuredObject}" ItemsSource="{Binding Value.Entries}">
+                                    <TextBlock Padding="4pt 2pt">
+                                        <Grid>
+                                            <Grid.RowDefinitions>
+                                                <RowDefinition Height="*"/>
+                                                <RowDefinition Height="*"/>
+                                            </Grid.RowDefinitions>
+                                            <TextBlock Grid.Row="0" FontWeight="Bold">
+                                                <TextBlock Text="Unstructured object"/>
+                                                <TextBlock Text="{Binding Path=Value.Id, Converter={StaticResource IntToHexConverter}}"/>
+                                            </TextBlock>
+                                            <TextBlock Grid.Row="1" Padding="0 0 0 0" Opacity="0.6"  FontSize="11">
+                                                <TextBlock Text="Binary size"/>
+                                                <TextBlock Text="{Binding Path=Value.Size}"/>
+                                                <TextBlock Text="Entry count" Padding="5pt 0 0 0"/>
+                                                <TextBlock Text="{Binding Path=Value.Entries.Count}"/>
+                                            </TextBlock>
+                                        </Grid>
+                                    </TextBlock>
+                                </HierarchicalDataTemplate>
+                                <HierarchicalDataTemplate x:Key="ArrayObjectValue" DataType="{x:Type monkey:ArrayObject}" ItemsSource="{Binding Value.Items}">
+                                    <TextBlock Padding="4pt 2pt">
+                                        <TextBlock Text="{Binding Path=Value.Id, Converter={StaticResource IntToHexConverter}}" FontWeight="Bold"/>
+                                        <TextBlock Text="Array" FontStyle="Italic" Padding="5pt 0" Opacity="0.65"/>
+                                        <TextBlock Text="{Binding Path=Value.Items.Count}"/>
+                                        <TextBlock Text="element(s) of"/>
+                                        <TextBlock Text="{Binding Path=Value.ItemType}" FontStyle="Italic" Padding="5pt 0" Opacity="0.65"/>
+                                    </TextBlock>
+                                </HierarchicalDataTemplate>
+                            </TreeView.Resources>
+                        </TreeView>
+                    </Grid>
                 </TabItem>
                 <TabItem Header="Enumerations">
-
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="2*"/>
+                            <ColumnDefinition Width="5px"/>
+                            <ColumnDefinition Width="3*"/>
+                        </Grid.ColumnDefinitions>
+                        <Grid.Resources>
+                            <Style TargetType="ListView">
+                                <Setter Property="BorderThickness" Value="1"/>
+                                <Setter Property="BorderBrush" Value="LightGray"/>
+                            </Style>
+                            <Style TargetType="TextBox">
+                                <Setter Property="BorderThickness" Value="1"/>
+                                <Setter Property="BorderBrush" Value="LightGray"/>
+                            </Style>
+                        </Grid.Resources>
+                        <ListView Grid.Column="0" ItemsSource="{Binding Path=ActiveStructBin.EnumDatas}" SelectedItem="{Binding Path=ActiveEnumData, Mode=TwoWay}">
+                            <ListView.View>
+                                <GridView>
+                                    <GridViewColumn Width="80" DisplayMemberBinding="{Binding Path=Id, Converter={StaticResource IntToHexConverter}}">
+                                        <GridViewColumnHeader>#</GridViewColumnHeader>
+                                    </GridViewColumn>
+                                    <GridViewColumn Width="160" DisplayMemberBinding="{Binding Path=Name}">
+                                        <GridViewColumnHeader>Name</GridViewColumnHeader>
+                                    </GridViewColumn>
+                                    <GridViewColumn Width="160" DisplayMemberBinding="{Binding Path=ObjReference, Converter={StaticResource IntToHexConverter}}">
+                                        <GridViewColumnHeader>Obj. reference</GridViewColumnHeader>
+                                    </GridViewColumn>
+                                </GridView>
+                            </ListView.View>
+                        </ListView>
+                        <GridSplitter Grid.Column="1" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
+                        <ListView Grid.Column="2" ItemsSource="{Binding Path=ActiveEnumData.Object.Items, Mode=OneWay}">
+                            <ListView.View>
+                                <GridView>
+                                    <GridViewColumn Width="80" DisplayMemberBinding="{Binding Path=Key, Converter={StaticResource IntToHexConverter}}">
+                                        <GridViewColumnHeader>#</GridViewColumnHeader>
+                                    </GridViewColumn>
+                                    <GridViewColumn Width="160" DisplayMemberBinding="{Binding Path=Value.Text}">
+                                        <GridViewColumnHeader>Value</GridViewColumnHeader>
+                                    </GridViewColumn>
+                                </GridView>
+                            </ListView.View>
+                        </ListView>
+                    </Grid>
                 </TabItem>
-                <TabItem Header="Fields + structs">
-
+                <TabItem Header="Structures">
+                    <Grid>
+                        <Grid.Resources>
+                            <Style TargetType="ListView">
+                                <Setter Property="BorderThickness" Value="1"/>
+                                <Setter Property="BorderBrush" Value="LightGray"/>
+                            </Style>
+                            <Style TargetType="TextBox">
+                                <Setter Property="BorderThickness" Value="1"/>
+                                <Setter Property="BorderBrush" Value="LightGray"/>
+                            </Style>
+                        </Grid.Resources>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="2*"/>
+                            <ColumnDefinition Width="5"/>
+                            <ColumnDefinition Width="3*"/>
+                        </Grid.ColumnDefinitions>
+                        <ListView Grid.Column="0" ItemsSource="{Binding Path=ActiveStructBin.StructDatas}" SelectedItem="{Binding Path=ActiveStructData, Mode=TwoWay}">
+                            <ListView.ItemTemplate>
+                                <DataTemplate>
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition MinWidth="48pt"/>
+                                            <ColumnDefinition Width="*"/>
+                                        </Grid.ColumnDefinitions>
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition Height="16pt"/>
+                                            <RowDefinition Height="16pt"/>
+                                        </Grid.RowDefinitions>
+                                        <TextBlock Text="{Binding Path=Id, Converter={StaticResource IntToHexConverter}}"
+                                                       Grid.Column="0" Grid.Row="0" Grid.ColumnSpan="1" Grid.RowSpan="2" VerticalAlignment="Center"
+                                                       Padding="4pt 0pt 14pt 0pt"
+                                                       FontWeight="SemiBold"/>
+                                        <TextBlock Text="{Binding Path=Name}"
+                                                       Grid.Column="1" Grid.Row="0" Grid.ColumnSpan="1" Grid.RowSpan="1" VerticalAlignment="Bottom" HorizontalAlignment="Stretch"
+                                                       Padding="0 1pt"
+                                                       FontWeight="SemiBold"/>
+                                        <TextBlock Grid.Column="1" Grid.Row="1" Grid.ColumnSpan="1" Grid.RowSpan="1" VerticalAlignment="Top" HorizontalAlignment="Stretch"
+                                                       Padding="0 1pt"
+                                                       Opacity="0.65">
+                                                <TextBlock Text="Starting field:"/>
+                                                <TextBlock Text="{Binding Path=FirstFieldId, Converter={StaticResource IntToHexConverter}}" FontWeight="SemiBold"/>
+                                                
+                                                <TextBlock Text="Field count:" Padding="4pt 0 0 0"/>
+                                                <TextBlock Text="{Binding Path=FieldCount, Converter={StaticResource IntToHexConverter}}" FontWeight="SemiBold"/>
+                                                
+                                                <TextBlock Text="Size:" Padding="4pt 0 0 0"/>
+                                                <TextBlock Text="{Binding Path=Size, Converter={StaticResource IntToHexConverter}}" FontWeight="SemiBold"/>
+                                            </TextBlock>
+                                    </Grid>
+                                </DataTemplate>
+                            </ListView.ItemTemplate>
+                        </ListView>
+                        <GridSplitter Grid.Column="1" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Background="Transparent"/>
+                        <ListView Grid.Column="2"
+                                      ItemsSource="{Binding Path=ActiveStructData.Fields, Mode=OneWay}">
+                            <ListView.ItemTemplate>
+                                <DataTemplate>
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="40pt"/>
+                                            <ColumnDefinition Width="50pt"/>
+                                            <ColumnDefinition Width="150pt"/>
+                                            <ColumnDefinition Width="150pt"/>
+                                            <ColumnDefinition Width="60pt"/>
+                                        </Grid.ColumnDefinitions>
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition Height="16pt"/>
+                                        </Grid.RowDefinitions>
+                                        <TextBlock Text="{Binding Path=Id, Converter={StaticResource IntToHexConverter}}"
+                                                       Grid.Column="0" VerticalAlignment="Center"/>
+                                        <TextBlock Grid.Column="1" VerticalAlignment="Center" HorizontalAlignment="Left"
+                                                       Opacity="0.65">
+                                                <TextBlock Text="at"
+                                                           Padding="0 0 2pt 0"/>
+                                                <TextBlock Text="{Binding Path=Offset, Converter={StaticResource IntToHexConverter}}"/>
+                                            </TextBlock>
+                                        <TextBlock Text="{Binding Path=Name}"
+                                                       Grid.Column="2" VerticalAlignment="Center"
+                                                       FontWeight="SemiBold"/>
+                                        <TextBlock Grid.Column="3" VerticalAlignment="Center">
+                                                <TextBlock Text="{Binding Path=TypeName}"
+                                                           Padding="0 0 2pt 0"/>
+                                                <TextBlock Visibility="{Binding Converter={StaticResource FieldChildKindVisibilityConverter}}"
+                                                           Padding="1pt 0 0 0"
+                                                           Opacity="0.65">
+                                                    <TextBlock Text="of"
+                                                               Padding="0 0 2pt 0"/>
+                                                    <TextBlock Text="{Binding Converter={StaticResource FieldChildKindTextConverter}}"
+                                                               Padding="0 0 2pt 0"/>
+                                                </TextBlock>
+                                            </TextBlock>
+                                            <TextBlock Grid.Column="4" VerticalAlignment="Center" HorizontalAlignment="Right">
+                                                <TextBlock Text="{Binding Path=Size, Converter={StaticResource IntToHexConverter}}"/>
+                                                <TextBlock Text="byte(s)"
+                                                           Padding="2pt 0"
+                                                           Opacity="0.65"/>
+                                            </TextBlock>
+                                        </Grid>
+                                    </DataTemplate>
+                            </ListView.ItemTemplate>
+                        </ListView>
+                    </Grid>
                 </TabItem>
-                <TabItem Header="String data" IsSelected="True">
+                <TabItem Header="Fields">
                     <Grid>
                         <Grid.Resources>
                             <Style TargetType="ListView">
@@ -91,8 +555,49 @@
                         </Grid.Resources>
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="5"/>
+                        </Grid.ColumnDefinitions>
+                        <ListView Grid.Column="0" ItemsSource="{Binding Path=ActiveStructBin.FieldDatas}">
+                            <ListView.View>
+                                <GridView>
+                                    <GridViewColumn Width="80" DisplayMemberBinding="{Binding Path=Id, Converter={StaticResource IntToHexConverter}}">
+                                        <GridViewColumnHeader>#</GridViewColumnHeader>
+                                    </GridViewColumn>
+                                    <GridViewColumn Width="160px" DisplayMemberBinding="{Binding Path=Name}">
+                                        <GridViewColumnHeader>Name</GridViewColumnHeader>
+                                    </GridViewColumn>
+                                    <GridViewColumn Width="80px" DisplayMemberBinding="{Binding Path=TypeName}">
+                                        <GridViewColumnHeader>Type</GridViewColumnHeader>
+                                    </GridViewColumn>
+                                    <GridViewColumn Width="80px" DisplayMemberBinding="{Binding Path=Size, Converter={StaticResource IntToHexConverter}}">
+                                        <GridViewColumnHeader>Size</GridViewColumnHeader>
+                                    </GridViewColumn>
+                                    <GridViewColumn Width="80px" DisplayMemberBinding="{Binding Path=Offset, Converter={StaticResource IntToHexConverter}}">
+                                        <GridViewColumnHeader>Offset</GridViewColumnHeader>
+                                    </GridViewColumn>
+                                    <GridViewColumn Width="80px" DisplayMemberBinding="{Binding Path=ChildKind, Converter={StaticResource IntToHexConverter}}">
+                                        <GridViewColumnHeader>Child kind</GridViewColumnHeader>
+                                    </GridViewColumn>
+                                </GridView>
+                            </ListView.View>
+                        </ListView>
+                    </Grid>
+                </TabItem>
+                <TabItem Header="Strings">
+                    <Grid>
+                        <Grid.Resources>
+                            <Style TargetType="ListView">
+                                <Setter Property="BorderThickness" Value="1"/>
+                                <Setter Property="BorderBrush" Value="LightGray"/>
+                            </Style>
+                            <Style TargetType="TextBox">
+                                <Setter Property="BorderThickness" Value="1"/>
+                                <Setter Property="BorderBrush" Value="LightGray"/>
+                            </Style>
+                        </Grid.Resources>
+                        <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="2*"/>
+                            <ColumnDefinition Width="5"/>
+                            <ColumnDefinition Width="3*"/>
                         </Grid.ColumnDefinitions>
                         <ListView Grid.Column="0" ItemsSource="{Binding Path=ActiveStructBin.StringDatas}" SelectedItem="{Binding Path=ActiveStringData, Mode=TwoWay}">
                             <ListView.View>
@@ -106,7 +611,7 @@
                                     <GridViewColumn Width="80" DisplayMemberBinding="{Binding Path=Length, Converter={StaticResource IntToHexConverter}}">
                                         <GridViewColumnHeader>Length</GridViewColumnHeader>
                                     </GridViewColumn>
-                                    <GridViewColumn Width="140" DisplayMemberBinding="{Binding Path=Text}">
+                                    <GridViewColumn Width="160" DisplayMemberBinding="{Binding Path=Text}">
                                         <GridViewColumnHeader>Text</GridViewColumnHeader>
                                     </GridViewColumn>
                                 </GridView>
@@ -124,7 +629,53 @@
                     </Grid>
                 </TabItem>
                 <TabItem Header="Sections">
-
+                    <Grid>
+                        <Grid.Resources>
+                            <Style TargetType="ListView">
+                                <Setter Property="BorderThickness" Value="1"/>
+                                <Setter Property="BorderBrush" Value="LightGray"/>
+                            </Style>
+                            <Style TargetType="TextBox">
+                                <Setter Property="BorderThickness" Value="1"/>
+                                <Setter Property="BorderBrush" Value="LightGray"/>
+                            </Style>
+                        </Grid.Resources>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="2*"/>
+                            <ColumnDefinition Width="5"/>
+                            <ColumnDefinition Width="3*"/>
+                        </Grid.ColumnDefinitions>
+                        <ListView Grid.Column="0" ItemsSource="{Binding Path=ActiveStructBin.Sections.Values}" SelectedItem="{Binding Path=ActiveSectionData, Mode=TwoWay}">
+                            <ListView.View>
+                                <GridView>
+                                    <GridViewColumn Width="80px" DisplayMemberBinding="{Binding Path=Label}">
+                                        <GridViewColumnHeader>Label</GridViewColumnHeader>
+                                    </GridViewColumn>
+                                    <GridViewColumn Width="80px" DisplayMemberBinding="{Binding Path=Start, Converter={StaticResource IntToHexConverter}}">
+                                        <GridViewColumnHeader>Start</GridViewColumnHeader>
+                                    </GridViewColumn>
+                                    <GridViewColumn Width="80px" DisplayMemberBinding="{Binding Path=DataLength, Converter={StaticResource IntToHexConverter}}">
+                                        <GridViewColumnHeader>Length</GridViewColumnHeader>
+                                    </GridViewColumn>
+                                    <GridViewColumn Width="80px" DisplayMemberBinding="{Binding Path=AlignedDataLength, Converter={StaticResource IntToHexConverter}}">
+                                        <GridViewColumnHeader>(Aligned)</GridViewColumnHeader>
+                                    </GridViewColumn>
+                                    <GridViewColumn Width="80px" DisplayMemberBinding="{Binding Path=Hash, Converter={StaticResource IntToHexConverter}}">
+                                        <GridViewColumnHeader>Hash</GridViewColumnHeader>
+                                    </GridViewColumn>
+                                </GridView>
+                            </ListView.View>
+                        </ListView>
+                        <GridSplitter Grid.Column="1" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Background="Transparent"/>
+                        <TextBox Grid.Column="2"
+                                 Padding="10pt"
+                                 FontFamily="Consolas"
+                                 TextWrapping="Wrap"
+                                 AcceptsReturn="True"
+                                 VerticalScrollBarVisibility="Visible"
+                                 IsReadOnly="True"
+                                 Text="{Binding Path=ActiveSectionData.Data , Converter={StaticResource ByteArrayToStringConverter}}"/>
+                    </Grid>
                 </TabItem>
             </TabControl>
         </Grid>

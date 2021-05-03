@@ -34,6 +34,28 @@ namespace NotInfiltrator.UI.Windows
             }
         }
 
+        private EnumData _activeEnumData = null;
+        public EnumData ActiveEnumData
+        {
+            get => _activeEnumData;
+            set
+            {
+                _activeEnumData = value;
+                OnPropertyChanged();
+            }
+        }
+
+        private StructData _activeStructData = null;
+        public StructData ActiveStructData
+        {
+            get => _activeStructData;
+            set
+            {
+                _activeStructData = value;
+                OnPropertyChanged();
+            }
+        }
+
         private StringData _activeStringData = null;
         public StringData ActiveStringData
         {
@@ -41,6 +63,17 @@ namespace NotInfiltrator.UI.Windows
             set
             {
                 _activeStringData = value;
+                OnPropertyChanged();
+            }
+        }
+
+        private SectionData _activeSectionData = null;
+        public SectionData ActiveSectionData
+        {
+            get => _activeSectionData;
+            set
+            {
+                _activeSectionData = value;
                 OnPropertyChanged();
             }
         }

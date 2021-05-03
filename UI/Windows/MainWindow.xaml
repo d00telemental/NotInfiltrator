@@ -5,6 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         
         xmlns:converters="clr-namespace:NotInfiltrator.UI.Converters"
+        xmlns:dts="clr-namespace:NotInfiltrator.UI.DataTemplateSelectors"
         xmlns:local="clr-namespace:NotInfiltrator.UI.Windows"
         xmlns:monkey="clr-namespace:NotInfiltrator.Serialization.Monkey"
         xmlns:serialization="clr-namespace:NotInfiltrator.Serialization"
@@ -20,7 +21,7 @@
         <converters:FieldChildKindTextConverter x:Key="FieldChildKindTextConverter"/>
         <converters:ByteArrayToStringConverter x:Key="ByteArrayToStringConverter"/>
         <converters:EnumerateConverter x:Key="EnumerateConverter"/>
-        <local:MonkeyValueDataTemplateSelector x:Key="MonkeyValueDataTemplateSelector"/>
+        <dts:MonkeyValueDataTemplateSelector x:Key="MonkeyValueDataTemplateSelector"/>
     </Window.Resources>
     <Grid>
         <Grid.RowDefinitions>
