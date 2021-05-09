@@ -99,7 +99,13 @@ namespace NotInfiltrator.UI.Windows
                 throw new ArgumentException();
             }
 
-            ActiveStructBin = contentNode.Content as StructBin;
+            sbin = contentNode.Content as StructBin;
+            if (!sbin.Initialized)
+            {
+                sbin.Initialize();
+            }
+
+            ActiveStructBin = sbin;
             UpdateWindowTitle($"{contentNode.Name}");
         }
     }

@@ -13,16 +13,19 @@ namespace NotInfiltrator.Serialization
     {
         public string Path { get; private set; } = null;
         public GameFilesystemNode RootNode { get; private set; } = new (null, "Filesystem");
-        public Dictionary<string, StructBin> StructBinMap { get; private set; } = new ();
-
+        public Dictionary<string, GameFileContent> FileContentsMap { get; private set; } = new ();
 
         public GameFilesystem(string rootPath)
         {
             Path = rootPath;
 
-            LoadAllStructBins();
-            LoadAllLocalizations();
-            BuildFileTree();
+            /**/ LoadAllStructBins();
+            /**/ LoadAllLocalizations();
+            /**/ LoadAllMediaContainers();
+            Debug.WriteLine($"Finished loading GFCs");
+
+            /**/ BuildFileTree();
+            Debug.WriteLine($"Finished building FS tree");
         }
 
         public void LoadAllStructBins()
@@ -30,26 +33,33 @@ namespace NotInfiltrator.Serialization
             var files = Directory.GetFiles(Path, "*.sb", SearchOption.AllDirectories).Select(GetRelativePath);
             foreach (var fileName in files)
             {
-                StructBinMap.Add(fileName, new(this, fileName));
-                // /**/ if (StructBinMap.Count() % 6 == 0) break;
+                FileContentsMap.Add(fileName, new StructBin(this, fileName));
             }
 
         }
-
         public void LoadAllLocalizations()
         {
             var files = Directory.GetFiles(Path, "masseffect.bin", SearchOption.AllDirectories).Select(GetRelativePath);
             foreach (var fileName in files)
             {
-                StructBinMap.Add(fileName, new(this, fileName));
+                FileContentsMap.Add(fileName, new StructBin(this, fileName));
             }
+        }
+        public void LoadAllMediaContainers()
+        {
+            var files = Directory.GetFiles(Path, "*.m3g", SearchOption.AllDirectories).Select(GetRelativePath);
+            foreach (var fileName in files)
+            {
+                FileContentsMap.Add(fileName, new MediaContainer(this, fileName));
+            }
+
         }
 
         public void BuildFileTree()
         {
-            foreach (var sbin in StructBinMap.Values)
+            foreach (var gfc in FileContentsMap.Values)
             {
-                var path = sbin.Name;
+                var path = gfc.Name;
                 if (string.IsNullOrEmpty(path))
                 {
                     continue;
@@ -62,7 +72,7 @@ namespace NotInfiltrator.Serialization
                     floatingRoot = floatingRoot.EmplaceChildIfNotExists(pathChunk);
                 }
 
-                floatingRoot.Content = sbin;  // set the content of the branch tip
+                floatingRoot.Content = gfc;  // set the content of the branch tip
             }
         }
 
@@ -71,8 +81,20 @@ namespace NotInfiltrator.Serialization
 
         public string GetRelativePath(string absolutePath)
             => absolutePath.Replace(Path, "");
-
         public string GetAbsolutePath(string relativePath)
             => Path + relativePath;
+
+        public GameFilesystemNode FindNode(string path)
+        {
+            if (string.IsNullOrWhiteSpace(path))
+            {
+                throw new ArgumentException(nameof(path));
+            }
+            var pathChunks = path.Split('\\', StringSplitOptions.RemoveEmptyEntries);
+
+            throw new ArgumentException(nameof(path));
+
+            return null;
+        }
     }
 }

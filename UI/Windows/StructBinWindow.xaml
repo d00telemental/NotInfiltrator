@@ -74,7 +74,10 @@
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="*"/>
                         </Grid.ColumnDefinitions>
-                        <TreeView Grid.Column="0" ItemsSource="{Binding ActiveStructBin.RootObject, Converter={StaticResource EnumerateConverter}}">
+                        <TreeView Grid.Column="0"
+                                  ItemsSource="{Binding ActiveStructBin.RootObject, Converter={StaticResource EnumerateConverter}}"
+                                  VirtualizingStackPanel.IsVirtualizing="True"
+                                  VirtualizingStackPanel.VirtualizationMode="Recycling">
                             <TreeView.Resources>
                                 <HierarchicalDataTemplate DataType="{x:Type monkey:UnstructuredObject}"
                                                           ItemsSource="{Binding Entries}" ItemTemplateSelector="{StaticResource MonkeyValueDataTemplateSelector}">

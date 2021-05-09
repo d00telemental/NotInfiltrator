@@ -79,5 +79,15 @@ namespace NotInfiltrator.Properties {
                 return ((byte[])(obj));
             }
         }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Byte[].
+        /// </summary>
+        internal static byte[] pictures {
+            get {
+                object obj = ResourceManager.GetObject("pictures", resourceCulture);
+                return ((byte[])(obj));
+            }
+        }
     }
 }

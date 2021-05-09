@@ -12,15 +12,9 @@ using NotInfiltrator.Utilities;
 
 namespace NotInfiltrator.Serialization
 {
-    public class StructBin
+    public class StructBin : GameFileContent
     {
-        /// <summary>
-        /// Stream used for reading operations while parsing.
-        /// </summary>
-        private readonly MemoryStream ReadingStream = null;
-
         #region File contents as seen in their serialized form
-        public string Name { get; private set; } = null;
         public string Magic { get; private set; } = null;
         public int Version { get; private set; } = 0;
         public Dictionary<string, SectionData> Sections { get; private set; } = null;
@@ -42,8 +36,19 @@ namespace NotInfiltrator.Serialization
 
         public StructBin(GameFilesystem fs, string relativePath)
         {
+            FS = fs;
             Name = relativePath;
-            ReadingStream = fs.GetMemoryStreamFor(relativePath);
+        }
+
+
+        public override void Initialize()
+        {
+            if (Initialized)
+            {
+                throw new Exception("StructBin already initialized!");
+            }
+
+            ReadingStream = FS.GetMemoryStreamFor(Name);
 
             Common.AssertEquals(Magic = ReadingStream.ReadAscFixed(4), "SBIN", "Wrong SBIN magic");
             Common.AssertEquals(Version = ReadingStream.ReadSigned32Little(), 3, "Wrong SBIN version");

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.ComponentModel;
 using System.Diagnostics;
 using System.Linq;
 using System.Runtime.InteropServices;
@@ -53,7 +54,9 @@ namespace NotInfiltrator.UI.Windows
             }, "Loading filesystem...");
 
             ExecuteOnUI(() => {
-                ExecuteOnUI(() => { DbTreeView.ItemsSource = new ObservableCollection<object>() { _filesystem.RootNode }; });
+                var observableRoot = new ObservableCollection<object>() { _filesystem.RootNode };
+                //CollectionViewSource.GetDefaultView(observableRoot);
+                ExecuteOnUI(() => { DbTreeView.ItemsSource = observableRoot; });
             }, "Updating user interface...");
         }
 
@@ -62,17 +65,32 @@ namespace NotInfiltrator.UI.Windows
             Action action = node.Content switch
             {
                 StructBin sbin => () => {
-                    Debug.WriteLine($"Opening SBIN tool for {node.Name}...");
-                    var sbinWindow = new StructBinWindow(node);
+                    Debug.WriteLine($"Opening SBIN tool for {node.GetPath()}...");
+                    var sbinWindow = new StructBinWindow(node);  // TODO: add some window tracking
                     sbinWindow.Show();
                 },
-                _ => () => Debug.WriteLine($"WTF")
+                MediaContainer mc => () =>
+                {
+                    Debug.WriteLine($"Opening M3G tool for {node.GetPath()}...");
+                    // ...
+                },
+                _ => () => Debug.WriteLine($"Can't handle an attempt to open {node.GetPath()}")
             };
 
             action.Invoke();
         }
 
         #region Notifying properties
+        //private ICollectionView _treeCollectionView = null;
+        //public ICollectionView TreeCollectionView
+        //{
+        //    get => _treeCollectionView;
+        //    set
+        //    {
+        //        _treeCollectionView = value;
+        //        OnPropertyChanged();
+        //    }
+        //}
         #endregion
 
         public NavigatorWindow()
@@ -101,6 +119,7 @@ namespace NotInfiltrator.UI.Windows
                 ResetWindowTitle();
                 _loadFilesystem(@"D:\Projects\NotInfiltrator\_game\com.ea.games.meinfiltrator_gamepad\published\");
                 UpdateStatusText("Database loaded");
+
                 return Task.CompletedTask;
             });
         }
@@ -109,7 +128,6 @@ namespace NotInfiltrator.UI.Windows
         {
             e.Handled = true;
         }
-
         private void DbTreeView_PreviewKeyDown(object sender, KeyEventArgs e)
         {
             if (sender is not TreeViewItem tvItem || DbTreeView.SelectedItem is not GameFilesystemNode gfsNode)
@@ -130,7 +148,6 @@ namespace NotInfiltrator.UI.Windows
                     return;
             }
         }
-
         private void DbViewItem_PreviewMouseDoubleClick(object sender, MouseButtonEventArgs e)
         {
             if (sender is not TreeViewItem tvItem || DbTreeView.SelectedItem is not GameFilesystemNode gfsNode)
