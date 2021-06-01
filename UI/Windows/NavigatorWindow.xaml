@@ -70,7 +70,8 @@
             <TreeView x:Name="DbTreeView" Grid.Column="0"
                       VirtualizingStackPanel.IsVirtualizing="True"
                       VirtualizingStackPanel.VirtualizationMode="Recycling"
-                      PreviewMouseDoubleClick="DbTreeView_PreviewMouseDoubleClick">
+                      PreviewMouseDoubleClick="DbTreeView_PreviewMouseDoubleClick"
+                      ItemsSource="{Binding Path=ObservableRootNode}">
                 <TreeView.ItemContainerStyle>
                     <Style TargetType="{x:Type TreeViewItem}">
                         <Setter Property="IsExpanded" Value="True"/>

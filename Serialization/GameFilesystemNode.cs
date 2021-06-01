@@ -33,6 +33,20 @@ namespace NotInfiltrator.Serialization
             var children = Children.Where(node => (node.Name?.ToUpper() ?? "") == name.ToUpper());
             return children.Count() == 0 ? null : children.Single();
         }
+        public GameFilesystemNode FindChildRecursively(IEnumerable<string> nameChunks)
+        {
+            if (nameChunks is not null && nameChunks.Count() > 0)
+            {
+                foreach (var child in Children)
+                {
+                    if (child.Name.ToUpper() == nameChunks.First().ToUpper())
+                    {
+                        return (nameChunks.Count() == 1) ? child : child.FindChildRecursively(nameChunks.Skip(1));
+                    }
+                }
+            }
+            return null;
+        }
 
         public string GetPath(char separator = '\\', bool removeVirtualRoot = true)
         {
@@ -53,5 +67,7 @@ namespace NotInfiltrator.Serialization
             sb.AppendJoin(separator, pathChunks);
             return sb.ToString();
         }
+
+        // TODO: implement something like https://stackoverflow.com/a/12377822
     }
 }

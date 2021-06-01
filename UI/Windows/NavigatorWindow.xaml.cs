@@ -54,9 +54,7 @@ namespace NotInfiltrator.UI.Windows
             }, "Loading filesystem...");
 
             ExecuteOnUI(() => {
-                var observableRoot = new ObservableCollection<object>() { _filesystem.RootNode };
-                //CollectionViewSource.GetDefaultView(observableRoot);
-                ExecuteOnUI(() => { DbTreeView.ItemsSource = observableRoot; });
+                ObservableRootNode = new () { _filesystem.RootNode };
             }, "Updating user interface...");
         }
 
@@ -72,7 +70,8 @@ namespace NotInfiltrator.UI.Windows
                 MediaContainer mc => () =>
                 {
                     Debug.WriteLine($"Opening M3G tool for {node.GetPath()}...");
-                    // ...
+                    var m3gWindow = new MediaContainerWindow(node);
+                    m3gWindow.Show();
                 },
                 _ => () => Debug.WriteLine($"Can't handle an attempt to open {node.GetPath()}")
             };
@@ -81,16 +80,28 @@ namespace NotInfiltrator.UI.Windows
         }
 
         #region Notifying properties
-        //private ICollectionView _treeCollectionView = null;
-        //public ICollectionView TreeCollectionView
-        //{
-        //    get => _treeCollectionView;
-        //    set
-        //    {
-        //        _treeCollectionView = value;
-        //        OnPropertyChanged();
-        //    }
-        //}
+        private ObservableCollection<GameFilesystemNode> _filteredRootNode = null;
+        public ObservableCollection<GameFilesystemNode> FilteredRootNode
+        {
+            get => _filteredRootNode;
+            set
+            {
+                _filteredRootNode = value;
+                OnPropertyChanged();
+            }
+        }
+
+        private ObservableCollection<GameFilesystemNode> _observableRootNode = null;
+        public ObservableCollection<GameFilesystemNode> ObservableRootNode
+        {
+            get => _observableRootNode;
+            set
+            {
+                FilteredRootNode = value;
+                _observableRootNode = value;
+                OnPropertyChanged();
+            }
+        }
         #endregion
 
         public NavigatorWindow()
@@ -120,6 +131,13 @@ namespace NotInfiltrator.UI.Windows
                 _loadFilesystem(@"D:\Projects\NotInfiltrator\_game\com.ea.games.meinfiltrator_gamepad\published\");
                 UpdateStatusText("Database loaded");
 
+                return Task.CompletedTask;
+            }).ContinueWith((Task t) => {
+                ExecuteOnUI(() => {
+                    var nodeToSelectInDebug = _filesystem.FindNode(@"models\character_gethship.m3g");
+                    Debug.WriteLine($"Selecting {nodeToSelectInDebug} because debug");
+                    _handleTreeViewSelection(nodeToSelectInDebug);
+                });
                 return Task.CompletedTask;
             });
         }

@@ -19,40 +19,29 @@ namespace NotInfiltrator.Serialization
         {
             Path = rootPath;
 
-            /**/ LoadAllStructBins();
-            /**/ LoadAllLocalizations();
-            /**/ LoadAllMediaContainers();
+            LoadAllStructBins();
+            LoadAllLocalizations();
+            LoadAllMediaContainers();
             Debug.WriteLine($"Finished loading GFCs");
 
-            /**/ BuildFileTree();
-            Debug.WriteLine($"Finished building FS tree");
+            BuildFileTree();
+            Debug.WriteLine($"Finished building FST");
         }
 
         public void LoadAllStructBins()
         {
-            var files = Directory.GetFiles(Path, "*.sb", SearchOption.AllDirectories).Select(GetRelativePath);
-            foreach (var fileName in files)
-            {
-                FileContentsMap.Add(fileName, new StructBin(this, fileName));
-            }
-
+            var files = Directory.GetFiles(Path, "*.sb", SearchOption.AllDirectories).Select(GetRelativePath).ToList();
+            files.ForEach(fileName => { FileContentsMap.Add(fileName, new StructBin(this, fileName)); });
         }
         public void LoadAllLocalizations()
         {
-            var files = Directory.GetFiles(Path, "masseffect.bin", SearchOption.AllDirectories).Select(GetRelativePath);
-            foreach (var fileName in files)
-            {
-                FileContentsMap.Add(fileName, new StructBin(this, fileName));
-            }
+            var files = Directory.GetFiles(Path, "masseffect.bin", SearchOption.AllDirectories).Select(GetRelativePath).ToList();
+            files.ForEach(fileName => { FileContentsMap.Add(fileName, new StructBin(this, fileName)); });
         }
         public void LoadAllMediaContainers()
         {
-            var files = Directory.GetFiles(Path, "*.m3g", SearchOption.AllDirectories).Select(GetRelativePath);
-            foreach (var fileName in files)
-            {
-                FileContentsMap.Add(fileName, new MediaContainer(this, fileName));
-            }
-
+            var files = Directory.GetFiles(Path, "*.m3g", SearchOption.AllDirectories).Select(GetRelativePath).ToList();
+            files.ForEach(fileName => { FileContentsMap.Add(fileName, new MediaContainer(this, fileName)); });
         }
 
         public void BuildFileTree()
@@ -90,11 +79,9 @@ namespace NotInfiltrator.Serialization
             {
                 throw new ArgumentException(nameof(path));
             }
+
             var pathChunks = path.Split('\\', StringSplitOptions.RemoveEmptyEntries);
-
-            throw new ArgumentException(nameof(path));
-
-            return null;
+            return RootNode.FindChildRecursively(pathChunks);
         }
     }
 }
