@@ -44,8 +44,7 @@ namespace NotInfiltrator.Serialization
         {
             while (ReadingStream.Position < ReadingStream.Length)
             {
-                var nextSection = new Section(ReadingStream);
-                Sections.Add(nextSection);
+                Sections.Add(new Section(ReadingStream));
             }
         }
     }

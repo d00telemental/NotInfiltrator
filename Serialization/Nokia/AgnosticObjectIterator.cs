@@ -23,6 +23,11 @@ namespace NotInfiltrator.Serialization.Nokia
         private Stream _inputStream { get; set; }
         private HashSet<byte> _metTypes { get; set; } = new ();
 
+        /// <summary>
+        /// Read the type byte and add it to the set
+        /// of all types the enumerator has met so far.
+        /// </summary>
+        /// <returns>Type byte</returns>
         private byte _readType()
         {
             var type = (byte)_inputStream.ReadByte();

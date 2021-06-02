@@ -19,7 +19,8 @@ namespace NotInfiltrator.Serialization.Nokia
         public List<Nokia.Object> Objects { get; set; } = new List<Object>();
         public UInt32 AdlerChecksum { get; set; }
 
-        public UInt32 ObjectsOnlyUncompressedLength => UncompressedLength - sizeof(CompressionScheme) - sizeof(UInt32) - sizeof(UInt32) - sizeof(UInt32);
+        public UInt32 ObjectsOnlyUncompressedLength
+            => UncompressedLength - sizeof(CompressionScheme) - sizeof(UInt32) - sizeof(UInt32) - sizeof(UInt32);
 
         public Section(Stream stream)
         {
@@ -33,6 +34,14 @@ namespace NotInfiltrator.Serialization.Nokia
 
             AgnosticObjectEnumerator objEnumerator = new (ReadingStream);
             var objectInfos = objEnumerator.ReadAll();
+
+            objectInfos.ToList().ForEach(info => Debug.WriteLine(info));
+
+            objEnumerator.AllMetTypes().OrderBy(t => t).ToList().ForEach(t => { Debug.WriteLine(t); });
+            var image2Ds = objectInfos
+                .Where(info => info.Type == (int)ObjectType.VertexBuffer)
+                .Select(info => Object.Read(info))
+                .ToList();
         }
     }
 }

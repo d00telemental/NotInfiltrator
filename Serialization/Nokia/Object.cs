@@ -27,7 +27,7 @@ namespace NotInfiltrator.Serialization.Nokia
         {
             if (DataStream.Position != DataStream.Length)
             {
-                Debug.WriteLine($"{BitConverter.ToString(DataStream.ReadBytes((int)(DataStream.Length - DataStream.Position)))}");
+                Debug.WriteLine($"{BitConverter.ToString(DataStream.ReadBytes((int)(DataStream.Length - DataStream.Position))).Replace('-', ' ')}");
                 throw new Exception("UNREAD DATA");
             }
         }
@@ -39,7 +39,9 @@ namespace NotInfiltrator.Serialization.Nokia
                 (byte)ObjectType.Header => new HeaderObject(info.Data),
                 (byte)ObjectType.CompositingMode => new CompositingMode(info.Data),  // unknown 6 bytes in the end
                 (byte)ObjectType.PolygonMode => new PolygonMode(info.Data),
+                (byte)ObjectType.Image2D => new Image2D(info.Data),
                 (byte)ObjectType.VertexArray => new VertexArray(info.Data),
+                (byte)ObjectType.VertexBuffer => new VertexBuffer(info.Data),
 
                 (byte)ObjectType.Unknown100 => new AGenericObject(info.Data),
                 (byte)ObjectType.Unknown101 => new AGenericObject(info.Data),  // a really big chungus
@@ -93,12 +95,15 @@ namespace NotInfiltrator.Serialization.Nokia
         {
             UserID = DataStream.ReadUnsigned32Little();
 
-            for (int i = 0; i < DataStream.ReadUnsigned32Little(); i++)
+            var animationTrackCount = DataStream.ReadUnsigned32Little();
+            for (int i = 0; i < animationTrackCount; i++)
             {
-                AnimationTracks.Add(DataStream.ReadUnsigned32Little());
+                var animationTrack = DataStream.ReadUnsigned32Little();
+                AnimationTracks.Add(animationTrack);
             }
 
-            for (int i = 0; i < DataStream.ReadUnsigned32Little(); i++)
+            var userParamCount = DataStream.ReadUnsigned32Little();
+            for (int i = 0; i < userParamCount; i++)
             {
                 UserParameter userParameter = new ();
                 userParameter.ID = DataStream.ReadUnsigned32Little();
@@ -178,6 +183,36 @@ namespace NotInfiltrator.Serialization.Nokia
             TwoSidedLightingEnabled = DataStream.ReadBool();
             LocalCameraLightingEnabled = DataStream.ReadBool();
             PerspectiveCorrectionEnabled = DataStream.ReadBool();
+
+            AssertEndStream();
+        }
+    }
+
+    public class Image2D : Object3D
+    {
+        public static new ObjectType? Type => ObjectType.Image2D;
+
+        public byte Format { get; set; }
+        public bool IsMutable { get; set; }
+        public UInt32 Width { get; set; }
+        public UInt32 Height { get; set; }
+
+        public byte[] PaletteBytes { get; set; }
+        public byte[] PixelsBytes { get; set; }
+
+        public Image2D(byte[] sourceData)
+            : base(sourceData)
+        {
+            Format = (byte)DataStream.ReadByte();
+            IsMutable = DataStream.ReadBool();
+            Width = DataStream.ReadUnsigned32Little();
+            Height = DataStream.ReadUnsigned32Little();
+
+            if (!IsMutable)
+            {
+                PaletteBytes = DataStream.ReadBytes((int)DataStream.ReadUnsigned32Little());
+                PixelsBytes = DataStream.ReadBytes((int)DataStream.ReadUnsigned32Little());
+            }
 
             AssertEndStream();
         }
@@ -277,6 +312,19 @@ namespace NotInfiltrator.Serialization.Nokia
                 }
             }
 
+            AssertEndStream();
+        }
+    }
+
+    public class VertexBuffer : Object3D
+    {
+        public static new ObjectType? Type => ObjectType.VertexBuffer;
+
+        
+
+        public VertexBuffer(byte[] sourceData)
+            : base(sourceData)
+        {
             AssertEndStream();
         }
     }
