@@ -50,6 +50,9 @@ namespace NotInfiltrator.Utilities
             };
         }
 
+        public static Single ReadSingleSlow(this Stream stream)
+            => new BinaryReader(new MemoryStream(stream.ReadBytes(4))).ReadSingle();
+
         public static Int16 ReadSigned16Little(this Stream stream)
         {
             var bytes = stream.ReadBytes(2);

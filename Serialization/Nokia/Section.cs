@@ -37,9 +37,9 @@ namespace NotInfiltrator.Serialization.Nokia
 
             objectInfos.ToList().ForEach(info => Debug.WriteLine(info));
 
-            objEnumerator.AllMetTypes().OrderBy(t => t).ToList().ForEach(t => { Debug.WriteLine(t); });
+            //objEnumerator.AllMetTypes().OrderBy(t => t).ToList().ForEach(t => { Debug.WriteLine(t); });
             var image2Ds = objectInfos
-                .Where(info => info.Type == (int)ObjectType.VertexBuffer)
+                .Where(info => info.Type == (int)ObjectType.CompositingMode)
                 .Select(info => Object.Read(info))
                 .ToList();
         }

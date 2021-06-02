@@ -34,23 +34,31 @@ namespace NotInfiltrator.Serialization.Nokia
 
         public static Object Read(AgnosticObjectInfo info)
         {
-            return info.Type switch
+            if (!Enum.IsDefined(typeof(ObjectType), info.Type))
             {
-                (byte)ObjectType.Header => new HeaderObject(info.Data),
-                (byte)ObjectType.CompositingMode => new CompositingMode(info.Data),  // unknown 6 bytes in the end
-                (byte)ObjectType.PolygonMode => new PolygonMode(info.Data),
-                (byte)ObjectType.Image2D => new Image2D(info.Data),
-                (byte)ObjectType.VertexArray => new VertexArray(info.Data),
-                (byte)ObjectType.VertexBuffer => new VertexBuffer(info.Data),
+                throw new Exception($"Unrecognized object type {info.Type}");
+            }
 
-                (byte)ObjectType.Unknown100 => new AGenericObject(info.Data),
-                (byte)ObjectType.Unknown101 => new AGenericObject(info.Data),  // a really big chungus
+            return (ObjectType)info.Type switch
+            {
+                ObjectType.Header => new HeaderObject(info.Data),              // 00
+                ObjectType.AnimationController => new AnimationController(info.Data),  // 01
+                ObjectType.AnimationTrack => new AnimationTrack(info.Data),    // 02
+                ObjectType.CompositingMode => new CompositingMode(info.Data),  // 06
+                ObjectType.PolygonMode => new PolygonMode(info.Data),          // 08
+                ObjectType.Image2D => new Image2D(info.Data),                  // 10
+                ObjectType.VertexArray => new VertexArray(info.Data),          // 20
+                ObjectType.VertexBuffer => new VertexBuffer(info.Data),        // 21, unknown 2 object indices in the end
 
-                _ => throw new Exception($"Unrecognized object type {info.Type}")
+                ObjectType.Unknown100 => new AGenericObject(info.Data),  // NOT PARSED | 100 = SUBMESH, 144 = TEXTURECUBE
+                ObjectType.Unknown101 => new AGenericObject(info.Data),  // NOT PARSED
+
+                _ => throw new Exception($"Unsupported object type {info.Type}")
             };
         }
     }
 
+    #region Non-abstract M3G classes inheriting from Object
     public class HeaderObject : Object
     {
         public static new ObjectType? Type => ObjectType.Header;
@@ -75,6 +83,7 @@ namespace NotInfiltrator.Serialization.Nokia
             AssertEndStream();
         }
     }
+    #endregion
 
     public class Object3D : Object
     {
@@ -112,7 +121,7 @@ namespace NotInfiltrator.Serialization.Nokia
             }
         }
     }
-
+   
     public class AGenericObject : Object3D
     {
         public static new ObjectType? Type => null;
@@ -127,6 +136,51 @@ namespace NotInfiltrator.Serialization.Nokia
         }
     }
 
+    #region Non-abstract M3G classes inheriting from Object3D
+    public class AnimationController : Object3D
+    {
+        public static new ObjectType? Type => ObjectType.AnimationController;
+
+        public float Speed { get; set; }
+        public float Weight { get; set; }
+        public Int32 ActiveIntervalStart { get; set; }
+        public Int32 ActiveIntervalEnd { get; set; }
+        public float ReferenceSequenceTime { get; set; }
+        public Int32 ReferenceWorldTime { get; set; }
+
+        public AnimationController(byte[] sourceData)
+            : base(sourceData)
+        {
+            Speed = DataStream.ReadSingleSlow();
+            Weight = DataStream.ReadSingleSlow();
+            ActiveIntervalStart = DataStream.ReadSigned32Little();
+            ActiveIntervalEnd = DataStream.ReadSigned32Little();
+            ReferenceSequenceTime = DataStream.ReadSingleSlow();
+            ReferenceWorldTime = DataStream.ReadSigned32Little();
+
+            AssertEndStream();
+        }
+    }
+
+    public class AnimationTrack : Object3D
+    {
+        public static new ObjectType? Type => ObjectType.AnimationTrack;
+
+        public UInt32 KeyframeSequence { get; set; }
+        public UInt32 AnimationController { get; set; }
+        public Int32 PropertyID { get; set; }
+
+        public AnimationTrack(byte[] sourceData)
+            : base(sourceData)
+        {
+            KeyframeSequence = DataStream.ReadUnsigned32Little();
+            AnimationController = DataStream.ReadUnsigned32Little();
+            PropertyID = DataStream.ReadSigned32Little();
+
+            AssertEndStream();
+        }
+    }
+
     public class CompositingMode : Object3D
     {
         public static new ObjectType? Type => ObjectType.CompositingMode;
@@ -135,13 +189,10 @@ namespace NotInfiltrator.Serialization.Nokia
         public bool DepthWriteEnabled { get; set; }
         public bool ColorWriteEnabled { get; set; }
         public bool AlphaWriteEnabled { get; set; }
-
-        public byte Blending { get; set; }
-        public byte AlphaThreshold { get; set; }
+        public int Blending { get; set; } // DEVIATES FROM SPEC STARTING HERE
+        public float AlphaThreshold { get; set; }  
         public float DepthOffsetFactor { get; set; }
         public float DepthOffsetUnits { get; set; }
-
-        public byte[] UnknownSixBytes { get; set; }
 
         public CompositingMode(byte[] sourceData)
             : base(sourceData)
@@ -151,12 +202,10 @@ namespace NotInfiltrator.Serialization.Nokia
             ColorWriteEnabled = DataStream.ReadBool();
             AlphaWriteEnabled = DataStream.ReadBool();
 
-            Blending = (byte)DataStream.ReadByte();
-            AlphaThreshold = (byte)DataStream.ReadByte();
-            DepthOffsetFactor = new BinaryReader(new MemoryStream(DataStream.ReadBytes(4))).ReadSingle();
-            DepthOffsetUnits = new BinaryReader(new MemoryStream(DataStream.ReadBytes(4))).ReadSingle();
-
-            UnknownSixBytes = DataStream.ReadBytes(6);
+            Blending = DataStream.ReadSigned32Little();
+            AlphaThreshold = DataStream.ReadSigned32Little();
+            DepthOffsetFactor = DataStream.ReadSigned32Little();
+            DepthOffsetUnits = DataStream.ReadSigned32Little();
 
             AssertEndStream();
         }
@@ -320,12 +369,48 @@ namespace NotInfiltrator.Serialization.Nokia
     {
         public static new ObjectType? Type => ObjectType.VertexBuffer;
 
-        
+        public RGBA ColorRGBA { get; set; }
+        public UInt32 Positions { get; set; }
+        public Single[] PositionBias { get; set; } = new Single[3];
+        public Single PositionScale { get; set; }
+        public UInt32 Normals { get; set; }
+        public UInt32 Colors { get; set; }
+        public Int32 TexcoordArrayCount { get; set; }  // in deviation from the spec, should always be -1 and not UInt32   #logic
+
+        public class TexCoordInfo
+        {
+            public UInt32 TexCoords { get; set; }
+            public Single[] TexCoordsBias { get; set; } = new Single[3];
+            public Single TexCoordsScale { get; set; }
+        }
+        public List<TexCoordInfo> TexCoords { get; set; } = new ();
+
+        public UInt32 SomeObjectIndex1 { get; set; }
+        public UInt32 SomeObjectIndex2 { get; set; }
 
         public VertexBuffer(byte[] sourceData)
             : base(sourceData)
         {
+            ColorRGBA = new RGBA(DataStream);
+            Positions = DataStream.ReadUnsigned32Little();
+            for (int i = 0; i < 3; i++) PositionBias[i] = DataStream.ReadSingleSlow();
+            PositionScale = DataStream.ReadSingleSlow();
+            Normals = DataStream.ReadUnsigned32Little();
+            Colors = DataStream.ReadUnsigned32Little();
+            TexcoordArrayCount = DataStream.ReadSigned32Little();
+            Common.Assert(TexcoordArrayCount == -1, "TexcoordArrayCount was not -1");
+            for (int j = 0; j < 1 /* YES I'M NOT KIDDING. YES IT'S HORRIBLE. YOU KNOW WHAT'S MORE HORRIBLE? THIS FUCKING ENGINE */; j++)
+            {
+                TexCoordInfo tci = new ();
+                tci.TexCoords = DataStream.ReadUnsigned32Little();
+                for (int i = 0; i < 3; i++) tci.TexCoordsBias[i] = DataStream.ReadSingleSlow();
+                tci.TexCoordsScale = DataStream.ReadSingleSlow();
+                TexCoords.Add(tci);
+            }
+            SomeObjectIndex1 = DataStream.ReadUnsigned32Little();
+            SomeObjectIndex2 = DataStream.ReadUnsigned32Little();
             AssertEndStream();
         }
     }
+    #endregion
 }
