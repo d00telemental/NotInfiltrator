@@ -12,9 +12,9 @@ namespace NotInfiltrator.Serialization.Nokia
 {
     public abstract class Object
     {
-        public virtual ObjectType? Type { get; set; }
-        public UInt32 Length { get; set; }
+        public virtual ObjectType? Type { get; protected set; } = null;
         public byte[] RawData { get; protected set; } = null;
+
         protected Stream DataStream { get; set; }
 
         public Object(byte[] sourceData)
@@ -23,32 +23,29 @@ namespace NotInfiltrator.Serialization.Nokia
             DataStream = new MemoryStream(RawData);
         }
 
-        public static Object ReadFromStream(Stream stream)
-        {
-            var type = (ObjectType)stream.ReadByte();
-            var length = stream.ReadUnsigned32Little();
-            var rawData = stream.ReadBytes((int)length);
-
-            return type switch
-            {
-                ObjectType.Header => new HeaderObject(rawData),
-                ObjectType.CompositingMode => new CompositingMode(rawData),  // unknown 6 bytes in the end
-                ObjectType.PolygonMode => new PolygonMode(rawData),
-                ObjectType.VertexArray => new VertexArray(rawData),
-
-                ObjectType.Unknown101 => new AGenericObject(rawData),  // a really big chungus
-
-                _ => throw new Exception($"Unsupported object type {type}")
-            };
-        }
-
-        public void AssertEndStream()
+        protected void AssertEndStream()
         {
             if (DataStream.Position != DataStream.Length)
             {
                 Debug.WriteLine($"{BitConverter.ToString(DataStream.ReadBytes((int)(DataStream.Length - DataStream.Position)))}");
                 throw new Exception("UNREAD DATA");
             }
+        }
+
+        public static Object Read(AgnosticObjectInfo info)
+        {
+            return info.Type switch
+            {
+                (byte)ObjectType.Header => new HeaderObject(info.Data),
+                (byte)ObjectType.CompositingMode => new CompositingMode(info.Data),  // unknown 6 bytes in the end
+                (byte)ObjectType.PolygonMode => new PolygonMode(info.Data),
+                (byte)ObjectType.VertexArray => new VertexArray(info.Data),
+
+                (byte)ObjectType.Unknown100 => new AGenericObject(info.Data),
+                (byte)ObjectType.Unknown101 => new AGenericObject(info.Data),  // a really big chungus
+
+                _ => throw new Exception($"Unrecognized object type {info.Type}")
+            };
         }
     }
 

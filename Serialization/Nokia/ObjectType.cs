@@ -31,6 +31,7 @@ namespace NotInfiltrator.Serialization.Nokia
         VertexArray = 20,
         VertexBuffer = 21,
         World = 22,
+        /**/ Unknown100 = 100,
         /**/ Unknown101 = 101,
         ExternalReference = 255
     }

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -10,6 +11,8 @@ namespace NotInfiltrator.Serialization.Nokia
 {
     public class Section
     {
+        protected Stream ReadingStream { get; set; }
+
         public CompressionScheme Compression { get; set; }
         public UInt32 TotalSectionLength { get; set; }
         public UInt32 UncompressedLength { get; set; }
@@ -25,15 +28,11 @@ namespace NotInfiltrator.Serialization.Nokia
 
             TotalSectionLength = stream.ReadUnsigned32Little();
             UncompressedLength = stream.ReadUnsigned32Little();
-
-            var rawData = stream.ReadBytes((int)ObjectsOnlyUncompressedLength);
+            ReadingStream = new MemoryStream(stream.ReadBytes((int)ObjectsOnlyUncompressedLength));
             AdlerChecksum = stream.ReadUnsigned32Little();
 
-            var rawDataStream = new MemoryStream(rawData);
-            while (rawDataStream.Position < rawDataStream.Length)
-            {
-                Objects.Add(Object.ReadFromStream(rawDataStream));
-            }
+            AgnosticObjectEnumerator objEnumerator = new (ReadingStream);
+            var objectInfos = objEnumerator.ReadAll();
         }
     }
 }
