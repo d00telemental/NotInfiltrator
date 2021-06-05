@@ -28,7 +28,7 @@ namespace NotInfiltrator.Serialization.Nokia
             if (DataStream.Position != DataStream.Length)
             {
                 Debug.WriteLine($"{BitConverter.ToString(DataStream.ReadBytes((int)(DataStream.Length - DataStream.Position))).Replace('-', ' ')}");
-                //throw new Exception("UNREAD DATA");
+                throw new Exception("UNREAD DATA");
             }
         }
 
@@ -49,7 +49,7 @@ namespace NotInfiltrator.Serialization.Nokia
                 ObjectType.PolygonMode => new PolygonMode(info.Data),          // 08
                 ObjectType.Group => new Group(info.Data, true),                // 09
                 ObjectType.Image2D => new Image2D(info.Data),                  // 10
-                ObjectType.Mesh => new Mesh(info.Data),                        // 14 | something's up with the submesh looped part
+                ObjectType.Mesh => new Mesh(info.Data),                        // 14
                 ObjectType.Texture2D => new Texture2D(info.Data),              // 17
                 ObjectType.VertexArray => new VertexArray(info.Data),          // 20
                 ObjectType.VertexBuffer => new VertexBuffer(info.Data),        // 21 | unknown 2 object indices in the end
@@ -414,20 +414,18 @@ namespace NotInfiltrator.Serialization.Nokia
         public static new ObjectType? Type => ObjectType.Mesh;
 
         public UInt32 VertexBuffer { get; set; }
-        public UInt32 SubmeshCount { get; set; }
+        public UInt32[] SubmeshReferences { get; set; }
 
         public Mesh(byte[] sourceData)
             : base(sourceData)
         {
             VertexBuffer = DataStream.ReadUnsigned32Little();
-            SubmeshCount = DataStream.ReadUnsigned32Little();
-            if (SubmeshCount != 1)
+
+            var submeshCount = DataStream.ReadUnsigned32Little();
+            SubmeshReferences = new UInt32[submeshCount];
+            for (uint i = 0; i < submeshCount; i++)
             {
-                throw new Exception("DEBUG ME DEBUG ME PLSSS");
-            }
-            for (uint i = 0; i < SubmeshCount; i++)
-            {
-                _ = DataStream.ReadUnsigned32Little(); // this should be indexBuffer, but appearance should be next and its missing
+                SubmeshReferences[i] = DataStream.ReadUnsigned32Little();
             }
             AssertEndStream();
         }
