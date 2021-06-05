@@ -37,10 +37,10 @@ namespace NotInfiltrator.Serialization.Nokia
 
             objectInfos.ToList().ForEach(info => Debug.WriteLine(info));
 
-            var implementedTypes = new byte[] { 0, 1, 2, 3, 6, 8, 10, 17, 20, 21, /**/ 100, 101 /**/ };
+            var implementedTypes = new byte[] { 0, 1, 2, 3, 6, 8, 9, 10, 14, 17, 20, 21, /**/ 100, 101 /**/ };
             objectEnumerator.AllMetTypes().Except(implementedTypes).OrderBy(t => t).ToList().ForEach(t => { Debug.WriteLine(t); });
 
-            var image2Ds = objectInfos.Where(info => info.Type == (int)ObjectType.Group).Select(info => Object.Read(info)).ToList();
+            //var image2Ds = objectInfos.Where(info => info.Type == (int)ObjectType.Mesh).Select(info => Object.Read(info)).ToList();
         }
     }
 }

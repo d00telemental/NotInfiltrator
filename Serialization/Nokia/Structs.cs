@@ -66,4 +66,19 @@ namespace NotInfiltrator.Serialization.Nokia
             }
         }
     }
+
+    public struct AnimationGroup
+    {
+        public short UnknownCount0 { get; set; }
+        public short UnknownCount1 { get; set; }
+
+        public AnimationGroup(Stream stream)
+        {
+            UnknownCount0 = stream.ReadSigned16Little();
+            Common.Assert(UnknownCount0 == 0, "UC0 != 0 unsupported");
+
+            UnknownCount1 = stream.ReadSigned16Little();
+            Common.Assert(UnknownCount1 == 0, "UC1 != 0 unsupported");
+        }
+    }
 }

@@ -28,7 +28,7 @@ namespace NotInfiltrator.Serialization.Nokia
             if (DataStream.Position != DataStream.Length)
             {
                 Debug.WriteLine($"{BitConverter.ToString(DataStream.ReadBytes((int)(DataStream.Length - DataStream.Position))).Replace('-', ' ')}");
-                throw new Exception("UNREAD DATA");
+                //throw new Exception("UNREAD DATA");
             }
         }
 
@@ -47,8 +47,9 @@ namespace NotInfiltrator.Serialization.Nokia
                 ObjectType.Appearance => new Appearance(info.Data),            // 03
                 ObjectType.CompositingMode => new CompositingMode(info.Data),  // 06
                 ObjectType.PolygonMode => new PolygonMode(info.Data),          // 08
-                ObjectType.Group => new Group(info.Data),                      // 09
+                ObjectType.Group => new Group(info.Data, true),                // 09
                 ObjectType.Image2D => new Image2D(info.Data),                  // 10
+                ObjectType.Mesh => new Mesh(info.Data),                        // 14 | something's up with the submesh looped part
                 ObjectType.Texture2D => new Texture2D(info.Data),              // 17
                 ObjectType.VertexArray => new VertexArray(info.Data),          // 20
                 ObjectType.VertexBuffer => new VertexBuffer(info.Data),        // 21 | unknown 2 object indices in the end
@@ -170,6 +171,36 @@ namespace NotInfiltrator.Serialization.Nokia
             if (HasGeneralTransform)
             {
                 Transform = new Matrix(DataStream);
+            }
+        }
+    }
+
+    public abstract class Node : Transformable
+    {
+        public static new ObjectType? Type => null;
+
+        public bool EnableRendering { get; set; }
+        public bool EnablePicking { get; set; }
+        public byte AlphaFactor { get; set; }
+        public Int32 Scope { get; set; }
+        public bool HasAlignment { get; set; }
+        public AnimationGroup? AnimGroupQM { get; set; }
+
+        public Node(byte[] sourceData)
+            : base(sourceData)
+        {
+            // wtf in AnimationGroup?!
+            EnableRendering = DataStream.ReadBool();
+            EnablePicking = DataStream.ReadBool();
+            AlphaFactor = (byte)DataStream.ReadByte();
+            Scope = DataStream.ReadSigned32Little();
+            HasAlignment = DataStream.ReadBool();
+
+            if (HasAlignment)
+            {
+                Debug.WriteLine($"Read'' HasAlignment, Pos={DataStream.Position} Len={DataStream.Length}");
+                //Debug.WriteLine($"{BitConverter.ToString(DataStream.ReadBytes((int)(DataStream.Length - DataStream.Position))).Replace('-', ' ')}");
+                AnimGroupQM = new AnimationGroup(DataStream);
             }
         }
     }
@@ -330,22 +361,21 @@ namespace NotInfiltrator.Serialization.Nokia
         }
     }
 
-    public class Group : Object3D
+    public class Group : Node
     {
         public static new ObjectType? Type => ObjectType.Group;
 
-        //public byte Culling { get; set; }
-        //public byte Shading { get; set; }
-        //public byte Winding { get; set; }
-        //public bool TwoSidedLightingEnabled { get; set; }
-        //public bool LocalCameraLightingEnabled { get; set; }
-        //public bool PerspectiveCorrectionEnabled { get; set; }
+        public UInt32[] Children { get; set; }
 
-        public Group(byte[] sourceData)
+        public Group(byte[] sourceData, bool finalChild)
             : base(sourceData)
         {
-            // wtf in AnimationGroup?!
-            AssertEndStream();
+            var childCount = DataStream.ReadUnsigned32Little();
+            Children = new uint[childCount];
+            for (uint i = 0; i < childCount; i++)
+            {
+                Children[i] = DataStream.ReadUnsigned32Little();
+            }
         }
     }
 
@@ -375,6 +405,30 @@ namespace NotInfiltrator.Serialization.Nokia
                 PixelsBytes = DataStream.ReadBytes((int)DataStream.ReadUnsigned32Little());
             }
 
+            AssertEndStream();
+        }
+    }
+
+    public class Mesh : Node
+    {
+        public static new ObjectType? Type => ObjectType.Mesh;
+
+        public UInt32 VertexBuffer { get; set; }
+        public UInt32 SubmeshCount { get; set; }
+
+        public Mesh(byte[] sourceData)
+            : base(sourceData)
+        {
+            VertexBuffer = DataStream.ReadUnsigned32Little();
+            SubmeshCount = DataStream.ReadUnsigned32Little();
+            if (SubmeshCount != 1)
+            {
+                throw new Exception("DEBUG ME DEBUG ME PLSSS");
+            }
+            for (uint i = 0; i < SubmeshCount; i++)
+            {
+                _ = DataStream.ReadUnsigned32Little(); // this should be indexBuffer, but appearance should be next and its missing
+            }
             AssertEndStream();
         }
     }
