@@ -32,16 +32,15 @@ namespace NotInfiltrator.Serialization.Nokia
             ReadingStream = new MemoryStream(stream.ReadBytes((int)ObjectsOnlyUncompressedLength));
             AdlerChecksum = stream.ReadUnsigned32Little();
 
-            AgnosticObjectEnumerator objEnumerator = new (ReadingStream);
-            var objectInfos = objEnumerator.ReadAll();
+            var objectEnumerator = new AgnosticObjectEnumerator(ReadingStream);
+            var objectInfos = objectEnumerator.ReadAll();
 
             objectInfos.ToList().ForEach(info => Debug.WriteLine(info));
 
-            //objEnumerator.AllMetTypes().OrderBy(t => t).ToList().ForEach(t => { Debug.WriteLine(t); });
-            var image2Ds = objectInfos
-                .Where(info => info.Type == (int)ObjectType.CompositingMode)
-                .Select(info => Object.Read(info))
-                .ToList();
+            var implementedTypes = new byte[] { 0, 1, 2, 3, 6, 8, 10, 17, 20, 21, /**/ 100, 101 /**/ };
+            objectEnumerator.AllMetTypes().Except(implementedTypes).OrderBy(t => t).ToList().ForEach(t => { Debug.WriteLine(t); });
+
+            var image2Ds = objectInfos.Where(info => info.Type == (int)ObjectType.Group).Select(info => Object.Read(info)).ToList();
         }
     }
 }

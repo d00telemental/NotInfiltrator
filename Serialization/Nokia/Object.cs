@@ -44,11 +44,14 @@ namespace NotInfiltrator.Serialization.Nokia
                 ObjectType.Header => new HeaderObject(info.Data),              // 00
                 ObjectType.AnimationController => new AnimationController(info.Data),  // 01
                 ObjectType.AnimationTrack => new AnimationTrack(info.Data),    // 02
+                ObjectType.Appearance => new Appearance(info.Data),            // 03
                 ObjectType.CompositingMode => new CompositingMode(info.Data),  // 06
                 ObjectType.PolygonMode => new PolygonMode(info.Data),          // 08
+                ObjectType.Group => new Group(info.Data),                      // 09
                 ObjectType.Image2D => new Image2D(info.Data),                  // 10
+                ObjectType.Texture2D => new Texture2D(info.Data),              // 17
                 ObjectType.VertexArray => new VertexArray(info.Data),          // 20
-                ObjectType.VertexBuffer => new VertexBuffer(info.Data),        // 21, unknown 2 object indices in the end
+                ObjectType.VertexBuffer => new VertexBuffer(info.Data),        // 21 | unknown 2 object indices in the end
 
                 ObjectType.Unknown100 => new AGenericObject(info.Data),  // NOT PARSED | 100 = SUBMESH, 144 = TEXTURECUBE
                 ObjectType.Unknown101 => new AGenericObject(info.Data),  // NOT PARSED
@@ -85,7 +88,8 @@ namespace NotInfiltrator.Serialization.Nokia
     }
     #endregion
 
-    public class Object3D : Object
+
+    public abstract class Object3D : Object
     {
         public struct UserParameter
         {
@@ -121,7 +125,69 @@ namespace NotInfiltrator.Serialization.Nokia
             }
         }
     }
-   
+
+    #region Abstract M3G classes inheriting from Object3D
+    public abstract class AppearanceBase : Object3D
+    {
+        public static new ObjectType? Type => null;
+
+        public byte Layer { get; set; }
+        public UInt32 CompositingMode { get; set; }
+
+        public AppearanceBase(byte[] sourceData)
+            : base(sourceData)
+        {
+            Layer = (byte)DataStream.ReadByte();
+            CompositingMode = DataStream.ReadUnsigned32Little();
+        }
+    }
+
+    public abstract class Transformable : Object3D
+    {
+        public static new ObjectType? Type => null;
+
+        public bool HasComponentTransform { get; set; }
+        public Vector3D? Translation { get; set; } = null;
+        public Vector3D? Scale { get; set; } = null;
+        public float? OrientationAngle { get; set; } = null;
+        public Vector3D? OrientationAxis { get; set; } = null;
+
+        public bool HasGeneralTransform { get; set; }
+        public Matrix? Transform { get; set; } = null;
+
+        public Transformable(byte[] sourceData)
+            : base(sourceData)
+        {
+            HasComponentTransform = DataStream.ReadBool();
+            if (HasComponentTransform)
+            {
+                Translation = new Vector3D(DataStream);
+                Scale = new Vector3D(DataStream);
+                OrientationAngle = DataStream.ReadSingleSlow();
+                OrientationAxis = new Vector3D(DataStream);
+            }
+            HasGeneralTransform = DataStream.ReadBool();
+            if (HasGeneralTransform)
+            {
+                Transform = new Matrix(DataStream);
+            }
+        }
+    }
+
+    public abstract class Texture : Transformable
+    {
+        public static new ObjectType? Type => null;
+
+        public UInt32 Image { get; set; }
+
+        public Texture(byte[] sourceData)
+            : base(sourceData)
+        {
+            Image = DataStream.ReadUnsigned32Little();
+        }
+    }
+    #endregion
+
     public class AGenericObject : Object3D
     {
         public static new ObjectType? Type => null;
@@ -176,6 +242,33 @@ namespace NotInfiltrator.Serialization.Nokia
             KeyframeSequence = DataStream.ReadUnsigned32Little();
             AnimationController = DataStream.ReadUnsigned32Little();
             PropertyID = DataStream.ReadSigned32Little();
+
+            AssertEndStream();
+        }
+    }
+
+    public class Appearance : AppearanceBase
+    {
+        public static new ObjectType? Type => ObjectType.Appearance;
+
+        public UInt32 Fog { get; set; }
+        public UInt32 PolygonMode { get; set; }
+        public UInt32 Material { get; set; }
+        public UInt32[] Textures { get; set; }
+
+        public Appearance(byte[] data)
+            : base(data)
+        {
+            Fog = DataStream.ReadUnsigned32Little();
+            PolygonMode = DataStream.ReadUnsigned32Little();
+            Material = DataStream.ReadUnsigned32Little();
+
+            var textureCount = DataStream.ReadUnsigned32Little();
+            Textures = new UInt32[textureCount];
+            for (uint i = 0; i < textureCount; i++)
+            {
+                Textures[i] = DataStream.ReadUnsigned32Little();
+            }
 
             AssertEndStream();
         }
@@ -237,6 +330,25 @@ namespace NotInfiltrator.Serialization.Nokia
         }
     }
 
+    public class Group : Object3D
+    {
+        public static new ObjectType? Type => ObjectType.Group;
+
+        //public byte Culling { get; set; }
+        //public byte Shading { get; set; }
+        //public byte Winding { get; set; }
+        //public bool TwoSidedLightingEnabled { get; set; }
+        //public bool LocalCameraLightingEnabled { get; set; }
+        //public bool PerspectiveCorrectionEnabled { get; set; }
+
+        public Group(byte[] sourceData)
+            : base(sourceData)
+        {
+            // wtf in AnimationGroup?!
+            AssertEndStream();
+        }
+    }
+
     public class Image2D : Object3D
     {
         public static new ObjectType? Type => ObjectType.Image2D;
@@ -263,6 +375,30 @@ namespace NotInfiltrator.Serialization.Nokia
                 PixelsBytes = DataStream.ReadBytes((int)DataStream.ReadUnsigned32Little());
             }
 
+            AssertEndStream();
+        }
+    }
+
+    public class Texture2D : Texture
+    {
+        public static new ObjectType? Type => ObjectType.Texture2D;
+
+        public RGB BlendColor { get; set; }
+        public byte Blending { get; set; }
+        public byte WrappingS { get; set; }
+        public byte WrappingT { get; set; }
+        public byte LevelFilter { get; set; }
+        public byte ImageFilter { get; set; }
+
+        public Texture2D(byte[] sourceData)
+            : base(sourceData)
+        {
+            BlendColor = new RGB(DataStream);
+            Blending = (byte)DataStream.ReadByte();
+            WrappingS = (byte)DataStream.ReadByte();
+            WrappingT = (byte)DataStream.ReadByte();
+            LevelFilter = (byte)DataStream.ReadByte();
+            ImageFilter = (byte)DataStream.ReadByte();
             AssertEndStream();
         }
     }
