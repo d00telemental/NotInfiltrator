@@ -24,9 +24,9 @@
             <RowDefinition Height="Auto"/>  <!-- View listing -->
             <RowDefinition Height="Auto"/>  <!-- Status bar -->
         </Grid.RowDefinitions>
-        <Menu Grid.Row="0" Height="Auto">
+        <!--<Menu Grid.Row="0" Height="Auto">
             <MenuItem Header="_Database">
-                <!--<MenuItem Header="_Open">
+                --><!--<MenuItem Header="_Open">
                     <MenuItem Header="_Directory" InputGestureText="Ctrl+Shift+O"/>
                     <MenuItem Header="_Manifest" InputGestureText="Ctrl+Alt+O"/>
                     <Separator/>
@@ -35,33 +35,33 @@
                 <!--<MenuItem Header="_Close database"/>-->
                 <!--<Separator/>-->
                 <!--<MenuItem Header="_Reload from disk" InputGestureText="Ctrl+Shift+R"/>-->
-                <!--<Separator/>-->
+                <!--<Separator/>--><!--
                 <MenuItem Header="_Build a manifest"/>
                 <MenuItem Header="_Validate a manifest"/>
                 <Separator/>
                 <MenuItem Header="E_xit" InputGestureText="Alt+F4"/>
             </MenuItem>
             <MenuItem Header="_Tools">
-                <!--<MenuItem Header="_Bulk extract"/>-->
-                <!--<Separator/>-->
+                --><!--<MenuItem Header="_Bulk extract"/>-->
+                <!--<Separator/>--><!--
                 <MenuItem Header="SB_IN (.sb / .bin) tool"/>
                 <MenuItem Header="M_3G (.bin + .m3g) tool"/>
-                <!--<MenuItem Header="FM_OD (.fev + .fsb) tool"/>-->
+                --><!--<MenuItem Header="FM_OD (.fev + .fsb) tool"/>-->
                 <!--<Separator/>-->
                 <!--<MenuItem Header="_Map viewer" InputGestureText="Ctrl+M"/>-->
                 <!--<MenuItem Header="_Graphics viewer" InputGestureText="Ctrl+G"/>-->
                 <!--<MenuItem Header="_Localization viewer"/>-->
-                <!--<MenuItem Header="_Sound viewer"/>-->
+                <!--<MenuItem Header="_Sound viewer"/>--><!--
             </MenuItem>
-            <!--<MenuItem Header="_Options">
+            --><!--<MenuItem Header="_Options">
                 <MenuItem Header="_Log window" Foreground="DarkRed"/>
                 <MenuItem Header="_Debug profiler" Foreground="DarkRed"/>
                 <Separator/>
                 <MenuItem Header="_Preferences" InputGestureText="Ctrl+,"/>
                 <MenuItem Header="Version 0.1.0-dev" IsEnabled="False"/>
                 <MenuItem Header="_About"/>
-            </MenuItem>-->
-        </Menu>
+            </MenuItem>--><!--
+        </Menu>-->
         <Grid Grid.Row="2" Margin="10,10,10,0">
             <Grid.RowDefinitions>
                 <RowDefinition Height="*"/>
@@ -112,11 +112,11 @@
                 <RowDefinition Height="Auto"/>
                 <RowDefinition Height="Auto"/>
             </Grid.RowDefinitions>
-            <CheckBox Grid.Column="0" Grid.Row="0" Content="Logic assets (.sb)" IsChecked="True" Margin="0,0,0,3"/>
+            <!--<CheckBox Grid.Column="0" Grid.Row="0" Content="Logic assets (.sb)" IsChecked="True" Margin="0,0,0,3"/>
             <CheckBox Grid.Column="0" Grid.Row="1" Content="Localizations (.bin)" IsChecked="True" Margin="0,3,0,0"/>
 
             <CheckBox Grid.Column="1" Grid.Row="0" Content="Graphic assets (.bin)" IsChecked="True" Margin="0,0,0,3"/>
-            <CheckBox Grid.Column="1" Grid.Row="1" Content="M3G containers (.m3g)" IsChecked="True" Margin="0,3,0,0"/>
+            <CheckBox Grid.Column="1" Grid.Row="1" Content="M3G containers (.m3g)" IsChecked="True" Margin="0,3,0,0"/>-->
 
             <!--<CheckBox Grid.Column="2" Grid.Row="0" Content="FMOD events (.fev)" IsChecked="False" IsEnabled="False" Margin="0,0,0,3"/>
             <CheckBox Grid.Column="2" Grid.Row="1" Content="FMOD banks (.fsb)" IsChecked="False" IsEnabled="False" Margin="0,3,0,0"/>-->
