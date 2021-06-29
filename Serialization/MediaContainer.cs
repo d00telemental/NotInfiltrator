@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -46,6 +47,7 @@ namespace NotInfiltrator.Serialization
             {
                 Sections.Add(new Section(ReadingStream));
             }
+            Debug.WriteLine($"Read {Sections?.Count ?? -1} section(s)");
         }
     }
 }

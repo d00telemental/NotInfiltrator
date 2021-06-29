@@ -586,8 +586,21 @@ namespace NotInfiltrator.Serialization.Nokia
             Normals = DataStream.ReadUnsigned32Little();
             Colors = DataStream.ReadUnsigned32Little();
             TexcoordArrayCount = DataStream.ReadSigned32Little();
-            Common.Assert(TexcoordArrayCount == -1, "TexcoordArrayCount was not -1");
-            for (int j = 0; j < 1 /* YES I'M NOT KIDDING. YES IT'S HORRIBLE. YOU KNOW WHAT'S MORE HORRIBLE? THIS FUCKING ENGINE */; j++)
+
+            if (TexcoordArrayCount < 0)
+            {
+                TexcoordArrayCount = -TexcoordArrayCount;  // YES I'M NOT KIDDING. YES IT'S HORRIBLE. YOU KNOW WHAT'S MORE HORRIBLE? THIS FUCKING ENGINE
+            }
+
+            if (DataStream.CanSeek && DataStream.Length - DataStream.Position != 28 && false)  // debug
+            {
+                var position = DataStream.Position;
+                Debug.WriteLine($"{BitConverter.ToString(DataStream.ReadBytes((int)(DataStream.Length - DataStream.Position))).Replace('-', ' ')}");
+                Debugger.Break();
+                DataStream.Seek(position, SeekOrigin.Begin);
+            }
+
+            for (int j = 0; j < TexcoordArrayCount; j++)
             {
                 TexCoordInfo tci = new ();
                 tci.TexCoords = DataStream.ReadUnsigned32Little();
