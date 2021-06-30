@@ -198,8 +198,11 @@ namespace NotInfiltrator.Serialization.Nokia
 
             if (HasAlignment)
             {
+                var seekOffset = (int)(DataStream.Length - DataStream.Position);
+
                 Debug.WriteLine($"Read'' HasAlignment, Pos={DataStream.Position} Len={DataStream.Length}");
-                //Debug.WriteLine($"{BitConverter.ToString(DataStream.ReadBytes((int)(DataStream.Length - DataStream.Position))).Replace('-', ' ')}");
+                Debug.WriteLine($"{BitConverter.ToString(DataStream.ReadBytes(seekOffset)).Replace('-', ' ')}");
+                DataStream.Seek(-seekOffset, SeekOrigin.Current);
                 AnimGroupQM = new AnimationGroup(DataStream);
             }
         }

@@ -1,6 +1,7 @@
 ﻿using NotInfiltrator.Utilities;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -69,16 +70,67 @@ namespace NotInfiltrator.Serialization.Nokia
 
     public struct AnimationGroup
     {
-        public short UnknownCount0 { get; set; }
-        public short UnknownCount1 { get; set; }
+        /// <summary>
+        /// TODO: give proper names
+        /// </summary>
+        public struct AnimationTarget
+        {
+            public Int32 A { get; set; }
+            public Int32 B { get; set; }
+            public Int32 C { get; set; }
+        }
 
+        /// <summary>
+        /// TODO: give proper names
+        /// </summary>
+        public struct Animation
+        {
+            public string A { get; set; }
+            public Int32 B { get; set; }
+            public Int32 C { get; set; }
+            public byte D { get; set; }
+        }
+
+        public AnimationTarget[] AnimationTargets { get; set; }
+        public Animation[] Animations { get; set; }
+
+        /// <ghidra>im::m3g::Loader::LoadAnimationGroup</ghidra>
         public AnimationGroup(Stream stream)
         {
-            UnknownCount0 = stream.ReadSigned16Little();
-            Common.Assert(UnknownCount0 == 0, "UC0 != 0 unsupported");
+            var animationTargetCount = stream.ReadSigned16Little();
+            AnimationTargets = new AnimationTarget[animationTargetCount];
 
-            UnknownCount1 = stream.ReadSigned16Little();
-            Common.Assert(UnknownCount1 == 0, "UC1 != 0 unsupported");
+            Debug.WriteLine($"Animation target count = {animationTargetCount}");
+
+            for (int i = 0; i < animationTargetCount; i++)
+            {
+                AnimationTargets[i] = new()
+                {
+                    A = stream.ReadSigned32Little(),
+                    B = stream.ReadSigned32Little(),
+                    C = stream.ReadSigned32Little(),
+                };
+
+                Debug.WriteLine($"Animation target [{i}] = {{ A={AnimationTargets[i].A}, B={AnimationTargets[i].B}, C={AnimationTargets[i].C} }}");
+            }
+
+            var animationCount = stream.ReadSigned16Little();
+            Animations = new Animation[animationCount];
+
+            Debug.WriteLine($"Animation count = {animationCount}");
+
+            for (int i = 0; i < animationCount; i++)
+            {
+                Animations[i] = new()
+                {
+                    A = stream.ReadAscFixed(stream.ReadSigned16Little()),
+                    B = stream.ReadSigned32Little(),
+                    C = stream.ReadSigned32Little(),
+                    D = (byte)stream.ReadByte()
+                };
+
+                Debug.WriteLine($"Animation [{i}] = {{ A={Animations[i].A}, B={Animations[i].B}, C={Animations[i].C}, D={Animations[i].D} }}");
+            }
         }
     }
 }

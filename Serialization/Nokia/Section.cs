@@ -36,22 +36,14 @@ namespace NotInfiltrator.Serialization.Nokia
             var objectEnumerator = new AgnosticObjectEnumerator(ReadingStream);
             var objectInfos = objectEnumerator.ReadAll();
 
-            objectEnumerator
-                .AllMetTypes()
-                .Except(implementedObjectTypes)
-                .OrderBy(t => t)
-                .ToList()
-                .ForEach(t => Debug.WriteLine(t));
-
-            foreach (
-                var parsedObject in
-                from info in objectInfos
-                where implementedObjectTypes.Contains(info.Type)
-                select Object.Read(info)
-            )
+            objectInfos .Where(oi => implementedObjectTypes.Contains(oi.Type)).ToList().ForEach(oi =>
             {
-                Debug.WriteLine((parsedObject as Object3D)?.UserParameters.Count);
-            }
+                //Debug.WriteLine($"ObjectInfo @ {oi.StartOffset}");
+
+                var obj = Object.Read(oi);
+
+                //Debug.WriteLine($"  obj = {{ {obj.Type} }}");
+            });
         }
     }
 }

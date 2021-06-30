@@ -133,14 +133,16 @@ namespace NotInfiltrator.UI.Windows
                 UpdateStatusText("Database loaded");
 
                 return Task.CompletedTask;
-            })/*.ContinueWith((Task t) => {
-                ExecuteOnUI(() => {
+            }).ContinueWith((Task t) =>
+            {
+                ExecuteOnUI(() =>
+                {
                     var nodeToSelectInDebug = _filesystem.FindNode(@"models\character_boss_krogan.m3g");
                     Debug.WriteLine($"Selecting {nodeToSelectInDebug} because debug");
                     _handleTreeViewSelection(nodeToSelectInDebug);
                 });
                 return Task.CompletedTask;
-            });*/;
+            });
         }
 
         private void DbTreeView_PreviewMouseDoubleClick(object sender, MouseButtonEventArgs e)
