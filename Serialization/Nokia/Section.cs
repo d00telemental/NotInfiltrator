@@ -32,18 +32,21 @@ namespace NotInfiltrator.Serialization.Nokia
             ReadingStream = new MemoryStream(stream.ReadBytes((int)ObjectsOnlyUncompressedLength));
             AdlerChecksum = stream.ReadUnsigned32Little();
 
-            var implementedObjectTypes = new byte[] { 0, 1, 2, 3, 6, 8, 9, 10, 14, 17, 20, 21, /**/ 100, 101 /**/ };
+            var implementedObjectTypes = new byte[] { 0, 1, 2, 3, 6, 8, 9, 10, 14, 16, 17, 20, 21, /**/ 100, 101 /**/ };
             var objectEnumerator = new AgnosticObjectEnumerator(ReadingStream);
             var objectInfos = objectEnumerator.ReadAll();
 
-            objectInfos .Where(oi => implementedObjectTypes.Contains(oi.Type)).ToList().ForEach(oi =>
-            {
-                //Debug.WriteLine($"ObjectInfo @ {oi.StartOffset}");
+            objectInfos.Where(oi => implementedObjectTypes.Contains(oi.Type))
+                .ToList()
+                .ForEach(oi => {
+                    var obj = Object.Read(oi); Debug.WriteLine($"ObjectInfo @ {oi.StartOffset}, type = {{ {oi.Type} / {obj.Type} }}");
+                });
 
-                var obj = Object.Read(oi);
-
-                //Debug.WriteLine($"  obj = {{ {obj.Type} }}");
-            });
+            //objectInfos.Where(oi => !implementedObjectTypes.Contains(oi.Type))
+            //    .OrderBy(oi => oi.Type)
+            //    .GroupBy(oi => oi.Type).Select(goi => goi.First())
+            //    .ToList()
+            //    .ForEach((aoi) => Debug.WriteLine($"{aoi.Type}"));
         }
     }
 }

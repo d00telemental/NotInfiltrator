@@ -49,10 +49,11 @@ namespace NotInfiltrator.Serialization.Nokia
                 ObjectType.PolygonMode => new PolygonMode(info.Data),          // 08
                 ObjectType.Group => new Group(info.Data, true),                // 09
                 ObjectType.Image2D => new Image2D(info.Data),                  // 10
-                ObjectType.Mesh => new Mesh(info.Data),                        // 14
+                ObjectType.Mesh => new Mesh(info.Data, true),                  // 14
+                ObjectType.SkinnedMesh => new SkinnedMesh(info.Data),          // 16 | TODO: store bone palette
                 ObjectType.Texture2D => new Texture2D(info.Data),              // 17
                 ObjectType.VertexArray => new VertexArray(info.Data),          // 20
-                ObjectType.VertexBuffer => new VertexBuffer(info.Data),        // 21 | unknown 2 object indices in the end
+                ObjectType.VertexBuffer => new VertexBuffer(info.Data),        // 21
 
                 ObjectType.Unknown100 => new AGenericObject(info.Data),  // NOT PARSED | 100 = SUBMESH, 144 = TEXTURECUBE
                 ObjectType.Unknown101 => new AGenericObject(info.Data),  // NOT PARSED
@@ -198,11 +199,11 @@ namespace NotInfiltrator.Serialization.Nokia
 
             if (HasAlignment)
             {
-                var seekOffset = (int)(DataStream.Length - DataStream.Position);
+                //var seekOffset = (int)(DataStream.Length - DataStream.Position);
+                //Debug.WriteLine($"Read'' HasAlignment, Pos={DataStream.Position} Len={DataStream.Length}");
+                //Debug.WriteLine($"{BitConverter.ToString(DataStream.ReadBytes(seekOffset)).Replace('-', ' ')}");
+                //DataStream.Seek(-seekOffset, SeekOrigin.Current);
 
-                Debug.WriteLine($"Read'' HasAlignment, Pos={DataStream.Position} Len={DataStream.Length}");
-                Debug.WriteLine($"{BitConverter.ToString(DataStream.ReadBytes(seekOffset)).Replace('-', ' ')}");
-                DataStream.Seek(-seekOffset, SeekOrigin.Current);
                 AnimGroupQM = new AnimationGroup(DataStream);
             }
         }
@@ -419,7 +420,7 @@ namespace NotInfiltrator.Serialization.Nokia
         public UInt32 VertexBuffer { get; set; }
         public UInt32[] SubmeshReferences { get; set; }
 
-        public Mesh(byte[] sourceData)
+        public Mesh(byte[] sourceData, bool finalChild)
             : base(sourceData)
         {
             VertexBuffer = DataStream.ReadUnsigned32Little();
@@ -430,6 +431,68 @@ namespace NotInfiltrator.Serialization.Nokia
             {
                 SubmeshReferences[i] = DataStream.ReadUnsigned32Little();
             }
+
+            if (finalChild)
+            {
+                AssertEndStream();
+            }
+        }
+    }
+
+    /// <summary>
+    /// TODO: Store the bone palette values!
+    /// </summary>
+    public class SkinnedMesh : Mesh
+    {
+        public static new ObjectType? Type => ObjectType.SkinnedMesh;
+
+        public UInt32 AGroupFieldA { get; set; }  // ? skeleton ?
+        public UInt32 AVertexArrayFieldB { get; set; }
+        public UInt32 AVertexArrayFieldC { get; set; }
+
+        public int SomeCounterD { get; set; }  // ? bone palette size ?
+
+        public SkinnedMesh(byte[] sourceData)
+            : base(sourceData, false)
+        {
+            AGroupFieldA = DataStream.ReadUnsigned32Little();
+            AVertexArrayFieldB = DataStream.ReadUnsigned32Little();
+            AVertexArrayFieldC = DataStream.ReadUnsigned32Little();
+
+            var bonePaletteSize = DataStream.ReadSigned32Little();
+            bool wasNegative = false;
+
+            if (bonePaletteSize < 0)
+            {
+                SomeCounterD = -bonePaletteSize;
+                wasNegative = true;
+                
+                if (Debugger.IsAttached) Debugger.Break();
+                throw new Exception("UNSUPPORTED YET");
+            }
+            else
+            {
+                SomeCounterD = bonePaletteSize;
+                // ???
+            }
+
+            for (int i = 0; i < SomeCounterD; i++)
+            {
+                UInt32 nodeReference = DataStream.ReadUnsigned32Little();
+                if (!wasNegative)
+                {
+                    // ...
+                }
+                else
+                {
+                    if (Debugger.IsAttached) Debugger.Break();
+                    var a = DataStream.ReadSingleSlow();
+                    var b = DataStream.ReadSingleSlow();
+                    var c = DataStream.ReadSingleSlow();
+                    var d = DataStream.ReadSingleSlow();
+                }
+            }
+
             AssertEndStream();
         }
     }
@@ -566,7 +629,7 @@ namespace NotInfiltrator.Serialization.Nokia
         public Single PositionScale { get; set; }
         public UInt32 Normals { get; set; }
         public UInt32 Colors { get; set; }
-        public Int32 TexcoordArrayCount { get; set; }  // in deviation from the spec, should always be -1 and not UInt32   #logic
+        public Int32 TexcoordArrayCount { get; set; }
 
         public class TexCoordInfo
         {
@@ -576,8 +639,8 @@ namespace NotInfiltrator.Serialization.Nokia
         }
         public List<TexCoordInfo> TexCoords { get; set; } = new ();
 
-        public UInt32 SomeObjectIndex1 { get; set; }
-        public UInt32 SomeObjectIndex2 { get; set; }
+        public UInt32 Tangents { get; set; }
+        public UInt32 Binormals { get; set; }
 
         public VertexBuffer(byte[] sourceData)
             : base(sourceData)
@@ -590,8 +653,10 @@ namespace NotInfiltrator.Serialization.Nokia
             Colors = DataStream.ReadUnsigned32Little();
             TexcoordArrayCount = DataStream.ReadSigned32Little();
 
+            bool wasNegative = false;
             if (TexcoordArrayCount < 0)
             {
+                wasNegative = true;
                 TexcoordArrayCount = -TexcoordArrayCount;  // YES I'M NOT KIDDING. YES IT'S HORRIBLE. YOU KNOW WHAT'S MORE HORRIBLE? THIS FUCKING ENGINE
             }
 
@@ -611,8 +676,16 @@ namespace NotInfiltrator.Serialization.Nokia
                 tci.TexCoordsScale = DataStream.ReadSingleSlow();
                 TexCoords.Add(tci);
             }
-            SomeObjectIndex1 = DataStream.ReadUnsigned32Little();
-            SomeObjectIndex2 = DataStream.ReadUnsigned32Little();
+
+            if (wasNegative)
+            {
+                Tangents = DataStream.ReadUnsigned32Little();
+                Binormals = DataStream.ReadUnsigned32Little();
+            }
+            else
+            {
+                // something happens there as well
+            }
             AssertEndStream();
         }
     }

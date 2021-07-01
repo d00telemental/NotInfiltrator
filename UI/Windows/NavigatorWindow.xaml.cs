@@ -137,7 +137,7 @@ namespace NotInfiltrator.UI.Windows
             {
                 ExecuteOnUI(() =>
                 {
-                    var nodeToSelectInDebug = _filesystem.FindNode(@"models\character_boss_krogan.m3g");
+                    var nodeToSelectInDebug = _filesystem.FindNode(@"models\env_snow_planet.m3g");
                     Debug.WriteLine($"Selecting {nodeToSelectInDebug} because debug");
                     _handleTreeViewSelection(nodeToSelectInDebug);
                 });

@@ -100,7 +100,7 @@ namespace NotInfiltrator.Serialization.Nokia
             var animationTargetCount = stream.ReadSigned16Little();
             AnimationTargets = new AnimationTarget[animationTargetCount];
 
-            Debug.WriteLine($"Animation target count = {animationTargetCount}");
+            //Debug.WriteLine($"Animation target count = {animationTargetCount}");
 
             for (int i = 0; i < animationTargetCount; i++)
             {
@@ -111,13 +111,13 @@ namespace NotInfiltrator.Serialization.Nokia
                     C = stream.ReadSigned32Little(),
                 };
 
-                Debug.WriteLine($"Animation target [{i}] = {{ A={AnimationTargets[i].A}, B={AnimationTargets[i].B}, C={AnimationTargets[i].C} }}");
+                //Debug.WriteLine($"Animation target [{i}] = {{ A={AnimationTargets[i].A}, B={AnimationTargets[i].B}, C={AnimationTargets[i].C} }}");
             }
 
             var animationCount = stream.ReadSigned16Little();
             Animations = new Animation[animationCount];
 
-            Debug.WriteLine($"Animation count = {animationCount}");
+            //Debug.WriteLine($"Animation count = {animationCount}");
 
             for (int i = 0; i < animationCount; i++)
             {
@@ -129,7 +129,7 @@ namespace NotInfiltrator.Serialization.Nokia
                     D = (byte)stream.ReadByte()
                 };
 
-                Debug.WriteLine($"Animation [{i}] = {{ A={Animations[i].A}, B={Animations[i].B}, C={Animations[i].C}, D={Animations[i].D} }}");
+                //Debug.WriteLine($"Animation [{i}] = {{ A={Animations[i].A}, B={Animations[i].B}, C={Animations[i].C}, D={Animations[i].D} }}");
             }
         }
     }
