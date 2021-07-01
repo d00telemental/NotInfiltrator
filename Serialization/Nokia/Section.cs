@@ -39,7 +39,7 @@ namespace NotInfiltrator.Serialization.Nokia
             objectInfos.Where(oi => implementedObjectTypes.Contains(oi.Type))
                 .ToList()
                 .ForEach(oi => {
-                    var obj = Object.Read(oi); Debug.WriteLine($"ObjectInfo @ {oi.StartOffset}, type = {{ {oi.Type} / {obj.Type} }}");
+                    var obj = Object.Read(oi); /*Debug.WriteLine($"ObjectInfo @ {oi.StartOffset}, type = {{ {oi.Type} / {obj.Type} }}");*/
                 });
 
             //objectInfos.Where(oi => !implementedObjectTypes.Contains(oi.Type))

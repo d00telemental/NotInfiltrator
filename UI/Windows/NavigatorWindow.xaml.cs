@@ -122,6 +122,18 @@ namespace NotInfiltrator.UI.Windows
             SourceInitialized -= NavigatorWindow_SourceInitialized;
         }
 
+        internal static void GetAllNodeChildren(ref List<GameFilesystemNode> outList, GameFilesystemNode currentNode, string extension = null)
+        {
+            foreach (var childNode in currentNode?.Children)
+            {
+                if (childNode.Content is not null && (extension is null || (extension is not null && childNode.Name.EndsWith(extension))))
+                {
+                    outList.Add(childNode);
+                }
+                GetAllNodeChildren(ref outList, childNode, extension);
+            }
+        }
+
         private void NavigatorWindow_Loaded(object sender, RoutedEventArgs e)
         {
             // Mount the database / filesystem
@@ -133,7 +145,8 @@ namespace NotInfiltrator.UI.Windows
                 UpdateStatusText("Database loaded");
 
                 return Task.CompletedTask;
-            }).ContinueWith((Task t) =>
+            })
+            /*.ContinueWith((Task t) =>
             {
                 ExecuteOnUI(() =>
                 {
@@ -142,7 +155,39 @@ namespace NotInfiltrator.UI.Windows
                     _handleTreeViewSelection(nodeToSelectInDebug);
                 });
                 return Task.CompletedTask;
-            });
+            })*/
+            .ContinueWith((Task t) =>
+            {
+                Debug.WriteLine($"Searching for .m3g files...");
+                List<GameFilesystemNode> flatNodeList = new();
+
+                foreach (var startName in new string[] { "models", /*"textures", "ParticleBaseTextures", "texturepacks_ui", "textures_uncompressed"*/ })
+                {
+                    var startNode = _filesystem.FindNode(startName);
+                    GetAllNodeChildren(ref flatNodeList, startNode, ".m3g");
+                }
+
+                Debug.WriteLine($"Found {flatNodeList.Count} .m3g files...");
+                SortedSet<int> encounteredObjectTypes = new();
+                List<string> excludedPaths = new() {
+                    @"models\object_medical_arm.m3g"
+                };
+
+                foreach (var node in flatNodeList)
+                {
+                    if (excludedPaths.Contains(node.GetPath()))
+                    {
+                        Debug.WriteLine($"Excluding {node.GetPath()}");
+                        continue;
+                    }
+
+                    Debug.WriteLine($"Started reading {node.GetPath()}");
+
+                    var mediaContainer = node.Content as MediaContainer ?? throw new Exception();
+                    mediaContainer.Initialize();
+                }
+            })
+            ;
         }
 
         private void DbTreeView_PreviewMouseDoubleClick(object sender, MouseButtonEventArgs e)

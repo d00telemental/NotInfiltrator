@@ -47,7 +47,12 @@ namespace NotInfiltrator.Serialization
             {
                 Sections.Add(new Section(ReadingStream));
             }
-            Debug.WriteLine($"Read {Sections?.Count ?? -1} section(s)");
+
+            //Debug.WriteLine($"Read {Sections?.Count ?? -1} section(s)");
+            if (Sections?.Count != 1)
+            {
+                throw new Exception("NOT ONE SECTION?!");
+            }
         }
     }
 }

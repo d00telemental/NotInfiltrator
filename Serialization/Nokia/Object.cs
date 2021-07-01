@@ -677,7 +677,7 @@ namespace NotInfiltrator.Serialization.Nokia
                 TexCoords.Add(tci);
             }
 
-            if (wasNegative)
+            if (wasNegative /* did they not care about this condition while serializing? */ || true)
             {
                 Tangents = DataStream.ReadUnsigned32Little();
                 Binormals = DataStream.ReadUnsigned32Little();
