@@ -5,7 +5,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-
+using System.Windows;
 using NotInfiltrator.Utilities;
 
 namespace NotInfiltrator.Serialization.Nokia
@@ -27,7 +27,9 @@ namespace NotInfiltrator.Serialization.Nokia
         {
             if (DataStream.Position != DataStream.Length)
             {
-                Debug.WriteLine($"{BitConverter.ToString(DataStream.ReadBytes((int)(DataStream.Length - DataStream.Position))).Replace('-', ' ')}");
+                var byteString = BitConverter.ToString(DataStream.ReadBytes((int)(DataStream.Length - DataStream.Position))).Replace('-', ' ');
+                Clipboard.SetText(byteString);
+                Debug.WriteLine($"{byteString}");
                 throw new Exception("UNREAD DATA");
             }
         }
@@ -50,7 +52,7 @@ namespace NotInfiltrator.Serialization.Nokia
                 ObjectType.Group => new Group(info.Data, true),                // 09
                 ObjectType.Image2D => new Image2D(info.Data),                  // 10
                 ObjectType.Mesh => new Mesh(info.Data, true),                  // 14
-                ObjectType.SkinnedMesh => new SkinnedMesh(info.Data),          // 16 | TODO: store bone palette
+                ObjectType.SkinnedMesh => new SkinnedMesh(info.Data),          // 16
                 ObjectType.Texture2D => new Texture2D(info.Data),              // 17
                 ObjectType.VertexArray => new VertexArray(info.Data),          // 20
                 ObjectType.VertexBuffer => new VertexBuffer(info.Data),        // 21
@@ -439,57 +441,66 @@ namespace NotInfiltrator.Serialization.Nokia
         }
     }
 
-    /// <summary>
-    /// TODO: Store the bone palette values!
-    /// </summary>
     public class SkinnedMesh : Mesh
     {
+        [DebuggerDisplay("Ref = {Ref}, Matrix = {Matrix}")]
+        public struct BonePaletteItem
+        {
+            public UInt32 Ref { get; set; }
+            public Vectormath.Matrix4? Matrix { get; set; }
+
+            public override string ToString()
+                => $"Ref = {Ref}, Matrix = {Matrix}";
+        }
+
         public static new ObjectType? Type => ObjectType.SkinnedMesh;
 
-        public UInt32 AGroupFieldA { get; set; }  // ? skeleton ?
+        public UInt32 SkeletonGroup { get; set; }
         public UInt32 AVertexArrayFieldB { get; set; }
         public UInt32 AVertexArrayFieldC { get; set; }
 
-        public int SomeCounterD { get; set; }  // ? bone palette size ?
+        public Vectormath.Matrix4? WeirdRareMatrix { get; set; } = null;
+
+        public int BonePaletteSize { get; set; }
+        public List<BonePaletteItem> BonePaletteItems { get; set; }
 
         public SkinnedMesh(byte[] sourceData)
             : base(sourceData, false)
         {
-            AGroupFieldA = DataStream.ReadUnsigned32Little();
+            SkeletonGroup = DataStream.ReadUnsigned32Little();
             AVertexArrayFieldB = DataStream.ReadUnsigned32Little();
             AVertexArrayFieldC = DataStream.ReadUnsigned32Little();
 
             var bonePaletteSize = DataStream.ReadSigned32Little();
             bool wasNegative = false;
 
-            if (bonePaletteSize < 0)
+            if (bonePaletteSize < 0)  // literally happens in just 1 file
             {
-                SomeCounterD = -bonePaletteSize;
+                BonePaletteSize = -bonePaletteSize;
                 wasNegative = true;
-                
-                if (Debugger.IsAttached) Debugger.Break();
-                throw new Exception("UNSUPPORTED YET");
+
+                Vectormath.Matrix4 matrix4 = new(DataStream);
+                WeirdRareMatrix = matrix4;
             }
             else
             {
-                SomeCounterD = bonePaletteSize;
+                BonePaletteSize = bonePaletteSize;
                 // ???
             }
 
-            for (int i = 0; i < SomeCounterD; i++)
+            BonePaletteItems = new();
+
+            for (int i = 0; i < BonePaletteSize; i++)
             {
                 UInt32 nodeReference = DataStream.ReadUnsigned32Little();
                 if (!wasNegative)
                 {
-                    // ...
+                    BonePaletteItems.Add(new() { Ref = nodeReference, Matrix = null });
                 }
                 else
                 {
-                    if (Debugger.IsAttached) Debugger.Break();
-                    var a = DataStream.ReadSingleSlow();
-                    var b = DataStream.ReadSingleSlow();
-                    var c = DataStream.ReadSingleSlow();
-                    var d = DataStream.ReadSingleSlow();
+                    Vectormath.Matrix4 matrix4 = new(DataStream);
+                    BonePaletteItems.Add(new() { Ref = nodeReference, Matrix = matrix4 });
                 }
             }
 

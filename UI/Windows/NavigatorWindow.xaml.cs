@@ -146,33 +146,31 @@ namespace NotInfiltrator.UI.Windows
 
                 return Task.CompletedTask;
             })
-            /*.ContinueWith((Task t) =>
-            {
-                ExecuteOnUI(() =>
-                {
-                    var nodeToSelectInDebug = _filesystem.FindNode(@"models\env_snow_planet.m3g");
-                    Debug.WriteLine($"Selecting {nodeToSelectInDebug} because debug");
-                    _handleTreeViewSelection(nodeToSelectInDebug);
-                });
-                return Task.CompletedTask;
-            })*/
+            //.ContinueWith((Task t) =>
+            //{
+            //    ExecuteOnUI(() =>
+            //    {
+            //        var nodeToSelectInDebug = _filesystem.FindNode(@"models\object_medical_arm.m3g");
+            //        Debug.WriteLine($"Selecting {nodeToSelectInDebug} for debug");
+            //        _handleTreeViewSelection(nodeToSelectInDebug);
+            //    });
+            //    return Task.CompletedTask;
+            //})
             .ContinueWith((Task t) =>
             {
                 Debug.WriteLine($"Searching for .m3g files...");
                 List<GameFilesystemNode> flatNodeList = new();
-
-                foreach (var startName in new string[] { "models", /*"textures", "ParticleBaseTextures", "texturepacks_ui", "textures_uncompressed"*/ })
+                foreach (var startName in new string[] { /* "models", */ "textures",  /* "ParticleBaseTextures", "texturepacks_ui", "textures_uncompressed"*/ })
                 {
                     var startNode = _filesystem.FindNode(startName);
                     GetAllNodeChildren(ref flatNodeList, startNode, ".m3g");
                 }
-
                 Debug.WriteLine($"Found {flatNodeList.Count} .m3g files...");
                 SortedSet<int> encounteredObjectTypes = new();
-                List<string> excludedPaths = new() {
-                    @"models\object_medical_arm.m3g"
+                List<string> excludedPaths = new()
+                {
+//                    @"models\object_medical_arm.m3g"
                 };
-
                 foreach (var node in flatNodeList)
                 {
                     if (excludedPaths.Contains(node.GetPath()))
@@ -180,12 +178,11 @@ namespace NotInfiltrator.UI.Windows
                         Debug.WriteLine($"Excluding {node.GetPath()}");
                         continue;
                     }
-
                     Debug.WriteLine($"Started reading {node.GetPath()}");
-
                     var mediaContainer = node.Content as MediaContainer ?? throw new Exception();
                     mediaContainer.Initialize();
                 }
+                return Task.CompletedTask;
             })
             ;
         }

@@ -24,7 +24,7 @@ namespace NotInfiltrator.Serialization.Nokia
         Material = 13,
         Mesh = 14,                 // read
         MorphingMesh = 15,
-        SkinnedMesh = 16,          // partially
+        SkinnedMesh = 16,          // read
         Texture2D = 17,            // read
         Sprite = 18,
         KeyframeSequence = 19,

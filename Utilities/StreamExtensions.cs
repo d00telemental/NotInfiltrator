@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Text;
+using System.Windows;
 
 #pragma warning disable CS0675
 
@@ -9,6 +11,13 @@ namespace NotInfiltrator.Utilities
 {
     public static class StreamExtensions
     {
+        public static void DebugRemainingBytes(this Stream stream)
+        {
+            var byteString = BitConverter.ToString(stream.ReadBytes((int)(stream.Length - stream.Position))).Replace('-', ' ');
+            //Clipboard.SetText(byteString);
+            Debug.WriteLine($"{byteString}");
+        }
+
         public static byte[] ReadBytes(this Stream stream, int num)
         {
             var bytes = new byte[num];

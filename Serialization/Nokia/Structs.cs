@@ -68,6 +68,49 @@ namespace NotInfiltrator.Serialization.Nokia
         }
     }
 
+    namespace Vectormath
+    {
+        [DebuggerDisplay("({A};{B};{C};{D})")]
+        public struct Vector4
+        {
+            public float A { get; set; }
+            public float B { get; set; }
+            public float C { get; set; }
+            public float D { get; set; }
+
+            public Vector4(Stream stream)
+            {
+                A = stream.ReadSingleSlow();
+                B = stream.ReadSingleSlow();
+                C = stream.ReadSingleSlow();
+                D = stream.ReadSingleSlow();
+            }
+
+            public override string ToString()
+                => $"{{{A};{B};{C};{D}}}";
+        }
+
+        [DebuggerDisplay("( {A};{B};{C};{D} )")]
+        public struct Matrix4
+        {
+            public Vector4 A { get; set; }
+            public Vector4 B { get; set; }
+            public Vector4 C { get; set; }
+            public Vector4 D { get; set; }
+
+            public Matrix4(Stream stream)
+            {
+                A = new Vector4(stream);
+                B = new Vector4(stream);
+                C = new Vector4(stream);
+                D = new Vector4(stream);
+            }
+
+            public override string ToString()
+                => $"{{ {A};{B};{C};{D} }}";
+        }
+    }
+
     public struct AnimationGroup
     {
         /// <summary>
