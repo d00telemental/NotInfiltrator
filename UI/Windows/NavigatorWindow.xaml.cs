@@ -160,7 +160,7 @@ namespace NotInfiltrator.UI.Windows
             {
                 Debug.WriteLine($"Searching for .m3g files...");
                 List<GameFilesystemNode> flatNodeList = new();
-                foreach (var startName in new string[] { /* "models", */ "textures",  /* "ParticleBaseTextures", "texturepacks_ui", "textures_uncompressed"*/ })
+                foreach (var startName in new string[] { "models", "textures", "ParticleBaseTextures", "texturepacks_ui", "textures_uncompressed" })
                 {
                     var startNode = _filesystem.FindNode(startName);
                     GetAllNodeChildren(ref flatNodeList, startNode, ".m3g");

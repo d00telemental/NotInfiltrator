@@ -20,7 +20,7 @@ namespace NotInfiltrator.Serialization.Nokia
         public UInt32 AdlerChecksum { get; set; }
 
         public UInt32 ObjectsOnlyUncompressedLength
-            => UncompressedLength - sizeof(CompressionScheme) - sizeof(UInt32) - sizeof(UInt32) - sizeof(UInt32);
+            => TotalSectionLength - sizeof(CompressionScheme) - sizeof(UInt32) - sizeof(UInt32) - sizeof(UInt32);
 
         public Section(Stream stream)
         {
