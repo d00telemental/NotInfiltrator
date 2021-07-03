@@ -137,13 +137,10 @@ namespace NotInfiltrator.Serialization.Nokia
         public AnimationTarget[] AnimationTargets { get; set; }
         public Animation[] Animations { get; set; }
 
-        /// <ghidra>im::m3g::Loader::LoadAnimationGroup</ghidra>
         public AnimationGroup(Stream stream)
         {
             var animationTargetCount = stream.ReadSigned16Little();
             AnimationTargets = new AnimationTarget[animationTargetCount];
-
-            //Debug.WriteLine($"Animation target count = {animationTargetCount}");
 
             for (int i = 0; i < animationTargetCount; i++)
             {
@@ -153,14 +150,10 @@ namespace NotInfiltrator.Serialization.Nokia
                     B = stream.ReadSigned32Little(),
                     C = stream.ReadSigned32Little(),
                 };
-
-                //Debug.WriteLine($"Animation target [{i}] = {{ A={AnimationTargets[i].A}, B={AnimationTargets[i].B}, C={AnimationTargets[i].C} }}");
             }
 
             var animationCount = stream.ReadSigned16Little();
             Animations = new Animation[animationCount];
-
-            //Debug.WriteLine($"Animation count = {animationCount}");
 
             for (int i = 0; i < animationCount; i++)
             {
@@ -171,8 +164,6 @@ namespace NotInfiltrator.Serialization.Nokia
                     C = stream.ReadSigned32Little(),
                     D = (byte)stream.ReadByte()
                 };
-
-                //Debug.WriteLine($"Animation [{i}] = {{ A={Animations[i].A}, B={Animations[i].B}, C={Animations[i].C}, D={Animations[i].D} }}");
             }
         }
     }

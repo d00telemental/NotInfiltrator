@@ -42,8 +42,6 @@ namespace NotInfiltrator.Serialization.Nokia
 
         public IEnumerable<AgnosticObjectInfo> Read()
         {
-            //_inputStream.DebugRemainingBytes();
-
             while (_inputStream.Position < _inputStream.Length)
             {
                 yield return new AgnosticObjectInfo()

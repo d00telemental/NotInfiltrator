@@ -32,27 +32,21 @@ namespace NotInfiltrator.Serialization
 
             ReadingStream = FS.GetMemoryStreamFor(Name);
 
-            ReadFileIdentifier();
-            ReadSections();
+            FileIdentifier = ReadFileIdentifier();
+            Sections = ReadSections().ToList();
         }
 
-        protected void ReadFileIdentifier()
+        protected byte[] ReadFileIdentifier()
         {
-            FileIdentifier = ReadingStream.ReadBytes(FileIdentifierLength);
+            return ReadingStream.ReadBytes(FileIdentifierLength);
         }
 
-        protected void ReadSections()
+        protected IEnumerable<Section> ReadSections()
         {
             while (ReadingStream.Position < ReadingStream.Length)
             {
-                Sections.Add(new Section(ReadingStream));
+                yield return new Section(ReadingStream);
             }
-
-            Debug.WriteLine($"Read {Sections?.Count ?? -1} section(s)");
-            //if (Sections?.Count != 1)
-            //{
-            //    throw new Exception("NOT ONE SECTION?!");
-            //}
         }
     }
 }

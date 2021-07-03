@@ -47,6 +47,21 @@ namespace NotInfiltrator.Serialization
             }
             return null;
         }
+        public IEnumerable<GameFilesystemNode> FindChildrenRecursively(string endsWith = null)
+        {
+            foreach (var childNode in Children)
+            {
+                if (childNode.Content is not null && (endsWith is null || (endsWith is not null && childNode.Name.EndsWith(endsWith))))
+                {
+                    yield return childNode;
+                }
+                
+                foreach (var grandChildNode in childNode.FindChildrenRecursively(endsWith))
+                {
+                    yield return grandChildNode;
+                }
+            }
+        }
 
         public string GetPath(char separator = '\\', bool removeVirtualRoot = true)
         {

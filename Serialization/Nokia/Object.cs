@@ -28,7 +28,6 @@ namespace NotInfiltrator.Serialization.Nokia
             if (DataStream.Position != DataStream.Length)
             {
                 var byteString = BitConverter.ToString(DataStream.ReadBytes((int)(DataStream.Length - DataStream.Position))).Replace('-', ' ');
-                Clipboard.SetText(byteString);
                 Debug.WriteLine($"{byteString}");
                 throw new Exception("UNREAD DATA");
             }
@@ -54,11 +53,12 @@ namespace NotInfiltrator.Serialization.Nokia
                 ObjectType.Mesh => new Mesh(info.Data, true),                  // 14
                 ObjectType.SkinnedMesh => new SkinnedMesh(info.Data),          // 16
                 ObjectType.Texture2D => new Texture2D(info.Data),              // 17
+                ObjectType.KeyframeSequence => new KeyframeSequence(info.Data),  // 19
                 ObjectType.VertexArray => new VertexArray(info.Data),          // 20
                 ObjectType.VertexBuffer => new VertexBuffer(info.Data),        // 21
 
-                ObjectType.Unknown100 => new AGenericObject(info.Data),  // NOT PARSED | 100 = SUBMESH, 144 = TEXTURECUBE
-                ObjectType.Unknown101 => new AGenericObject(info.Data),  // NOT PARSED
+                //ObjectType.Unknown100 => new AGenericObject(info.Data),  // NOT PARSED | 100 = SUBMESH, 144 = TEXTURECUBE
+                //ObjectType.Unknown101 => new AGenericObject(info.Data),  // NOT PARSED
 
                 _ => throw new Exception($"Unsupported object type {info.Type}")
             };
@@ -528,6 +528,41 @@ namespace NotInfiltrator.Serialization.Nokia
             WrappingT = (byte)DataStream.ReadByte();
             LevelFilter = (byte)DataStream.ReadByte();
             ImageFilter = (byte)DataStream.ReadByte();
+            AssertEndStream();
+        }
+    }
+
+    public class KeyframeSequence : Object3D
+    {
+        public static new ObjectType? Type => ObjectType.KeyframeSequence;
+
+        public byte Interpolation { get; set; }
+        public byte RepeatMode { get; set; }
+        public byte Encoding { get; set; }
+
+        public UInt32 Duration { get; set; }
+        public UInt32 ValidRangeFirst { get; set; }
+        public UInt32 ValidRangeLast { get; set; }
+
+        public UInt32 ComponentCount { get; set; }
+        public UInt32 KeyframeCount { get; set; }
+
+        public KeyframeSequence(byte[] sourceData)
+            : base(sourceData)
+        {
+            Interpolation = (byte)DataStream.ReadByte();
+            RepeatMode = (byte)DataStream.ReadByte();
+            Encoding = (byte)DataStream.ReadByte();
+
+            Duration = DataStream.ReadUnsigned32Little();
+            ValidRangeFirst = DataStream.ReadUnsigned32Little();
+            ValidRangeLast = DataStream.ReadUnsigned32Little();
+
+            ComponentCount = DataStream.ReadUnsigned32Little();
+            KeyframeCount = DataStream.ReadUnsigned32Little();
+
+
+
             AssertEndStream();
         }
     }

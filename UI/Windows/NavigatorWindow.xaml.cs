@@ -57,7 +57,6 @@ namespace NotInfiltrator.UI.Windows
                 ObservableRootNode = new () { _filesystem.RootNode };
             }, "Updating user interface...");
         }
-
         private void _handleTreeViewSelection(GameFilesystemNode node)
         {
             Action action = node.Content switch
@@ -122,18 +121,6 @@ namespace NotInfiltrator.UI.Windows
             SourceInitialized -= NavigatorWindow_SourceInitialized;
         }
 
-        internal static void GetAllNodeChildren(ref List<GameFilesystemNode> outList, GameFilesystemNode currentNode, string extension = null)
-        {
-            foreach (var childNode in currentNode?.Children)
-            {
-                if (childNode.Content is not null && (extension is null || (extension is not null && childNode.Name.EndsWith(extension))))
-                {
-                    outList.Add(childNode);
-                }
-                GetAllNodeChildren(ref outList, childNode, extension);
-            }
-        }
-
         private void NavigatorWindow_Loaded(object sender, RoutedEventArgs e)
         {
             // Mount the database / filesystem
@@ -146,44 +133,21 @@ namespace NotInfiltrator.UI.Windows
 
                 return Task.CompletedTask;
             })
+
+            /** Open a select node in M3G tool for debug. */
             //.ContinueWith((Task t) =>
             //{
-            //    ExecuteOnUI(() =>
-            //    {
-            //        var nodeToSelectInDebug = _filesystem.FindNode(@"models\object_medical_arm.m3g");
-            //        Debug.WriteLine($"Selecting {nodeToSelectInDebug} for debug");
-            //        _handleTreeViewSelection(nodeToSelectInDebug);
-            //    });
+            //    Experiment_OpenM3GToolWith(@"textures\characters\texture_char_anali.m3g");
             //    return Task.CompletedTask;
             //})
-            .ContinueWith((Task t) =>
-            {
-                Debug.WriteLine($"Searching for .m3g files...");
-                List<GameFilesystemNode> flatNodeList = new();
-                foreach (var startName in new string[] { "models", "textures", "ParticleBaseTextures", "texturepacks_ui", "textures_uncompressed" })
-                {
-                    var startNode = _filesystem.FindNode(startName);
-                    GetAllNodeChildren(ref flatNodeList, startNode, ".m3g");
-                }
-                Debug.WriteLine($"Found {flatNodeList.Count} .m3g files...");
-                SortedSet<int> encounteredObjectTypes = new();
-                List<string> excludedPaths = new()
-                {
-//                    @"models\object_medical_arm.m3g"
-                };
-                foreach (var node in flatNodeList)
-                {
-                    if (excludedPaths.Contains(node.GetPath()))
-                    {
-                        Debug.WriteLine($"Excluding {node.GetPath()}");
-                        continue;
-                    }
-                    Debug.WriteLine($"Started reading {node.GetPath()}");
-                    var mediaContainer = node.Content as MediaContainer ?? throw new Exception();
-                    mediaContainer.Initialize();
-                }
-                return Task.CompletedTask;
-            })
+
+            /** Read all .m3g files to find non-covered object types. */
+            //.ContinueWith((Task t) =>
+            //{
+            //    Experiment_ReadAllM3Gs();
+            //    return Task.CompletedTask;
+            //})
+
             ;
         }
 
@@ -224,5 +188,27 @@ namespace NotInfiltrator.UI.Windows
                 _handleTreeViewSelection(gfsNode);
             }
         }
+
+        #region Experiments
+        internal void Experiment_OpenM3GToolWith(string nodePath)
+        {
+            ExecuteOnUI(() => {
+                var nodeToSelectInDebug = _filesystem.FindNode(nodePath);
+                Debug.WriteLine($"Selecting {nodeToSelectInDebug} for debug");
+                _handleTreeViewSelection(nodeToSelectInDebug);
+            });
+        }
+        internal void Experiment_ReadAllM3Gs()
+        {
+            Debug.WriteLine($"Searching for .m3g files...");
+            foreach (var node in _filesystem.RootNode.FindChildrenRecursively(endsWith: ".m3g"))
+            {
+                Debug.WriteLine($"Started reading {node.GetPath()}");
+                if (node.Content is not MediaContainer m3g)
+                    throw new Exception(".m3g node content was not M3G!");
+                m3g.Initialize();
+            }
+        }
+        #endregion
     }
 }
