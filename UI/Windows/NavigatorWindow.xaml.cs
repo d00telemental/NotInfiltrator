@@ -137,16 +137,16 @@ namespace NotInfiltrator.UI.Windows
             /** Open a select node in M3G tool for debug. */
             //.ContinueWith((Task t) =>
             //{
-            //    Experiment_OpenM3GToolWith(@"textures\characters\texture_char_anali.m3g");
+            //    Experiment_OpenM3GToolWith(@"models\character_boss_krogan.m3g");
             //    return Task.CompletedTask;
             //})
 
             /** Read all .m3g files to find non-covered object types. */
-            //.ContinueWith((Task t) =>
-            //{
-            //    Experiment_ReadAllM3Gs();
-            //    return Task.CompletedTask;
-            //})
+            .ContinueWith((Task t) =>
+            {
+                Experiment_ReadAllM3Gs();
+                return Task.CompletedTask;
+            })
 
             ;
         }

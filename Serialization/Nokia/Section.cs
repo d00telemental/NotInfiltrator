@@ -35,11 +35,17 @@ namespace NotInfiltrator.Serialization.Nokia
 
             ReadingStream = new MemoryStream(ObjectBytes);
 
-            var implementedTypes = new byte[] { 0, 1, 2, 3, 6, 8, 9, 10, 14, 16, 17, /*19,*/ 20, 21 };
+            var implementedTypes = new byte[] { 0, 1, 2, 3, 6, 8, 9, 10, 14, 16, 17, 19, 20, 21 };
             var objectEnumerator = new AgnosticObjectEnumerator(ReadingStream);
-            var objectInfos = objectEnumerator.ReadAll();
 
-            objectInfos.Where(i => implementedTypes.Contains(i.Type)).ToList().ForEach( i => Objects.Add(Object.Read(i)) );
+            foreach (var info in 
+                from info in objectEnumerator.Read()
+                where implementedTypes.Contains(info.Type)
+                select info)
+            {
+                var readObject = Object.Read(info);
+                Objects.Add(readObject);
+            }
         }
     }
 }

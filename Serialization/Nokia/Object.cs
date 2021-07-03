@@ -27,8 +27,8 @@ namespace NotInfiltrator.Serialization.Nokia
         {
             if (DataStream.Position != DataStream.Length)
             {
-                var byteString = BitConverter.ToString(DataStream.ReadBytes((int)(DataStream.Length - DataStream.Position))).Replace('-', ' ');
-                Debug.WriteLine($"{byteString}");
+                DataStream.DebugRemainingBytes();
+                Debugger.Break();
                 throw new Exception("UNREAD DATA");
             }
         }
@@ -91,7 +91,6 @@ namespace NotInfiltrator.Serialization.Nokia
         }
     }
     #endregion
-
 
     public abstract class Object3D : Object
     {
@@ -224,20 +223,6 @@ namespace NotInfiltrator.Serialization.Nokia
         }
     }
     #endregion
-
-    public class AGenericObject : Object3D
-    {
-        public static new ObjectType? Type => null;
-
-        public byte[] UnknownData { get; set; } = null;
-
-        public AGenericObject(byte[] sourceData)
-            : base(sourceData)
-        {
-            UnknownData = DataStream.ReadBytes((int)(DataStream.Length - DataStream.Position));
-            AssertEndStream();
-        }
-    }
 
     #region Non-abstract M3G classes inheriting from Object3D
     public class AnimationController : Object3D
@@ -538,14 +523,19 @@ namespace NotInfiltrator.Serialization.Nokia
 
         public byte Interpolation { get; set; }
         public byte RepeatMode { get; set; }
-        public byte Encoding { get; set; }
+        public byte Encoding { get; set; }  // 0 (float) and 2 (short) are supported, 1 (byte) is not
 
-        public UInt32 Duration { get; set; }
-        public UInt32 ValidRangeFirst { get; set; }
-        public UInt32 ValidRangeLast { get; set; }
+        public uint Duration { get; set; }
+        public uint ValidRangeFirst { get; set; }
+        public uint ValidRangeLast { get; set; }
 
-        public UInt32 ComponentCount { get; set; }
-        public UInt32 KeyframeCount { get; set; }
+        public uint ComponentCount { get; set; }
+        public uint KeyframeCount { get; set; }
+
+        public List<float> VectorBias { get; set; } = null;
+        public List<float> VectorScale { get; set; } = null;
+
+        public List<KeyframeData> Keyframes { get; set; } = new();
 
         public KeyframeSequence(byte[] sourceData)
             : base(sourceData)
@@ -561,9 +551,127 @@ namespace NotInfiltrator.Serialization.Nokia
             ComponentCount = DataStream.ReadUnsigned32Little();
             KeyframeCount = DataStream.ReadUnsigned32Little();
 
+            var mappableLayout = (Encoding & 0x80) != 0;
+            var realEncodingByte = Encoding & 0x7f;  // cut off at 7 bits
 
+            if (!mappableLayout /*|| realEncodingByte != 2u*/) Debugger.Break();
+
+            switch (realEncodingByte)
+            {
+                case 0:
+                    {
+                        // Unencoded floats.
+
+                        if (mappableLayout)
+                        {
+                            var keyframes = new KeyframeData[KeyframeCount];
+
+                            // Allocate keyframe objects.
+                            for (int i = 0; i < KeyframeCount; i++)
+                            {
+                                keyframes[i] = new();
+                            }
+
+                            // Read times.
+                            for (int i = 0; i < KeyframeCount; i++)
+                            {
+                                keyframes[i].Time = DataStream.ReadUnsigned32Little();
+                            }
+
+                            // Read value vectors.
+                            for (int i = 0; i < KeyframeCount; i++)
+                            {
+                                keyframes[i].VectorValue = new();
+                                for (int c = 0; c < ComponentCount; c++)
+                                {
+                                    var fullValue = DataStream.ReadSingleSlow();
+                                    keyframes[i].VectorValue.Add(fullValue);
+                                }
+                            }
+
+                            Keyframes = new(keyframes);
+                        }
+                        else
+                        {
+                            // These don't occur in the game.
+                            throw new NotImplementedException();
+                        }
+                        break;
+                    }
+                case 1:
+                    {
+                        // The game doesn't support byte encoding, so we don't either.
+                        throw new Exception($"Unsupported KeyframeSequence encoding value (1)");
+                    }
+                case 2:
+                    {
+                        // Encoded shorts.
+
+                        VectorBias = new ();
+                        VectorScale = new ();
+
+                        for (int i = 0; i < ComponentCount; i++) VectorBias.Add(DataStream.ReadSingleSlow());
+                        for (int i = 0; i < ComponentCount; i++) VectorScale.Add(DataStream.ReadSingleSlow());
+                        for (int i = 0; i < ComponentCount; i++)
+                        {
+                            VectorScale[i] = (VectorScale[i] * 1.0f) / 65535.0f;  // TODO: does this *actually* need to happen?
+                        }
+
+                        if (mappableLayout)
+                        {
+                            var keyframes = new KeyframeData[KeyframeCount];
+                            
+                            // Allocate keyframe objects.
+                            for (int i = 0; i < KeyframeCount; i++)
+                            {
+                                keyframes[i] = new ();
+                            }
+
+                            // Read times.
+                            for (int i = 0; i < KeyframeCount; i++)
+                            {
+                                keyframes[i].Time = DataStream.ReadUnsigned32Little();
+                            }
+
+                            // Read value vectors.
+                            for (int i = 0; i < KeyframeCount; i++)
+                            {
+                                keyframes[i].VectorValue = new();
+                                for (int c = 0; c < ComponentCount; c++)
+                                {
+                                    var shortValue = (float)DataStream.ReadUnsigned16Little();
+
+                                    // TODO: this conversion might actually be wrong!
+
+                                    shortValue /= 65535.0f;
+                                    shortValue *= VectorScale[c];
+                                    shortValue += VectorBias[c];
+
+                                    keyframes[i].VectorValue.Add(shortValue);
+                                }
+                            }
+
+                            Keyframes = new (keyframes);
+                        }
+                        else
+                        {
+                            // These don't occur in the game.
+                            throw new NotImplementedException();
+                        }
+                        break;
+                    }
+                default:
+                    {
+                        throw new Exception($"Invalid KeyframeSequence encoding value (lower seven bits = {realEncodingByte})");
+                    }
+            }
 
             AssertEndStream();
+
+            //for (int i = 0; i < KeyframeCount; i++)
+            //{
+            //    Debug.WriteLine($"Keyframe #{i} = at {Keyframes[i].Time} values are {String.Join(" ; ", Keyframes[i].VectorValue)}");
+            //}
         }
     }
 

@@ -27,7 +27,7 @@ namespace NotInfiltrator.Serialization.Nokia
         SkinnedMesh = 16,          // read
         Texture2D = 17,            // read
         Sprite = 18,               //   unused
-        KeyframeSequence = 19,
+        KeyframeSequence = 19,     //     TODO
         VertexArray = 20,          // read
         VertexBuffer = 21,         // read
         World = 22,                //   unused

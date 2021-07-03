@@ -9,10 +9,10 @@ namespace NotInfiltrator.Serialization
     [DebuggerDisplay("GameFilesystemNode({Name})")]
     public class GameFilesystemNode
     {
-        public string Name { get; private set; } = null;
+        public string Name { get; set; } = null;
         public GameFileContent Content { get; set; } = null;
-        public List<GameFilesystemNode> Children { get; } = new ();
-        public WeakReference<GameFilesystemNode> ParentRef { get; private set; } = null;
+        public List<GameFilesystemNode> Children { get; set; } = new ();
+        public WeakReference<GameFilesystemNode> ParentRef { get; set; } = null;
 
         public GameFilesystemNode(GameFilesystemNode parent, string name)
         {
@@ -26,9 +26,9 @@ namespace NotInfiltrator.Serialization
         }
 
         public GameFilesystemNode EmplaceChildIfNotExists(string name)
-            => FindDirectChild(name) ?? new (this, name);
+            => FindChild(name) ?? new (this, name);
 
-        public GameFilesystemNode FindDirectChild(string name)
+        public GameFilesystemNode FindChild(string name)
         {
             var children = Children.Where(node => (node.Name?.ToUpper() ?? "") == name.ToUpper());
             return children.Count() == 0 ? null : children.Single();
@@ -63,24 +63,18 @@ namespace NotInfiltrator.Serialization
             }
         }
 
-        public string GetPath(char separator = '\\', bool removeVirtualRoot = true)
+        public string GetPath(char separator = '\\')
         {
             List<string> pathChunks = new ();
             GameFilesystemNode floatNode = this;
+
             do
             {
                 pathChunks.Add(floatNode.Name);
             } while (floatNode.ParentRef?.TryGetTarget(out floatNode) ?? false);
 
-            if (removeVirtualRoot)
-            {
-                pathChunks = pathChunks.SkipLast(1).ToList();
-            }
             pathChunks.Reverse();
-
-            StringBuilder sb = new();
-            sb.AppendJoin(separator, pathChunks);
-            return sb.ToString();
+            return new StringBuilder().AppendJoin(separator, pathChunks.Skip(1)).ToString();
         }
 
         // TODO: implement something like https://stackoverflow.com/a/12377822

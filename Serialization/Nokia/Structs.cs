@@ -111,6 +111,15 @@ namespace NotInfiltrator.Serialization.Nokia
         }
     }
 
+    [DebuggerDisplay("{ToString()}")]
+    public struct KeyframeData
+    {
+        public uint Time { get; set; }
+        public List<float> VectorValue { get; set; }
+        public override string ToString()
+            => $"Time = {Time}; VectorValue = {String.Join(", ", VectorValue)}";
+    }
+
     public struct AnimationGroup
     {
         /// <summary>
