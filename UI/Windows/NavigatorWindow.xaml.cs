@@ -201,7 +201,7 @@ namespace NotInfiltrator.UI.Windows
         internal void Experiment_ReadAllM3Gs()
         {
             Debug.WriteLine($"Searching for .m3g files...");
-            foreach (var node in _filesystem.RootNode.FindChildrenRecursively(endsWith: ".m3g"))
+            foreach (var node in _filesystem.RootNode.FindChildrenRecursively(endsWith: ".m3g").Where(node => node.GetPath().StartsWith("models")))
             {
                 Debug.WriteLine($"Started reading {node.GetPath()}");
                 if (node.Content is not MediaContainer m3g)

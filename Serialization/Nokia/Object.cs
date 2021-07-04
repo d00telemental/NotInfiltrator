@@ -29,7 +29,7 @@ namespace NotInfiltrator.Serialization.Nokia
             {
                 DataStream.DebugRemainingBytes();
                 Debugger.Break();
-                throw new Exception("UNREAD DATA");
+                throw new Exception("AssertEndStream: unread data!");
             }
         }
 
@@ -57,8 +57,15 @@ namespace NotInfiltrator.Serialization.Nokia
                 ObjectType.VertexArray => new VertexArray(info.Data),          // 20
                 ObjectType.VertexBuffer => new VertexBuffer(info.Data),        // 21
 
-                //ObjectType.Unknown100 => new AGenericObject(info.Data),  // NOT PARSED | 100 = SUBMESH, 144 = TEXTURECUBE
-                //ObjectType.Unknown101 => new AGenericObject(info.Data),  // NOT PARSED
+                // Submeshes:
+
+                ObjectType.Unknown100 => new Unknown100(info.Data),            // 100
+                ObjectType.Unknown102 => new Unknown102(info.Data),            // 102
+                ObjectType.Unknown103 => new Unknown103(info.Data),            // 103
+
+                // ?
+
+                ObjectType.Unknown101 => null,                                 // 101
 
                 _ => throw new Exception($"Unsupported object type {info.Type}")
             };
@@ -840,6 +847,84 @@ namespace NotInfiltrator.Serialization.Nokia
             {
                 // something happens there as well
             }
+            AssertEndStream();
+        }
+    }
+
+    public class Unknown100 : Object3D
+    {
+        public static new ObjectType? Type => ObjectType.Unknown100;
+
+        public uint IndexBuffer { get; set; }
+        public uint Appearance { get; set; }
+
+        public Unknown100(byte[] sourceData)
+            : base(sourceData)
+        {
+            IndexBuffer = DataStream.ReadUnsigned32Little();
+            Appearance = DataStream.ReadUnsigned32Little();
+
+            Debug.WriteLine($"Read Unknown100: ib = {IndexBuffer}, appearance = {Appearance}");
+
+            AssertEndStream();
+        }
+    }
+    public class Unknown102 : Object3D
+    {
+        public static new ObjectType? Type => ObjectType.Unknown102;
+
+        public uint IndexBuffer { get; set; }
+        public uint Appearance { get; set; }
+
+        public List<uint> VertexBuffersC { get; set; } = new ();
+
+        public Unknown102(byte[] sourceData)
+            : base(sourceData)
+        {
+            IndexBuffer = DataStream.ReadUnsigned32Little();
+            Appearance = DataStream.ReadUnsigned32Little();
+
+            var vertexBufferCount = DataStream.ReadSigned32Little();
+            for (int i = 0; i < vertexBufferCount; i++)
+            {
+                VertexBuffersC.Add(DataStream.ReadUnsigned32Little());
+            }
+
+            Debug.WriteLine($"Read Unknown102: ib = {IndexBuffer}, appearance = {Appearance}, vertex buffer count = {VertexBuffersC.Count}");
+
+            AssertEndStream();
+        }
+    }
+    public class Unknown103 : Object3D
+    {
+        public static new ObjectType? Type => ObjectType.Unknown103;
+
+        public uint IndexBuffer { get; set; }
+        public uint Appearance { get; set; }
+
+        public List<uint> VertexBuffersC { get; set; } = new();
+        public List<uint> IndexBuffersD { get; set; } = new();
+
+        public Unknown103(byte[] sourceData)
+            : base(sourceData)
+        {
+            IndexBuffer = DataStream.ReadUnsigned32Little();
+            Appearance = DataStream.ReadUnsigned32Little();
+
+            var vertexBufferCount = DataStream.ReadSigned32Little();
+            for (int i = 0; i < vertexBufferCount; i++)
+            {
+                VertexBuffersC.Add(DataStream.ReadUnsigned32Little());
+            }
+
+            var indexBufferCount = DataStream.ReadSigned32Little();  // ? LOD count ?
+            for (int i = 0; i < indexBufferCount; i++)
+            {
+                IndexBuffersD.Add(DataStream.ReadUnsigned32Little());
+            }
+
+            Debug.WriteLine($"Read Unknown103: ib = {IndexBuffer}, appearance = {Appearance}, vertex buffer count = {VertexBuffersC.Count}, index buffer count = {IndexBuffersD.Count}");
+
             AssertEndStream();
         }
     }

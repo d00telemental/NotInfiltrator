@@ -27,14 +27,14 @@ namespace NotInfiltrator.Serialization.Nokia
         SkinnedMesh = 16,          // read
         Texture2D = 17,            // read
         Sprite = 18,               //   unused
-        KeyframeSequence = 19,     //     TODO
+        KeyframeSequence = 19,     // read
         VertexArray = 20,          // read
         VertexBuffer = 21,         // read
         World = 22,                //   unused
-        /**/ Unknown100 = 100,     //     ? = submesh
-        /**/ Unknown101 = 101,     //     ? = triangle list / index buffer
-        /**/ Unknown102 = 102,     //     ? = submesh
-        /**/ Unknown103 = 103,     //     ? = submesh
+        /**/ Unknown100 = 100,     // read
+        /**/ Unknown101 = 101,     //   TODO /? triangle list <- index buffer
+        /**/ Unknown102 = 102,     // read
+        /**/ Unknown103 = 103,     // read
         ExternalReference = 255,   //   unused
     }
 }
