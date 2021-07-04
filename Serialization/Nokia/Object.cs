@@ -63,9 +63,9 @@ namespace NotInfiltrator.Serialization.Nokia
                 ObjectType.Unknown102 => new Unknown102(info.Data),            // 102
                 ObjectType.Unknown103 => new Unknown103(info.Data),            // 103
 
-                // ?
+                // Triangle array <- index buffer
 
-                ObjectType.Unknown101 => null,                                 // 101
+                ObjectType.Unknown101 => new Unknown101(info.Data),            // 101
 
                 _ => throw new Exception($"Unsupported object type {info.Type}")
             };
@@ -227,6 +227,83 @@ namespace NotInfiltrator.Serialization.Nokia
             : base(sourceData)
         {
             Image = DataStream.ReadUnsigned32Little();
+        }
+    }
+
+    public abstract class IndexBuffer : Object3D
+    {
+        public static new ObjectType? Type => null;
+
+        public byte Encoding { get; set; }
+        public uint? FirstIndex { get; set; }
+        public List<uint> Indices { get; set; } = new();
+
+        public IndexBuffer(byte[] sourceData)
+            : base(sourceData)
+        {
+            Encoding = (byte)DataStream.ReadByte();
+
+            bool implicitIndices = (Encoding & 0x80) == 0;
+            byte realEncoding = (byte)(Encoding & 0x7f);
+
+            if (implicitIndices)
+            {
+                switch (realEncoding)
+                {
+                    case 0:
+                        {
+                            FirstIndex = DataStream.ReadUnsigned32Little();
+                            break;
+                        }
+                    case 1:
+                        {
+                            FirstIndex = (byte)DataStream.ReadByte();
+                            break;
+                        }
+                    case 2:
+                        {
+                            FirstIndex = DataStream.ReadUnsigned16Little();
+                            break;
+                        }
+                    default:
+                        throw new Exception($"Encoding with upper bit == {(implicitIndices ? 0 : 1)} and lower 7 bits == {realEncoding} is unsupported");
+                }
+            }
+            else
+            {
+                switch (realEncoding)
+                {
+                    case 0:
+                        {
+                            var indiceCount = DataStream.ReadSigned32Little();
+                            for (int i = 0; i < indiceCount; i++)
+                            {
+                                Indices.Add(DataStream.ReadUnsigned32Little());
+                            }
+                            break;
+                        }
+                    case 1:
+                        {
+                            var indiceCount = DataStream.ReadSigned32Little();
+                            for (int i = 0; i < indiceCount; i++)
+                            {
+                                Indices.Add((uint)DataStream.ReadByte());
+                            }
+                            break;
+                        }
+                    case 2:
+                        {
+                            var indiceCount = DataStream.ReadSigned32Little();
+                            for (int i = 0; i < indiceCount; i++)
+                            {
+                                Indices.Add(DataStream.ReadUnsigned16Little());
+                            }
+                            break;
+                        }
+                    default:
+                        throw new Exception($"Encoding with upper bit == {(implicitIndices ? 0 : 1)} and lower 7 bits == {realEncoding} is unsupported");
+                }
+            }
         }
     }
     #endregion
@@ -864,8 +941,7 @@ namespace NotInfiltrator.Serialization.Nokia
             IndexBuffer = DataStream.ReadUnsigned32Little();
             Appearance = DataStream.ReadUnsigned32Little();
 
-            Debug.WriteLine($"Read Unknown100: ib = {IndexBuffer}, appearance = {Appearance}");
-
+            // Debug.WriteLine($"Read Unknown100: ib = {IndexBuffer}, appearance = {Appearance}");
             AssertEndStream();
         }
     }
@@ -890,8 +966,7 @@ namespace NotInfiltrator.Serialization.Nokia
                 VertexBuffersC.Add(DataStream.ReadUnsigned32Little());
             }
 
-            Debug.WriteLine($"Read Unknown102: ib = {IndexBuffer}, appearance = {Appearance}, vertex buffer count = {VertexBuffersC.Count}");
-
+            // Debug.WriteLine($"Read Unknown102: ib = {IndexBuffer}, appearance = {Appearance}, vertex buffer count = {VertexBuffersC.Count}");
             AssertEndStream();
         }
     }
@@ -923,8 +998,23 @@ namespace NotInfiltrator.Serialization.Nokia
                 IndexBuffersD.Add(DataStream.ReadUnsigned32Little());
             }
 
-            Debug.WriteLine($"Read Unknown103: ib = {IndexBuffer}, appearance = {Appearance}, vertex buffer count = {VertexBuffersC.Count}, index buffer count = {IndexBuffersD.Count}");
+            // Debug.WriteLine($"Read Unknown103: ib = {IndexBuffer}, appearance = {Appearance}, vertex buffer count = {VertexBuffersC.Count}, index buffer count = {IndexBuffersD.Count}");
+            AssertEndStream();
+        }
+    }
 
+    public class Unknown101 : IndexBuffer
+    {
+        public static new ObjectType? Type => ObjectType.Unknown101;
+
+        public int PrimitiveType { get; set; }
+        public int PrimitiveCount { get; set; }
+
+        public Unknown101(byte[] sourceData)
+            : base(sourceData)
+        {
+            PrimitiveType = 8;
+            PrimitiveCount = DataStream.ReadSigned32Little();
             AssertEndStream();
         }
     }
